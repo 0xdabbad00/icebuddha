@@ -28,9 +28,12 @@ function dispAscii(val) {
 
 
 function handleFinishedRead(evt) {
+	
 	if(evt.target.readyState == FileReader.DONE) {// DONE == 2
+		
 		var output = ["<div id='byte_content'>"];
-		var data =  Int8Array(evt.target.result, 0, evt.target.result.byteLength);
+		var data =  new Uint8Array(evt.target.result, 0, evt.target.result.byteLength);
+		
 		var column = 0;
 		for (var i = 0; i < data.length; i++) {
 			// Show address
@@ -77,6 +80,7 @@ function handleFinishedRead(evt) {
 		
 		output.push("</div>");
 		document.getElementById('content').innerHTML = output.join("");
+		
 	}
 }
 
@@ -95,8 +99,9 @@ function handleFileSelect(evt) {
 	var reader = new FileReader();
 	reader.onloadend = handleFinishedRead;
 	
+	// Determine how much to read
 	var start = 0;
-	var end = 10000;
+	var end = file.size;
 	if(file.webkitSlice) {
 		var blob = file.webkitSlice(start, end + 1);
 	} else if(file.mozSlice) {
