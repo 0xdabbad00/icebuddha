@@ -1,0 +1,68 @@
+body {
+	background-color:#FFFFFF;
+	margin:0;
+	padding:0;
+	height:100%; /* needed for container min-height */
+}
+
+body, th, td, .buttonstyle, textarea, input {
+  font-family: arial, Verdana; 
+  font-size: 80%;
+}
+
+div#container {
+	position:relative; /* needed for footer positioning*/
+	margin:0 auto; /* center, not in IE5 */
+	width:750px;
+	background:#f0f0f0;
+	
+	height:auto !important; /* real browsers */
+	height:100%; /* IE6: treaded as min-height*/
+
+	min-height:100%; /* real browsers */
+}
+
+div#header {
+	background:#ffffff;
+}
+
+div#subheader {
+	background:#f0f0f0;
+}
+
+div#drop_zone {
+ border: 3px dashed #D0D0D0;
+ height:100%;
+ border-radius: 100px;
+ width: 100%;
+ margin:5px;
+ text-align: center;
+ font-size: 500%;
+ text-color: #D0D0D0;
+ valign: center;
+}
+
+div#byte_content {
+ border: 1px solid #A0A0A0;
+ padding: 3px;
+ margin: 1px;
+ min-height:100%;  /* browser fill */
+ height: auto;
+ font-family: monospace, monospace;
+ 
+}
+
+div#content {
+ height: auto;
+ 
+ padding:0 0 20px; /* bottom padding for footer */
+}
+
+div#footer {
+	position:absolute;
+	width:100%;
+	bottom:0; /* stick to bottom */
+	height: 20px;
+	background:#ddd;
+}
+	
