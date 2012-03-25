@@ -71,3 +71,10 @@ div#byte_content {
  min-height:100%; /* real browsers */
  font-family: monospace, monospace;
 }
+
+i.address {
+  color: #A0A0A0;
+}
+i.ascii {
+  color: #A0A0A0;
+}
