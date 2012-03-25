@@ -21,7 +21,7 @@ function handleFinishedRead(evt) {
 			output.push(hex(data[i]&0x0f));
 			output.push(" ");
 		}
-		output.push("</div>")
+		output.push("</div>");
 		document.getElementById('content').innerHTML = output.join("");
 	}
 }
