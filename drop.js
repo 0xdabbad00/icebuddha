@@ -101,11 +101,11 @@ function handleFileSelect(evt) {
 	
 	// Determine how much to read
 	var start = 0;
-	var end = file.size;
+	var end = 16*100;
 	if(file.webkitSlice) {
-		var blob = file.webkitSlice(start, end + 1);
+		var blob = file.webkitSlice(start, end);
 	} else if(file.mozSlice) {
-		var blob = file.mozSlice(start, end + 1);
+		var blob = file.mozSlice(start, end);
 	}
 	
 	reader.readAsArrayBuffer(blob);
@@ -119,6 +119,6 @@ function handleDragOver(evt) {
 }
 
 // Setup the dnd listeners.
-var dropZone = document.getElementById('drop_zone');
+var dropZone = document.getElementById('container');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileSelect, false);

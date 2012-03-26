@@ -13,7 +13,7 @@ body, th, td, .buttonstyle, textarea, input {
 div#container {
 	position:relative; /* needed for footer positioning*/
 	margin:0 auto; /* center, not in IE5 */
-	width:750px;
+	width:800px;
 	background:#f0f0f0;
 	
 	height:auto !important; /* real browsers */
@@ -66,9 +66,6 @@ div#byte_content {
  padding: 3px;
  margin: 1px;
  
- height:auto !important; /* real browsers */
- height:100%; /* IE6: treated as min-height*/
- min-height:100%; /* real browsers */
  font-family: monospace, monospace;
 }
 
