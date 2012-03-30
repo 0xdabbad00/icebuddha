@@ -77,18 +77,27 @@ div#byte_content {
  
  padding: 3px;
  margin: 1px;
-}
-
-td, div#byte_content {
-font-family: monospace, monospace;
- max-height: 200px;
+ 
  overflow-y: scroll;
  overflow-x: hidden;
 }
 
-i.address {
+.hex, .address, .ascii, div#byte_content {
+ font-family: monospace, monospace;
+ max-height: 200px;
+}
+
+
+.hex::selection, .address::selection, .ascii::selection {
+  background: #fff2a8;
+}
+.hex::-moz-selection, .address::-moz-selection, .ascii::-moz-selection {
+  background: #fff2a8;
+}
+
+.address {
   color: #A0A0A0;
 }
-i.ascii {
+.ascii {
   color: #A0A0A0;
 }
