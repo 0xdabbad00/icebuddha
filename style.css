@@ -77,8 +77,10 @@ div#byte_content {
  
  padding: 3px;
  margin: 1px;
- 
- font-family: monospace, monospace;
+}
+
+td, div#byte_content {
+font-family: monospace, monospace;
  max-height: 200px;
  overflow-y: scroll;
  overflow-x: hidden;
