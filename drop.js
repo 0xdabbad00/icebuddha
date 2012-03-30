@@ -48,7 +48,7 @@ function handleFinishedRead(evt) {
 		for (var i = 0; i < data.length; i++) {
 			// Show address
 			if (column == 0) {
-				address.push("<i class=address>0x"+intToHex(i)+"</i><br>\n");
+				address.push("0x"+intToHex(i)+"<br>\n");
 			}
 			// Show value
 			hex.push(convertToHex((data[i]&0xf0)>>4));
@@ -58,12 +58,11 @@ function handleFinishedRead(evt) {
 			column++;
 			if (column % 16 == 0) {
 				hex.push("<br>\n");
-				ascii.push("<i class=ascii>");
 				// Show ASCII
 				for (j = i - 15; j <= i; j++) {
 					ascii.push(dispAscii(data[j]));
 				}
-				ascii.push("</i><br>\n");
+				ascii.push("<br>\n");
 				column = 0;
 			} else if (column % 8 == 0) {
 				hex.push("&nbsp;");
@@ -85,15 +84,17 @@ function handleFinishedRead(evt) {
 			ascii.push("&nbsp;<i class=ascii>");
 			for (j = i - (i%16); j <= i; j++) {
 				ascii.push(dispAscii(data[j]));
+				
 			}
 			ascii.push("</i>");
 		}
 		
-		output.push("<table border=0 cellpadding=0 cellspacing=0><tr><td style=\"padding: 0 10px 0 0;\">");
+		output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
+		output.push("<td class=\"address\" style=\"padding: 0 10px 0 0;\">");
 		output.push(address.join(""));
-		output.push("<td style=\"padding: 0 10px 0 0;\">");
+		output.push("<td class=\"hex\" style=\"padding: 0 10px 0 0;\">");
 		output.push(hex.join(""));
-		output.push("<td>");
+		output.push("<td class=\"ascii\">");
 		output.push(ascii.join(""));
 		
 		output.push("</table>");
