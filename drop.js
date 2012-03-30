@@ -1,3 +1,9 @@
+// Project TODO
+// TODO: Use blackbird for logging: http://www.gscottolson.com/blackbirdjs/
+// TODO: Use Sausage for infinite scrolling: http://christophercliff.github.com/sausage/
+// TODO: Also http://imakewebthings.com/jquery-waypoints/
+// TODO: Use Peg.js (http://pegjs.majda.cz/) or ometa for dsl parsing
+
 // TODO: Add progress reporting and error handling from http://www.html5rocks.com/en/tutorials/file/dndfiles/#toc-monitoring-progress
 
 
@@ -93,6 +99,7 @@ function handleFileSelect(evt) {
 
 	var output = [];
 	var file = files[0];  // File object
+	log.info("Loading: "+escape(file.name));
 	output.push('<strong>' + escape(file.name)+ '</strong> - ' + file.size + ' bytes');
 	document.getElementById('subheader').innerHTML = output.join(); 
 
