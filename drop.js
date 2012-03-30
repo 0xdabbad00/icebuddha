@@ -51,17 +51,21 @@ function handleFinishedRead(evt) {
 				address.push("0x"+intToHex(i)+"<br>\n");
 			}
 			// Show value
+			hex.push("<tt id=\"h"+i+"\" class=\"hex\">");
 			hex.push(convertToHex((data[i]&0xf0)>>4));
 			hex.push(convertToHex(data[i]&0x0f));
+			hex.push("</tt>");
+			
+			// Show ascii
+			ascii.push("<tt id=\"a"+i+"\" class=\"ascii\">");
+			ascii.push(dispAscii(data[i]));
+			ascii.push("</tt>");
 			
 			// Add extra formatting
 			column++;
 			if (column % 16 == 0) {
 				hex.push("<br>\n");
-				// Show ASCII
-				for (j = i - 15; j <= i; j++) {
-					ascii.push(dispAscii(data[j]));
-				}
+				
 				ascii.push("<br>\n");
 				column = 0;
 			} else if (column % 8 == 0) {
@@ -70,6 +74,7 @@ function handleFinishedRead(evt) {
 			hex.push(" ");
 		}
 		
+		// TODO do something with these extra guys
 		if (i % 16 != 0) {
 			// Pad to ascii
 			for (j = i%16; j < 16; j++) {
@@ -92,15 +97,17 @@ function handleFinishedRead(evt) {
 		output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
 		output.push("<td class=\"address\" style=\"padding: 0 10px 0 0;\">");
 		output.push(address.join(""));
-		output.push("<td class=\"hex\" style=\"padding: 0 10px 0 0;\">");
+		output.push("<td style=\"padding: 0 10px 0 0;\">");
 		output.push(hex.join(""));
-		output.push("<td class=\"ascii\">");
+		output.push("<td>");
 		output.push(ascii.join(""));
 		
 		output.push("</table>");
 		output.push("</div>");
 		document.getElementById('content').innerHTML = output.join("");
 		
+		$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+		$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 	}
 }
 
@@ -143,3 +150,23 @@ function handleDragOver(evt) {
 var dropZone = document.getElementById('container');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileSelect, false);
+
+
+
+// Set mouse-over
+function mouseoverBytes() {
+	var currentId = this.id;
+	var byte = currentId.substring(1, currentId.length); 
+    $("#a"+byte).addClass( "hovered");
+    $("#h"+byte).addClass( "hovered");
+  }
+
+function mouseoutBytes() {
+	var currentId = this.id;
+	var byte = currentId.substring(1, currentId.length); 
+    $("#a"+byte).removeClass( "hovered");
+    $("#h"+byte).removeClass( "hovered");
+  };
+  
+  
+
