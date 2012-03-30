@@ -87,11 +87,15 @@ div#byte_content {
  max-height: 200px;
 }
 
+.hex:hover, .ascii:hover, .hovered {
+  background: #c0c0c0;
+}
 
-.hex::selection, .address::selection, .ascii::selection {
+
+.hex::selection, .address::selection, .ascii::selection, td::selection {
   background: #fff2a8;
 }
-.hex::-moz-selection, .address::-moz-selection, .ascii::-moz-selection {
+.hex::-moz-selection, .address::-moz-selection, .ascii::-moz-selection, td::-moz-selection {
   background: #fff2a8;
 }
 
