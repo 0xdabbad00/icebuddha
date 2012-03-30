@@ -1,12 +1,13 @@
 body {
-	background-color:#FFFFFF;
+	background-color:#D0D0D0;
 	margin:0;
 	padding:0;
 	height:100%; /* needed for container min-height */
 }
 
 body, th, td, .buttonstyle, textarea, input {
-  font-family: arial, Verdana; 
+  font-family: arial, Verdana;
+  color: #444444;
   font-size: 80%;
 }
 
@@ -22,19 +23,25 @@ div#container {
 }
 
 div#header {
-	background:#ffffff;
+	background:#666;
+	color: #eee;
+	height: 20px;
+	padding: 5px;
+	font-size: 110%;
 }
 
 div#subheader {
 	background:#f0f0f0;
+	padding: 0 0 0 1px;
 }
 
 div#drop_zone {
- border: 2px dashed #A0A0A0;
+ border: 2px dashed #909090;
  width: 80%;
 
  margin: 10px;
- //padding: 10px;
+ padding: 10px;
+ 
  /* Center */
  margin-left: auto;
  margin-right: auto;
@@ -43,13 +50,17 @@ div#drop_zone {
  text-color: #D0D0D0;
  
  font-size: 800%;
- color: #A0A0A0;
+ color: #909090;
+ 
+ background: #e0e0e0;
+ 
+ box-shadow: rgba(0, 0, 0, 0.5) 0 0 6px 0
 }
 
 
 div#content {
  height: auto;
- padding:0 0 20px 0; /* bottom padding for footer */
+ padding:0px 0px 20px 0px; /* bottom padding for footer */
 }
 
 div#footer {
@@ -57,7 +68,8 @@ div#footer {
 	width:100%;
 	bottom:0; /* stick to bottom */
 	height: 20px;
-	background:#ddd;
+	color: #eee;
+	background:#666;
 }
 	
 div#byte_content {
@@ -67,6 +79,9 @@ div#byte_content {
  margin: 1px;
  
  font-family: monospace, monospace;
+ max-height: 200px;
+ overflow-y: scroll;
+ overflow-x: hidden;
 }
 
 i.address {
