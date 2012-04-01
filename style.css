@@ -12,6 +12,11 @@ body, th, td, .buttonstyle, textarea, input {
   vertical-align: top;
 }
 
+a:link {color: #eee; text-decoration: none; }
+a:active {color: #eee; text-decoration: none; }
+a:visited {color: #eee; text-decoration: none; }
+a:hover {color: #aaa; text-decoration: underline; }
+
 div#ad {
 	top: 0px;
 	margin: 0px 0px 0px 0px;
@@ -39,6 +44,7 @@ div#header {
 	padding: 5px;
 	font-size: 110%;
 }
+
 
 div#subheader {
 	background:#f0f0f0;
