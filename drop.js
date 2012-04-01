@@ -7,6 +7,8 @@
 // TODO: Add progress reporting and error handling from http://www.html5rocks.com/en/tutorials/file/dndfiles/#toc-monitoring-progress
 
 
+var data;
+
 function convertToHex(dec)
 {
     var hexArray = new Array( "0", "1", "2", "3",
@@ -37,8 +39,8 @@ function handleFinishedRead(evt) {
 	
 	if(evt.target.readyState == FileReader.DONE) {// DONE == 2
 		
-		var output = ["<div id='byte_content'>"];
-		var data =  new Uint8Array(evt.target.result, 0, evt.target.result.byteLength);
+		var output = [""];
+		data =  new Uint8Array(evt.target.result, 0, evt.target.result.byteLength);
 		
 		var address = [""];
 		var hex = [""];
@@ -48,66 +50,48 @@ function handleFinishedRead(evt) {
 		for (var i = 0; i < data.length; i++) {
 			// Show address
 			if (column == 0) {
-				address.push("0x"+intToHex(i)+"<br>\n");
+				address.push(intToHex(i)+"h<br>\n");
 			}
 			// Show value
-			hex.push("<tt id=\"h"+i+"\" class=\"hex\">");
+			hex.push("<i id=\"h"+i+"\" class=\"hex\">");
 			hex.push(convertToHex((data[i]&0xf0)>>4));
 			hex.push(convertToHex(data[i]&0x0f));
-			hex.push("</tt>");
+			hex.push("</i>");
 			
 			// Show ascii
-			ascii.push("<tt id=\"a"+i+"\" class=\"ascii\">");
+			ascii.push("<i id=\"a"+i+"\" class=\"ascii\">");
 			ascii.push(dispAscii(data[i]));
-			ascii.push("</tt>");
+			ascii.push("</i>");
 			
 			// Add extra formatting
 			column++;
 			if (column % 16 == 0) {
 				hex.push("<br>\n");
-				
 				ascii.push("<br>\n");
 				column = 0;
 			} else if (column % 8 == 0) {
-				hex.push("&nbsp;");
+			hex.push("<i class=\"hex\">&nbsp;</i>");
 			}
 			hex.push(" ");
 		}
 		
-		// TODO do something with these extra guys
-		if (i % 16 != 0) {
-			// Pad to ascii
-			for (j = i%16; j < 16; j++) {
-				//output.push("&nbsp;&nbsp;&nbsp;");
-				hex.push("&nbsp;&nbsp;&nbsp;");
-				if (j % 8  == 0 && (i%16 != 8)) {
-					hex.push("&nbsp;");
-				}
-			}
-			
-			// Disp remaining ascii
-			ascii.push("&nbsp;<i class=ascii>");
-			for (j = i - (i%16); j <= i; j++) {
-				ascii.push(dispAscii(data[j]));
-				
-			}
-			ascii.push("</i>");
-		}
-		
 		output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
-		output.push("<td class=\"address\" style=\"padding: 0 10px 0 0;\">");
+		output.push("<td class=\"bytes address\" style=\"padding: 0 10px 0 0;\">");
 		output.push(address.join(""));
-		output.push("<td style=\"padding: 0 10px 0 0;\">");
+		output.push("<td class=\"bytes\" style=\"padding: 0 10px 0 0;\">");
 		output.push(hex.join(""));
-		output.push("<td>");
+		output.push("<td class=\"bytes\">");
 		output.push(ascii.join(""));
 		
 		output.push("</table>");
-		output.push("</div>");
-		document.getElementById('content').innerHTML = output.join("");
+		document.getElementById('byte_content').innerHTML = output.join("");
+		
+		SetValueElement(0);
 		
 		$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 		$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+		
+		//$(".ascii").select(mouseoverBytes).mouseout(mouseoutBytes);
 	}
 }
 
@@ -123,6 +107,14 @@ function handleFileSelect(evt) {
 	log.info("Loading: "+escape(file.name));
 	output.push('<strong>' + escape(file.name)+ '</strong> - ' + file.size + ' bytes');
 	document.getElementById('subheader').innerHTML = output.join(); 
+	
+	output = [];
+	output.push("<table border=0 cellpadding=0 cellspacing=0>\n");
+	output.push("<tr><td width=650px>\n");
+	output.push("<div id=\"byte_content\">&nbsp;</div>\n");
+	output.push("<td id=\"value\">");
+	output.push("</table>\n");
+	document.getElementById('content').innerHTML = output.join("");
 
 	var reader = new FileReader();
 	reader.onloadend = handleFinishedRead;
@@ -159,6 +151,8 @@ function mouseoverBytes() {
 	var byte = currentId.substring(1, currentId.length); 
     $("#a"+byte).addClass( "hovered");
     $("#h"+byte).addClass( "hovered");
+    
+    SetValueElement(byte);
   }
 
 function mouseoutBytes() {
@@ -168,5 +162,9 @@ function mouseoutBytes() {
     $("#h"+byte).removeClass( "hovered");
   };
   
-  
-
+function SetValueElement(byte) {
+//Set value
+  var output = [""];
+  output.push("Offset: "+intToHex(parseInt(byte))+"h<br>");
+  document.getElementById('value').innerHTML = output.join("");  
+}
