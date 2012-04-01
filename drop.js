@@ -15,7 +15,7 @@ function convertToHex(dec)
                               "4", "5", "6", "7",
                               "8", "9", "A", "B",
                               "C", "D", "E", "F" );
-    var decToHex = hexArray[dec];
+    var decToHex = hexArray[(dec&0xf0)>>4]+hexArray[(dec&0x0f)];
     return (decToHex);
 }
 
@@ -54,8 +54,7 @@ function handleFinishedRead(evt) {
 			}
 			// Show value
 			hex.push("<i id=\"h"+i+"\" class=\"hex\">");
-			hex.push(convertToHex((data[i]&0xf0)>>4));
-			hex.push(convertToHex(data[i]&0x0f));
+			hex.push(convertToHex(data[i]));
 			hex.push("</i>");
 			
 			// Show ascii
@@ -162,9 +161,29 @@ function mouseoutBytes() {
     $("#h"+byte).removeClass( "hovered");
   };
   
-function SetValueElement(byte) {
-//Set value
-  var output = [""];
-  output.push("Offset: "+intToHex(parseInt(byte))+"h<br>");
+function SetValueElement(offset) {
+  var output = ["<table border=0 cellpadding="];
+  var offsetInt = parseInt(offset);
+  if (isNaN(offsetInt)) return;
+  output.push("Offset "+intToHex(offsetInt)+"h<br>");
+  output.push("Data &nbsp;&nbsp;"+
+		  convertToHex(data[offsetInt])+
+		  convertToHex(data[offsetInt+1])+
+		  convertToHex(data[offsetInt+2])+
+		  convertToHex(data[offsetInt+3])+
+		  "h<br>");
+  output.push("ubyte&nbsp;&nbsp;"+
+		  data[offsetInt]+
+		  "<br>");
+  output.push("ushort "+(
+		  ((data[offsetInt+1]<<8)>>>0) +
+		  (data[offsetInt+0]) ) +
+		  "<br>");
+  output.push("uint &nbsp;&nbsp;"+(
+		  ((data[offsetInt+3]<<24)>>>0) +
+		  ((data[offsetInt+2]<<16)>>>0) +
+		  ((data[offsetInt+1]<<8)>>>0) +
+		  (data[offsetInt+0]) ) +
+		  "<br>");
   document.getElementById('value').innerHTML = output.join("");  
 }

@@ -123,4 +123,6 @@ div#footer {
 
 #value {
   padding:0px 0px 0px 5px;
+  font-family: monospace, monospace;
+  font-size: 70%;
 }
