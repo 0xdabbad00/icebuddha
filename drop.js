@@ -162,7 +162,7 @@ function mouseoutBytes() {
   };
   
 function SetValueElement(offset) {
-  var output = ["<table border=0 cellpadding="];
+  var output = [""];
   var offsetInt = parseInt(offset);
   if (isNaN(offsetInt)) return;
   output.push("Offset "+intToHex(offsetInt)+"h<br>");
