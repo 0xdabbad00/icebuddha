@@ -7,7 +7,13 @@
 	<!-- Blackbird -->
 	<script type="text/javascript" src="./blackbirdjs/blackbird.js"></script>
     <link type="text/css" rel="Stylesheet" href="./blackbirdjs/blackbird.css" />
-	<script type='text/javascript' src="./jquery.js"></script>
+	<script type="text/javascript" src="./jquery.js"></script>
+	
+	<!-- jqTree -->
+	<script type='text/javascript' src="./jquery-ui.js"></script>
+	<script type='text/javascript' src="./jqtree/tree.jquery.js"></script>
+	<link rel="stylesheet" href="./jqtree/jqtree.css">
+
 	
 	<script type="text/javascript">
 	  var _gaq = _gaq || [];
@@ -20,6 +26,8 @@
 	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	  })();
 	</script>
+	
+	
 	
 </head>
 <body>
@@ -37,6 +45,12 @@
 		</script>
 	</div>
 	
+	<script>
+	if ($.browser.msie) {
+	  alert("You must use firefox or chrome for this site to work");
+	}
+	</script>
+	
 	<div id="container">
 		<div id="header">
 			<b><a href="./index.htm">IceBuddha</a></b> - <a href="./about.htm">About</a>
@@ -47,15 +61,18 @@
 		</div>
 		
 		<div id="content">
+			<noscript><h1 style="color:#f00; font-size: 800%;">Javascript must be enabled for this page to work!<br><br><br><br><br></h1></noscript>
 			<div id="drop_zone">
 				Drop file here
 			</div>
+			
 		</div>
 		
 		<div id="footer">
 			Footer
 		</div>
 	</div>
-	<script language="JavaScript" src="./drop.js"></script>
+
+	<script type="text/javascript" src="./drop.js"></script>
 </body>
 </html>
