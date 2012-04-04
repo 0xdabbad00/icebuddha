@@ -90,7 +90,7 @@ function handleFinishedRead(evt) {
 		$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 		$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 		
-		//$(".ascii").select(mouseoverBytes).mouseout(mouseoutBytes);
+		SetParseTree();
 	}
 }
 
@@ -113,6 +113,7 @@ function handleFileSelect(evt) {
 	output.push("<div id=\"byte_content\">&nbsp;</div>\n");
 	output.push("<td id=\"value\">");
 	output.push("</table>\n");
+	output.push("<div id=\"parsetree\"></div>\n");
 	document.getElementById('content').innerHTML = output.join("");
 
 	var reader = new FileReader();
@@ -136,13 +137,6 @@ function handleDragOver(evt) {
 	evt.dataTransfer.dropEffect = 'copy';
 	// Explicitly show this is a copy.
 }
-
-// Setup the dnd listeners.
-var dropZone = document.getElementById('container');
-dropZone.addEventListener('dragover', handleDragOver, false);
-dropZone.addEventListener('drop', handleFileSelect, false);
-
-
 
 // Set mouse-over
 function mouseoverBytes() {
@@ -187,3 +181,55 @@ function SetValueElement(offset) {
 		  "<br>");
   document.getElementById('value').innerHTML = output.join("");  
 }
+
+function SetParseTree() {
+	if (data[0] == 0x4D && data[1] == 0x5A) {
+	var treedata = [
+		            {
+		                label: 'IMAGE_DOS_HEADER',
+		                children: [
+				                    { label: 'Signature' },
+				                    { label: 'UsedBytesInTheLastPage' },
+				                    { label: 'NumberOfRelocationItems' },
+				                    { label: 'HeaderSizeInParagraphs' },
+				                    { label: 'MinimumExtraParagraphs' },
+				                    { label: 'MaximumExtraParagraphs' },
+				                    { label: 'InitialRelativeSS' },
+				                    { label: 'InitialSP' },
+				                    { label: 'Checksum' },
+				                    { label: 'InitialIP' },
+				                    { label: 'InitialRelativeCS' },
+				                    { label: 'AddressOfRelocationTable' },
+				                    { label: 'OverlayNumber' },
+				                    { label: 'Reserved[4]' },
+				                    { label: 'OEMid' },
+				                    { label: 'OEMinfo' },
+				                    { label: 'Reserved2[10]' }
+		                ]
+		            },
+		            {
+		                label: 'IMAGE_FILE_HEADER',
+		                children: [
+		                    { label: 'IMAGE_OPTIONAL_HEADER32', 
+		                    	children: [
+		                    	       {label: 'Magic'},
+		                    	       {label: 'MajorLinkerVersion'},
+		                    	       {label: 'MinorLinkerVersion'}
+		                    	]
+		                    }
+		                ]
+		            }
+		        ];
+		
+		$('#parsetree').tree({
+			data: treedata,
+			autoOpen: 0
+		});
+	}
+}
+
+
+//Setup the dnd listeners.
+var dropZone = document.getElementById('container');
+dropZone.addEventListener('dragover', handleDragOver, false);
+dropZone.addEventListener('drop', handleFileSelect, false);
