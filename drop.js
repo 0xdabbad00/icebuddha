@@ -1,12 +1,3 @@
-// Project TODO
-// TODO: Use blackbird for logging: http://www.gscottolson.com/blackbirdjs/
-// TODO: Use Sausage for infinite scrolling: http://christophercliff.github.com/sausage/
-// TODO: Also http://imakewebthings.com/jquery-waypoints/
-// TODO: Use Peg.js (http://pegjs.majda.cz/) or ometa for dsl parsing
-
-// TODO: Add progress reporting and error handling from http://www.html5rocks.com/en/tutorials/file/dndfiles/#toc-monitoring-progress
-
-
 var data;
 
 function convertToHex(dec)
