@@ -66,6 +66,29 @@
 				Drop file here
 			</div>
 			
+			<h1>Alpha project</h1>
+			<p>2012.04.03 - IceBuddha is in it's early stages of development.
+			It is a hex viewer and binary file parser.  Much of the functionality is missing.
+			
+			<p>The entire basis of this project is to leverage the HTML5 FileReader capability, so you can drag and drop a large file here, and it will be read and parsed entirely through javascript locally on the system without needing to upload it, thereby providing instant feedback.
+			
+			<h1>TODO</h1>
+			<ul>
+			<li><b>Implement infinite scrolling</b><br>
+				Only the first 1600 bytes of a file are currently read in right now.
+				I want to be able to automatically load data on demand either through scrolling or when a user tries to view that part of the parse tree. 
+				<br>Need to use Sausage for infinite scrolling: http://christophercliff.github.com/sausage/
+				<br>and/or http://imakewebthings.com/jquery-waypoints/
+			<li><b>DSL parsing</b><br>
+			Use Peg.js (http://pegjs.majda.cz/) or ometa for a domain specific language so that binary templates can be used for different file types
+			<li><b>Wiki</b><br>
+			Provide wiki for updating binary templates
+			<li><b>File identification</b><br>
+			Automatically identify and download binary template for file (AJAX)
+			<li><b>Productize</b><br>Add progress reporting and error handling from http://www.html5rocks.com/en/tutorials/file/dndfiles/#toc-monitoring-progress
+			
+			</ul> 
+			
 		</div>
 		
 		<div id="footer">
