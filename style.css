@@ -5,17 +5,38 @@ body {
 	height:100%; /* needed for container min-height */
 }
 
-body, th, td, .buttonstyle, textarea, input {
+body, th, td, .buttonstyle, textarea, input, ul, li {
   font-family: arial, Verdana;
   color: #444444;
-  font-size: 80%;
   vertical-align: top;
+}
+
+body, th, td, .buttonstyle, textarea, input {
+ font-size: 80%;
 }
 
 a:link {color: #eee; text-decoration: none; }
 a:active {color: #eee; text-decoration: none; }
 a:visited {color: #eee; text-decoration: none; }
 a:hover {color: #aaa; text-decoration: underline; }
+
+ul {
+  margin:0px;
+  padding:0px;
+  list-style:none;
+}
+
+li {
+  margin:0px;
+}
+
+div#parsetree {
+  margin: 5px;
+}
+
+div#about {
+  margin: 5px;
+}
 
 div#ad {
 	top: 0px;

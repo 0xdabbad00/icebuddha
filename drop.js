@@ -174,7 +174,6 @@ function SetValueElement(offset) {
 }
 
 function SetParseTree() {
-	if (data[0] == 0x4D && data[1] == 0x5A) {
 	var treedata = [
 		            {
 		                label: 'IMAGE_DOS_HEADER',
@@ -214,9 +213,8 @@ function SetParseTree() {
 		
 		$('#parsetree').tree({
 			data: treedata,
-			autoOpen: 0
+			autoOpen: true
 		});
-	}
 }
 
 

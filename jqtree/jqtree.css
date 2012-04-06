@@ -37,7 +37,8 @@ ul.tree div {
 }
 
 ul.tree .title {
-	color: #1C4257;
+	/* color: #1C4257; */
+	font-family: monospace, monospace;
 	vertical-align: middle;
 }
 
