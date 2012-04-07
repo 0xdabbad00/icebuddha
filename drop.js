@@ -46,7 +46,10 @@ function handleFinishedRead(evt) {
 			// Show value
 			hex.push("<i id=\"h"+i+"\" class=\"hex\">");
 			hex.push(convertToHex(data[i]));
-			hex.push("</i>");
+			if (column % 16 != 0 && column % 8 == 0) {
+			  hex.push("&nbsp;");
+			}
+			hex.push(" </i>");
 			
 			// Show ascii
 			ascii.push("<i id=\"a"+i+"\" class=\"ascii\">");
@@ -59,10 +62,7 @@ function handleFinishedRead(evt) {
 				hex.push("<br>\n");
 				ascii.push("<br>\n");
 				column = 0;
-			} else if (column % 8 == 0) {
-			hex.push("<i class=\"hex\">&nbsp;</i>");
 			}
-			hex.push(" ");
 		}
 		
 		output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
@@ -176,16 +176,16 @@ function SetValueElement(offset) {
 function SetParseTree() {
 	var treedata = [
 		            {
-		                label: 'IMAGE_DOS_HEADER',
+		                label: 'IMAGE_DOS_HEADER', offset: 0, size: 40, format: 'hex',
 		                children: [
-				                    { label: 'Signature' },
-				                    { label: 'UsedBytesInTheLastPage' },
-				                    { label: 'NumberOfRelocationItems' },
-				                    { label: 'HeaderSizeInParagraphs' },
-				                    { label: 'MinimumExtraParagraphs' },
-				                    { label: 'MaximumExtraParagraphs' },
-				                    { label: 'InitialRelativeSS' },
-				                    { label: 'InitialSP' },
+				                    { label: 'Signature: MZ', offset: 0, size: 2, format: 'ascii'},
+				                    { label: 'UsedBytesInTheLastPage: 140', offset: 2, size: 2, format: 'uint' },
+				                    { label: 'NumberOfRelocationItems: 3', offset: 4, size: 2, format: 'uint'  },
+				                    { label: 'HeaderSizeInParagraphs', offset: 6, size: 2, format: 'uint'  },
+				                    { label: 'MinimumExtraParagraphs', offset: 8, size: 2, format: 'uint'  },
+				                    { label: 'MaximumExtraParagraphs', offset: 10, size: 2, format: 'uint'  },
+				                    { label: 'InitialRelativeSS', offset: 12, size: 2, format: 'uint'  },
+				                    { label: 'InitialSP', offset: 14, size: 2, format: 'uint'  },
 				                    { label: 'Checksum' },
 				                    { label: 'InitialIP' },
 				                    { label: 'InitialRelativeCS' },
@@ -215,10 +215,32 @@ function SetParseTree() {
 			data: treedata,
 			autoOpen: true
 		});
+		
+		$('#parsetree').bind(
+			    'tree.click',
+			    function(event) {
+			        var node = event.node;
+			        for(var i=selectStart; i<selectEnd; i++) {
+				      $("#a"+i).removeClass( "selected");
+				      $("#h"+i).removeClass( "selected");
+				    }
+			        
+			        selectStart = node.offset;
+			        selectEnd = node.offset + node.size;
+			        for(var i=selectStart; i<selectEnd; i++) {
+			          $("#a"+i).addClass( "selected");
+			          $("#h"+i).addClass( "selected");
+			        }
+			    }
+			);
 }
 
+var selectStart = 0;
+var selectEnd = 0;
 
 //Setup the dnd listeners.
 var dropZone = document.getElementById('container');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileSelect, false);
+
+SetParseTree();
