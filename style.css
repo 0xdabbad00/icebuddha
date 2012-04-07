@@ -129,8 +129,12 @@ div#footer {
  font-style: normal;
 }
 
+.selected {
+   background: #f99; 
+}
+
 .hex:hover, .ascii:hover, .hovered {
-  background: #c0c0c0;
+  background: #c0c0c0; 
 }
 
 
