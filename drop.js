@@ -219,84 +219,113 @@ function node(label, size, offset) {
 
 
 function SetParseTree() {
+	var e_lfanew = data[60]+data[61]*256;
+	
 	var treedata = [
-		            {
-		                label: 'IMAGE_DOS_HEADER', offset: 0, size: 40, 
-		                children: [
-				                    /*{ label: 'Signature: MZ', offset: 0, size: 2, data: data[0], format: 'ascii'},*/
-				                    node("Signature", 2, 0),
-				                    node("UsedBytesInTheLastPage", 2),
-				                    node("NumberOfRelocationItems", 8),
-				                    node("HeaderSizeInParagraphs", 2),
-				                    { label: 'MinimumExtraParagraphs', offset: 8, size: 2},
-				                    { label: 'MaximumExtraParagraphs', offset: 10, size: 2},
-				                    { label: 'InitialRelativeSS', offset: 12, size: 2 },
-				                    { label: 'InitialSP', offset: 14, size: 2},
-				                    { label: 'Checksum' },
-				                    { label: 'InitialIP' },
-				                    { label: 'InitialRelativeCS' },
-				                    { label: 'AddressOfRelocationTable' },
-				                    { label: 'OverlayNumber' },
-				                    { label: 'Reserved[4]' },
-				                    { label: 'OEMid' },
-				                    { label: 'OEMinfo' },
-				                    { label: 'Reserved2[10]' }
-		                ]
-		            },
-		            {
-		                label: 'IMAGE_FILE_HEADER',
-		                children: [
-		                    { label: 'IMAGE_OPTIONAL_HEADER32', 
-		                    	children: [
-		                    	       {label: 'Magic'},
-		                    	       {label: 'MajorLinkerVersion'},
-		                    	       {label: 'MinorLinkerVersion'}
-		                    	]
-		                    }
-		                ]
-		            }
-		        ];
+        {
+            label: 'IMAGE_DOS_HEADER', offset: 0, size: 64, 
+            children: [
+                node("WORD  e_magic;      /* MZ Header signature */", 2, 0),
+                node("WORD  e_cblp;       /* Bytes on last page of file */", 2),
+                node("WORD  e_cp;         /* Pages in file */", 2),
+                node("WORD  e_crlc;       /* Relocations */", 2),
+                node("WORD  e_cparhdr;    /* Size of header in paragraphs */", 2),
+                node("WORD  e_minalloc;   /* Minimum extra paragraphs needed */", 2),
+                node("WORD  e_maxalloc;   /* Maximum extra paragraphs needed */", 2),
+                node("WORD  e_ss;         /* Initial (relative) SS value */", 2),
+                node("WORD  e_sp;         /* Initial SP value */", 2),
+                node("WORD  e_csum;       /* Checksum */", 2),
+                node("WORD  e_ip;         /* Initial IP value */", 2),
+                node("WORD  e_cs;         /* Initial (relative) CS value */", 2),
+                node("WORD  e_lfarlc;     /* File address of relocation table */", 2),
+                node("WORD  e_ovno;       /* Overlay number */", 2),
+                node("WORD  e_res[4];     /* Reserved words */", 8),
+                node("WORD  e_oemid;      /* OEM identifier (for e_oeminfo) */", 2),
+                node("WORD  e_oeminfo;    /* OEM information; e_oemid specific */", 2),
+                node("WORD  e_res2[10];   /* Reserved words */", 20),
+                node("DWORD e_lfanew;     /* Offset to extended header */", 4),
+            ]
+        }, 
+        { 
+        	label: 'IMAGE_OPTIONAL_HEADER', offset: e_lfanew, size: 0xe0,
+        	children: [
+        	    node("WORD  Magic;", 2, e_lfanew),
+        	    node("BYTE  MajorLinkerVersion;", 1),
+            	node("BYTE  MinorLinkerVersion;", 1),
+            	node("DWORD SizeOfCode;", 4),
+            	node("DWORD SizeOfInitializedData;", 4),
+            	node("DWORD SizeOfUninitializedData;", 4),
+            	node("DWORD AddressOfEntryPoint;", 4),
+            	node("DWORD BaseOfCode;", 4),
+            	
+            	node("DWORD ImageBase;", 4),
+            	node("DWORD SectionAlignment;", 4),
+            	node("DWORD FileAlignment;", 4),
+            	node("WORD MajorOperatingSystemVersion;", 2),
+            	node("WORD MinorOperatingSystemVersion;", 2),
+            	node("WORD MajorImageVersion;", 2),
+            	node("WORD MinorImageVersion;", 2),
+            	node("WORD MajorSubsystemVersion;", 2),
+            	node("WORD MinorSubsystemVersion;", 2),
+            	node("DWORD Win32VersionValue;", 4),
+            	node("DWORD SizeOfImage;", 4),
+            	node("DWORD SizeOfHeaders;", 4),
+            	node("DWORD CheckSum;", 4),
+            	node("WORD Subsystem;", 2),
+            	node("WORD DllCharacteristics;", 2),
+            	
+            	node("DWORD SizeOfStackReserve;", 4),
+            	node("DWORD SizeOfStackCommit;", 4),
+            	node("DWORD SizeOfHeapReserve;", 4),
+            	node("DWORD SizeOfHeapCommit;", 4),
+            	node("DWORD LoaderFlags;", 4),
+            	node("DWORD NumberOfRvaAndSizes;", 4),
+            	
+        	    /* IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]; */
+        	]
+        }
+    ];
 		
-		$('#parsetree').tree({
-			data: treedata,
-			autoOpen: true
-		});
-		
-		$('#parsetree').bind(
-			    'tree.click',
-			    function(event) {
-			        var node = event.node;
-			        
-			        // High-lite byte data
-			        // Unset old
-			        for(var i=selectStart; i<selectEnd; i++) {
-				      $("#a"+i).removeClass( "selected");
-				      $("#h"+i).removeClass( "selected");
-				    }
-			        
-			        // Set new
-			        selectStart = node.offset;
-			        selectEnd = node.offset + node.size;
-			        for(var i=selectStart; i<selectEnd; i++) {
-			          $("#a"+i).addClass( "selected");
-			          $("#h"+i).addClass( "selected");
-			        }
-			        
-			        // High-lite parse tree
-			        // Unset old
-			        if (selectedNode != null) {
-			          selectedNode.removeClass("selected");
-			        }
-			        // Set new
-			        selectedNode = event.target;
-			        if (selectedNode.hasClass("parseTreeData")) {
-			        	selectedNode = selectedNode.parent();
-			        }
-			        selectedNode.addClass("selected");
-			         
-			        
-			    }
-			);
+	$('#parsetree').tree({
+		data: treedata,
+		autoOpen: true
+	});
+	
+	$('#parsetree').bind(
+	    'tree.click',
+	    clickParseTreeNode
+	);
+}
+
+function clickParseTreeNode(event) {
+    var node = event.node;
+    
+    // High-lite byte data
+    // Unset old
+    for(var i=selectStart; i<selectEnd; i++) {
+      $("#a"+i).removeClass( "selected");
+      $("#h"+i).removeClass( "selected");
+    }
+    
+    // Set new
+    selectStart = node.offset;
+    selectEnd = node.offset + node.size;
+    for(var i=selectStart; i<selectEnd; i++) {
+      $("#a"+i).addClass( "selected");
+      $("#h"+i).addClass( "selected");
+    }
+    
+    // High-lite parse tree
+    // Unset old
+    if (selectedNode != null) {
+      selectedNode.removeClass("selected");
+    }
+    // Set new
+    selectedNode = event.target;
+    if (selectedNode.hasClass("parseTreeData")) {
+    	selectedNode = selectedNode.parent();
+    }
+    selectedNode.addClass("selected");
 }
 
 
