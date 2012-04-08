@@ -15,10 +15,10 @@ body, th, td, .buttonstyle, textarea, input {
  font-size: 80%;
 }
 
-a:link {color: #eee; text-decoration: none; }
-a:active {color: #eee; text-decoration: none; }
-a:visited {color: #eee; text-decoration: none; }
+a:link,a:active, a:visited {color: #eee; text-decoration: none; }
 a:hover {color: #aaa; text-decoration: underline; }
+
+#content a:link, #content a:active, #content a:visited {color: #888; text-decoration: none; }
 
 ul {
   margin:0px;
@@ -32,6 +32,18 @@ li {
 
 div#parsetree {
   margin: 5px;
+  
+  border: 1px solid #A0A0A0;
+ 
+  padding: 3px;
+  margin: 1px;
+ 
+  overflow-y: scroll;
+  overflow-x: auto;
+ 
+  width: 650px;
+  
+  max-height: 300px;
 }
 
 div#about {
@@ -98,8 +110,6 @@ div#drop_zone {
 div#content {
  height: auto;
  padding:0px 0px 20px 0px; /* bottom padding for footer */
- 
- 
 }
 
 div#footer {
