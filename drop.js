@@ -5,6 +5,15 @@ var data;
 var file;
 var reader;
 
+var NUM_BYTES_TO_LOAD = 16*100;
+var lastBytesRead = 0;
+
+var isValueElementSet = false;
+
+var $addressCell;
+var $hexCell;
+var $asciiCell;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
@@ -46,14 +55,18 @@ function handleFinishedRead(evt) {
 	if(evt.target.readyState == FileReader.DONE) {
 		
 		var output = [""];
-		data =  new Uint8Array(evt.target.result, 0, evt.target.result.byteLength);
+		var readBlock =  new Uint8Array(evt.target.result, 0, evt.target.result.byteLength);
+		start = lastBytesRead; 
+		for (var i = 0; i < readBlock.length; i++) {
+			data[start+i] = readBlock[i];
+		}
 		
 		var address = [""];
 		var hex = [""];
 		var ascii = [""];
 		
 		var column = 0;
-		for (var i = 0; i < data.length; i++) {
+		for (var i = lastBytesRead; i < lastBytesRead + readBlock.length; i++) {
 			// Show address
 			if (column == 0) {
 				address.push(intToHex(i)+"<br>\n");
@@ -80,21 +93,47 @@ function handleFinishedRead(evt) {
 			}
 		}
 		
-		output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
-		output.push("<td class=\"bytes address\" style=\"padding: 0 10px 0 0;\">");
-		output.push(address.join(""));
-		output.push("<td class=\"bytes\" style=\"padding: 0 10px 0 0;\">");
-		output.push(hex.join(""));
-		output.push("<td class=\"bytes\">");
-		output.push(ascii.join(""));
+		// TODO This is slow (the appending below), reason unknown
+		var addressString = address.join("");
+		var hexString = hex.join("");
+		var asciiString = ascii.join("");
 		
-		output.push("</table>");
-		document.getElementById('byte_content').innerHTML = output.join("");
+		log.info((new Date().getTime()) + " " + "Doing append");
+	
+		// Set html
+		$addressCell.append(addressString);
+		$hexCell.append(hexString);
+		$asciiCell.append(asciiString);
 		
-		SetValueElement(0);
+		$asciiCell.append("<footer>test</footer>");
+		
+		log.info((new Date().getTime()) + " " + "Done with append");
+		
+		lastBytesRead = lastBytesRead + evt.target.result.byteLength;
+		
+		// Set waypoint for infinite scrolling through file (until end of file)
+		$footer = $('footer'),
+		opts = {
+			offset: '100%',
+			context: '#byte_content'
+		};
+		
+		$footer.waypoint(function(event, direction) {
+			$footer.waypoint('remove');
+			$footer.detach();
+			
+			readFileSlice(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
+		}, opts);
+
+		
 		
 		$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 		$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+		
+
+		if (!isValueElementSet) {
+			SetValueElement(0);
+		}
 		
 		SetParseTree();
 	}
@@ -109,23 +148,36 @@ function handleFileSelect(evt) {
 
 	var output = [];
 	file = files[0];  // File object
-	log.info("Loading: "+escape(file.name));
+	log.info((new Date().getTime()) + " " + "Loading: "+escape(file.name));
 	output.push('<strong>' + escape(file.name)+ '</strong> - ' + file.size + ' bytes');
 	document.getElementById('subheader').innerHTML = output.join(); 
 	
+	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
+	data = new Uint8Array(file.size);
+	
 	output = [];
 	output.push("<table border=0 cellpadding=0 cellspacing=0>\n");
-	output.push("<tr><td width=650px>\n");
-	output.push("<div id=\"byte_content\">&nbsp;</div>\n");
-	output.push("<td id=\"value\">");
+	output.push(" <tr><td width=650px>\n");
+	output.push(" <div id=\"byte_content\">");
+	output.push("  <table border=0 cellpadding=0 cellspacing=0><tr>");
+	output.push("  <td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
+	output.push("  <td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");
+	output.push("  <td id=\"asciiCell\">");
+	output.push("  </table>");
+	output.push(" </div>\n");
+	output.push(" <td id=\"value\">");
 	output.push("</table>\n");
 	output.push("<div id=\"parsetree\"></div>\n");
 	document.getElementById('content').innerHTML = output.join("");
+	
+	$addressCell = $('#addressCell');
+	$hexCell = $('#hexCell');
+	$asciiCell = $('#asciiCell')
 
 	reader = new FileReader();
 	reader.onloadend = handleFinishedRead;
 	
-	readFileSlice(0, 16*100);
+	readFileSlice(0, NUM_BYTES_TO_LOAD);
 }
 
 function readFileSlice(start, end) {
@@ -191,7 +243,8 @@ function SetValueElement(offset) {
 		  ((data[offsetInt+1]<<8)>>>0) +
 		  (data[offsetInt+0]) ) +
 		  "<br>");
-  document.getElementById('value').innerHTML = output.join("");  
+  document.getElementById('value').innerHTML = output.join("");
+  isValueElementSet = true;
 }
 
 
