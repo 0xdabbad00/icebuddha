@@ -382,6 +382,8 @@ function clickParseTreeNode(event) {
       $("#a"+i).addClass( "selected");
       $("#h"+i).addClass( "selected");
     }
+    // Scroll to
+    $('#byte_content').scrollTo($("#h"+selectStart), 800);
     
     // High-lite parse tree
     // Unset old
