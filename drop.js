@@ -185,6 +185,8 @@ function handleFileSelect(evt) {
 	output.push("<div id=\"parsetree\"></div>\n");
 	$('#content').html(output.join(""));
 	
+	$('#byte_content').scrollTo(0);  // Start at top
+	
 	$addressCell = $('#addressCell');
 	$hexCell = $('#hexCell');
 	$asciiCell = $('#asciiCell')
@@ -266,7 +268,6 @@ function SetValueElement(offset) {
 ///////////////////////////////////////////////////////////////////////////////
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
-
 var expectedOffset = 0;
 function node(label, size, offset) {
 	offset = offset || expectedOffset;
@@ -288,6 +289,7 @@ function node(label, size, offset) {
 
 function SetParseTree() {
 	var e_lfanew = data[60]+data[61]*256;
+	expectedOffset = 0;
 	
 	var treedata = [
         {
@@ -382,7 +384,8 @@ function clickParseTreeNode(event) {
       $("#a"+i).addClass( "selected");
       $("#h"+i).addClass( "selected");
     }
-    // Scroll to
+    
+    // Scroll to element
     $('#byte_content').scrollTo($("#h"+selectStart), 800);
     
     // High-lite parse tree
