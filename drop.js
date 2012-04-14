@@ -10,9 +10,9 @@ var lastBytesRead = 0;
 
 var isValueElementSet = false;
 
-var $addressCell;
-var $hexCell;
-var $asciiCell;
+var addressString = "";
+var hexString = "";
+var asciiString = "";
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,18 +94,17 @@ function handleFinishedRead(evt) {
 		}
 		
 		// TODO This is slow (the appending below), reason unknown
-		var addressString = address.join("");
-		var hexString = hex.join("");
-		var asciiString = ascii.join("");
+		
 		
 		log.info((new Date().getTime()) + " " + "Doing append");
 	
 		// Set html
-		$addressCell.append(addressString);
-		$hexCell.append(hexString);
-		$asciiCell.append(asciiString);
+		addressString += address.join("");
+		hexString += hex.join("");
+		asciiString += ascii.join("");
 		
-		$asciiCell.append("<footer>test</footer>");
+		
+		$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>test</footer>"));
 		
 		log.info((new Date().getTime()) + " " + "Done with append");
 		
@@ -124,8 +123,6 @@ function handleFinishedRead(evt) {
 			
 			readFileSlice(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
 		}, opts);
-
-		
 		
 		$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 		$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
@@ -139,6 +136,19 @@ function handleFinishedRead(evt) {
 	}
 }
 
+function getByteContentHTML(address, hex, ascii) {
+	output = [];
+	output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
+	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
+	output.push(address);
+	output.push("<td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");
+	output.push(hex);
+	output.push("<td id=\"asciiCell\">");
+	output.push(ascii);
+	output.push("</table>");
+	return output.join("");
+}
+
 
 function handleFileSelect(evt) {
 	evt.stopPropagation();
@@ -150,25 +160,30 @@ function handleFileSelect(evt) {
 	file = files[0];  // File object
 	log.info((new Date().getTime()) + " " + "Loading: "+escape(file.name));
 	output.push('<strong>' + escape(file.name)+ '</strong> - ' + file.size + ' bytes');
-	document.getElementById('subheader').innerHTML = output.join(); 
+	document.getElementById('subheader').innerHTML = output.join(""); 
 	
 	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
 	data = new Uint8Array(file.size);
 	
+
+	// Set defaults for new file read
+	lastBytesRead = 0;
+	isValueElementSet = false;
+	addressString = "";
+	hexString = "";
+	asciiString = "";
+	
+	// Set byte content
 	output = [];
 	output.push("<table border=0 cellpadding=0 cellspacing=0>\n");
 	output.push(" <tr><td width=650px>\n");
 	output.push(" <div id=\"byte_content\">");
-	output.push("  <table border=0 cellpadding=0 cellspacing=0><tr>");
-	output.push("  <td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
-	output.push("  <td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");
-	output.push("  <td id=\"asciiCell\">");
-	output.push("  </table>");
+	output.push(getByteContentHTML("", "", ""));
 	output.push(" </div>\n");
 	output.push(" <td id=\"value\">");
 	output.push("</table>\n");
 	output.push("<div id=\"parsetree\"></div>\n");
-	document.getElementById('content').innerHTML = output.join("");
+	$('#content').html(output.join(""));
 	
 	$addressCell = $('#addressCell');
 	$hexCell = $('#hexCell');
@@ -177,7 +192,7 @@ function handleFileSelect(evt) {
 	reader = new FileReader();
 	reader.onloadend = handleFinishedRead;
 	
-	readFileSlice(0, NUM_BYTES_TO_LOAD);
+	readFileSlice(lastBytesRead, NUM_BYTES_TO_LOAD);
 }
 
 function readFileSlice(start, end) {
@@ -243,7 +258,7 @@ function SetValueElement(offset) {
 		  ((data[offsetInt+1]<<8)>>>0) +
 		  (data[offsetInt+0]) ) +
 		  "<br>");
-  document.getElementById('value').innerHTML = output.join("");
+  $('#value').html(output.join(""));
   isValueElementSet = true;
 }
 
