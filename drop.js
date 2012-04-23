@@ -51,89 +51,93 @@ function dispAscii(val) {
 // File reading
 ///////////////////////////////////////////////////////////////////////////////
 function handleFinishedRead(evt) {
-	
 	if(evt.target.readyState == FileReader.DONE) {
-		
-		var output = [""];
-		var readBlock =  new Uint8Array(evt.target.result, 0, evt.target.result.byteLength);
-		start = lastBytesRead; 
-		for (var i = 0; i < readBlock.length; i++) {
-			data[start+i] = readBlock[i];
-		}
-		
-		var address = [""];
-		var hex = [""];
-		var ascii = [""];
-		
-		var column = 0;
-		for (var i = lastBytesRead; i < lastBytesRead + readBlock.length; i++) {
-			// Show address
-			if (column == 0) {
-				address.push(intToHex(i)+"<br>\n");
-			}
-			// Show value
-			hex.push("<i id=\"h"+i+"\" class=\"hex\">");
-			hex.push(convertToHex(data[i]));
-			if (column % 16 != 0 && column % 8 == 0) {
-			  hex.push("&nbsp;");
-			}
-			hex.push(" </i>");
-			
-			// Show ascii
-			ascii.push("<i id=\"a"+i+"\" class=\"ascii\">");
-			ascii.push(dispAscii(data[i]));
-			ascii.push("</i>");
-			
-			// Add extra formatting
-			column++;
-			if (column % 16 == 0) {
-				hex.push("<br>\n");
-				ascii.push("<br>\n");
-				column = 0;
-			}
-		}
-		
-		// TODO This is slow (the appending below), reason unknown
-		
-		
-		log.info((new Date().getTime()) + " " + "Doing append");
-	
-		// Set html
-		addressString += address.join("");
-		hexString += hex.join("");
-		asciiString += ascii.join("");
-		
-		
-		$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>test</footer>"));
-		
-		log.info((new Date().getTime()) + " " + "Done with append");
-		
-		lastBytesRead = lastBytesRead + evt.target.result.byteLength;
-		
-		// Set waypoint for infinite scrolling through file (until end of file)
-		$footer = $('footer'),
-		opts = {
-			offset: '100%',
-			context: '#byte_content'
-		};
-		
-		$footer.waypoint(function(event, direction) {
-			$footer.waypoint('remove');
-			$footer.detach();
-			
-			readFileSlice(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
-		}, opts);
-		
-		$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
-		$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
-		
-
-		if (!isValueElementSet) {
-			SetValueElement(0);
-		}
-		
-		SetParseTree();
+		var length = evt.target.result.byteLength;
+		var readBlock =  new Uint8Array(evt.target.result, 0, length);
+		doRead(readBlock, length);
 	}
+}
+
+
+function doRead(readBlock, length) {
+	var output = [""];
+	start = lastBytesRead; 
+	for (var i = 0; i < readBlock.length; i++) {
+		data[start+i] = readBlock[i];
+	}
+	
+	var address = [""];
+	var hex = [""];
+	var ascii = [""];
+	
+	var column = 0;
+	for (var i = lastBytesRead; i < lastBytesRead + readBlock.length; i++) {
+		// Show address
+		if (column == 0) {
+			address.push(intToHex(i)+"<br>\n");
+		}
+		// Show value
+		hex.push("<i id=\"h"+i+"\" class=\"hex\">");
+		hex.push(convertToHex(data[i]));
+		if (column % 16 != 0 && column % 8 == 0) {
+		  hex.push("&nbsp;");
+		}
+		hex.push(" </i>");
+		
+		// Show ascii
+		ascii.push("<i id=\"a"+i+"\" class=\"ascii\">");
+		ascii.push(dispAscii(data[i]));
+		ascii.push("</i>");
+		
+		// Add extra formatting
+		column++;
+		if (column % 16 == 0) {
+			hex.push("<br>\n");
+			ascii.push("<br>\n");
+			column = 0;
+		}
+	}
+	
+	// TODO This is slow (the appending below), reason unknown
+	
+	
+	log.info((new Date().getTime()) + " " + "Doing append");
+
+	// Set html
+	addressString += address.join("");
+	hexString += hex.join("");
+	asciiString += ascii.join("");
+	
+	
+	$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>test</footer>"));
+	
+	log.info((new Date().getTime()) + " " + "Done with append");
+	
+	lastBytesRead = lastBytesRead + length;
+	
+	// Set waypoint for infinite scrolling through file (until end of file)
+	$footer = $('footer'),
+	opts = {
+		offset: '100%',
+		context: '#byte_content'
+	};
+	
+	$footer.waypoint(function(event, direction) {
+		$footer.waypoint('remove');
+		$footer.detach();
+		
+		readFileSlice(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
+	}, opts);
+	
+	$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+	$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+	
+
+	if (!isValueElementSet) {
+		SetValueElement(0);
+	}
+	
+	SetParseTree();
 }
 
 function getByteContentHTML(address, hex, ascii) {
@@ -204,7 +208,7 @@ function readFileSlice(start, end) {
 	} else if(file.mozSlice) {
 		var blob = file.mozSlice(start, end);
 	}
-	
+
 	reader.readAsArrayBuffer(blob);
 }
 
@@ -291,7 +295,9 @@ function SetParseTree() {
 	var e_lfanew = data[60]+data[61]*256;
 	expectedOffset = 0;
 	
-	var treedata = [
+	var treedata = [];
+	
+	treedata.push(
         {
             label: 'IMAGE_DOS_HEADER', offset: 0, size: 64, 
             children: [
@@ -315,7 +321,8 @@ function SetParseTree() {
                 node("WORD  e_res2[10];   /* Reserved words */", 20),
                 node("DWORD e_lfanew;     /* Offset to extended header */", 4),
             ]
-        }, 
+        });
+    treedata.push(
         { 
         	label: 'IMAGE_OPTIONAL_HEADER', offset: e_lfanew, size: 0xe0,
         	children: [
@@ -353,8 +360,8 @@ function SetParseTree() {
             	
         	    /* IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]; */
         	]
-        }
-    ];
+        });
+    
 		
 	$('#parsetree').tree({
 		data: treedata,
@@ -384,6 +391,8 @@ function clickParseTreeNode(event) {
       $("#a"+i).addClass( "selected");
       $("#h"+i).addClass( "selected");
     }
+    
+    SetValueElement(selectStart);
     
     // Scroll to element
     $('#byte_content').scrollTo($("#h"+selectStart), 800);
