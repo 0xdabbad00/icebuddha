@@ -1,0 +1,18 @@
+start 
+ = "typedef" ws 
+   "struct" ws 
+   structName:Variable ws 
+   "{" ws 
+   item*
+   "}" .*
+   { return structName;} 
+ 
+item
+ = type:Variable ws name:Variable array:("[" [0-9]+ "]")* ";" ws ("/*" [A-Za-z_0-9' '\t\r\n')''('';'':']+ "*/")* ws
+ 
+Variable
+ = characters:[A-Za-z_0-9]* {return characters.join("");}
+
+ws
+ = [' '\t\r\n]+
+ 
