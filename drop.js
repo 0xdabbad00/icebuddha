@@ -296,6 +296,15 @@ function node(label, size, offset) {
 }
 
 
+function getStructSize(children) {
+	var size = 0;
+	for(i in children) {
+	  	size += children[i].size;
+	}
+	return size;
+}
+
+
 function SetParseTree() {
 	var parseGrammer = "";
 	var parseInput = "";
@@ -307,8 +316,30 @@ function SetParseTree() {
 			var parser = PEG.buildParser(parseGrammer);
 			
 			try {
-				var a = parser.parse(parseInput);
-				$('#parsetree').html(a);
+				var parseData = parser.parse(parseInput);
+				
+				var treedata = [];
+				var struct = parseData;
+				var treeDataStruct = { label: struct.label, offset: 0, size: getStructSize(struct.children), children:[]};
+				for (i in struct.children) {
+					var c = struct.children[i];
+					treeDataStruct.children.push(node(c.text, c.size));
+				}
+				
+				treedata.push(treeDataStruct);
+				
+				$('#parsetree').tree({
+					data: treedata,
+					autoOpen: true
+				});
+				
+				$('#parsetree').bind(
+				    'tree.click',
+				    clickParseTreeNode
+				);
+				
+				
+				//$('#parsetree').html(mytext);
 			} catch (e) {
 				$('#parsetree').html("Parsing failed; "+e);
 			}
