@@ -3,16 +3,61 @@ start
    "struct" ws 
    structName:Variable ws 
    "{" ws 
-   item*
+   items:item*
    "}" .*
-   { return structName;} 
+ { 
+ 	var structData = {};
+ 	structData.label = structName;
+ 	structData.children = [];
+ 	var s;
+ 	for (var i in items) {
+ 	  structData.children.push(items[i]);
+ 	}
+ 	return structData;
+ } 
  
 item
- = type:Variable ws name:Variable array:("[" [0-9]+ "]")* ";" ws ("/*" [A-Za-z_0-9' '\t\r\n')''('';'':']+ "*/")* ws
+ = 
+ 	type:Variable s1:ws 
+    name:Variable 
+ 	array:ArrayData?
+ 	";" s2:ws 
+ 	comment:Comment?
+ { 
+ 	var itemData = {};
+ 	itemData.text = type + s1 + name + array + ";" + s2 + comment;
+ 	itemData.size = 0;
+ 	if (type == "BYTE") itemData.size = 1;
+ 	if (type == "WORD") itemData.size = 2;
+ 	if (type == "DWORD") itemData.size = 4;
+ 	
+ 	if (array != "") {
+ 	  var arrayInt = array.substring(1, array.length-1);
+ 	  itemData.size *= arrayInt;
+ 	}
+ 	
+	return itemData;
+ }
+
+ArrayData
+ = "[" digits:[0-9]+ "]" { return "[" + digits.join("") + "]"; } 
+ 
+Comment
+ = "/*" text:[A-Za-z_0-9' '\t\r\n')''('';'':']+ "*/" ws {return "/*" + text.join("") + "*/";}
  
 Variable
- = characters:[A-Za-z_0-9]* {return characters.join("");}
+ = characters:[A-Za-z_0-9]* 
+ {
+ 	return characters.join("");
+ }
 
 ws
- = [' '\t\r\n]+
+ = text:[' '\t\r\n]+ 
+ {
+ 	var s = "";
+ 	for (var i in text) {
+ 	  s += "&nbsp;";
+ 	}
+ 	return s;
+ }
  
