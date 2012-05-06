@@ -297,6 +297,28 @@ function node(label, size, offset) {
 
 
 function SetParseTree() {
+	var parseGrammer = "";
+	var parseInput = "";
+	
+	$.get("parseFile_pe.txt", function(response) {
+		parseInput = response;
+		$.get("parseGrammer.txt", function(response) {
+			parseGrammer = response;
+			var parser = PEG.buildParser(parseGrammer);
+			
+			try {
+				var a = parser.parse(parseInput);
+				$('#parsetree').html(a);
+			} catch (e) {
+				$('#parsetree').html("Parsing failed; "+e);
+			}
+		});
+	});
+	
+	return;
+	
+	
+
 	var e_lfanew = data[60]+data[61]*256;
 	expectedOffset = 0;
 	
@@ -362,8 +384,6 @@ function SetParseTree() {
             	node("DWORD SizeOfHeapCommit;", 4),
             	node("DWORD LoaderFlags;", 4),
             	node("DWORD NumberOfRvaAndSizes;", 4),
-            	
-        	    /* IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]; */
         	]
         });
     
@@ -376,7 +396,7 @@ function SetParseTree() {
 	$('#parsetree').bind(
 	    'tree.click',
 	    clickParseTreeNode
-	);
+	);	
 }
 
 function clickParseTreeNode(event) {
