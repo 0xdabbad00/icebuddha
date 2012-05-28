@@ -319,14 +319,17 @@ function SetParseTree() {
 				var parseData = parser.parse(parseInput);
 				
 				var treedata = [];
-				var struct = parseData;
-				var treeDataStruct = { label: struct.label, offset: 0, size: getStructSize(struct.children), children:[]};
-				for (i in struct.children) {
-					var c = struct.children[i];
-					treeDataStruct.children.push(node(c.text, c.size));
+				for (var s in parseData)
+				{
+					var struct = parseData[s];
+					var treeDataStruct = { label: struct.label, offset: 0, size: getStructSize(struct.children), children:[]};
+					for (i in struct.children) {
+						var c = struct.children[i];
+						treeDataStruct.children.push(node(c.text, c.size));
+					}
+					
+					treedata.push(treeDataStruct);
 				}
-				
-				treedata.push(treeDataStruct);
 				
 				$('#parsetree').tree({
 					data: treedata,
@@ -353,81 +356,6 @@ function SetParseTree() {
 	var e_lfanew = data[60]+data[61]*256;
 	expectedOffset = 0;
 	
-	var treedata = [];
-	
-	treedata.push(
-        {
-            label: 'IMAGE_DOS_HEADER', offset: 0, size: 64, 
-            children: [
-                node("WORD  e_magic;      /* MZ Header signature */", 2, 0),
-                node("WORD  e_cblp;       /* Bytes on last page of file */", 2),
-                node("WORD  e_cp;         /* Pages in file */", 2),
-                node("WORD  e_crlc;       /* Relocations */", 2),
-                node("WORD  e_cparhdr;    /* Size of header in paragraphs */", 2),
-                node("WORD  e_minalloc;   /* Minimum extra paragraphs needed */", 2),
-                node("WORD  e_maxalloc;   /* Maximum extra paragraphs needed */", 2),
-                node("WORD  e_ss;         /* Initial (relative) SS value */", 2),
-                node("WORD  e_sp;         /* Initial SP value */", 2),
-                node("WORD  e_csum;       /* Checksum */", 2),
-                node("WORD  e_ip;         /* Initial IP value */", 2),
-                node("WORD  e_cs;         /* Initial (relative) CS value */", 2),
-                node("WORD  e_lfarlc;     /* File address of relocation table */", 2),
-                node("WORD  e_ovno;       /* Overlay number */", 2),
-                node("WORD  e_res[4];     /* Reserved words */", 8),
-                node("WORD  e_oemid;      /* OEM identifier (for e_oeminfo) */", 2),
-                node("WORD  e_oeminfo;    /* OEM information; e_oemid specific */", 2),
-                node("WORD  e_res2[10];   /* Reserved words */", 20),
-                node("DWORD e_lfanew;     /* Offset to extended header */", 4),
-            ]
-        });
-    treedata.push(
-        { 
-        	label: 'IMAGE_OPTIONAL_HEADER', offset: e_lfanew, size: 0xe0,
-        	children: [
-        	    node("WORD  Magic;", 2, e_lfanew),
-        	    node("BYTE  MajorLinkerVersion;", 1),
-            	node("BYTE  MinorLinkerVersion;", 1),
-            	node("DWORD SizeOfCode;", 4),
-            	node("DWORD SizeOfInitializedData;", 4),
-            	node("DWORD SizeOfUninitializedData;", 4),
-            	node("DWORD AddressOfEntryPoint;", 4),
-            	node("DWORD BaseOfCode;", 4),
-            	
-            	node("DWORD ImageBase;", 4),
-            	node("DWORD SectionAlignment;", 4),
-            	node("DWORD FileAlignment;", 4),
-            	node("WORD MajorOperatingSystemVersion;", 2),
-            	node("WORD MinorOperatingSystemVersion;", 2),
-            	node("WORD MajorImageVersion;", 2),
-            	node("WORD MinorImageVersion;", 2),
-            	node("WORD MajorSubsystemVersion;", 2),
-            	node("WORD MinorSubsystemVersion;", 2),
-            	node("DWORD Win32VersionValue;", 4),
-            	node("DWORD SizeOfImage;", 4),
-            	node("DWORD SizeOfHeaders;", 4),
-            	node("DWORD CheckSum;", 4),
-            	node("WORD Subsystem;", 2),
-            	node("WORD DllCharacteristics;", 2),
-            	
-            	node("DWORD SizeOfStackReserve;", 4),
-            	node("DWORD SizeOfStackCommit;", 4),
-            	node("DWORD SizeOfHeapReserve;", 4),
-            	node("DWORD SizeOfHeapCommit;", 4),
-            	node("DWORD LoaderFlags;", 4),
-            	node("DWORD NumberOfRvaAndSizes;", 4),
-        	]
-        });
-    
-		
-	$('#parsetree').tree({
-		data: treedata,
-		autoOpen: true
-	});
-	
-	$('#parsetree').bind(
-	    'tree.click',
-	    clickParseTreeNode
-	);	
 }
 
 function clickParseTreeNode(event) {

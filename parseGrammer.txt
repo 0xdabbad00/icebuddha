@@ -1,10 +1,21 @@
 start 
- = "typedef" ws 
+ = structVars:structVar* 
+  {
+    var structs = [];
+    for (var i in structVars) {
+      structs.push(structVars[i]);
+    }
+    return structs;
+  }
+ 
+structVar
+ =
+   "typedef" ws 
    "struct" ws 
    structName:Variable ws 
    "{" ws 
    items:item*
-   "}" .*
+   "}" [^;]* ";" ws*
  { 
  	var structData = {};
  	structData.label = structName;
