@@ -286,21 +286,33 @@ function SetValueElement(offset) {
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
 var expectedOffset = 0;
-function node(label, size, offset) {
+function node(label, size, name, offset) {
 	offset = offset || expectedOffset;
 	expectedOffset = offset + size;
 	
 	var dataValue = "";
-	var maxDataDisplaySize = 4; 
+	
+	if (size==4) {
+		dataValue = 
+		  ((data[offset+3]<<24)>>>0) +
+		  ((data[offset+2]<<16)>>>0) +
+		  ((data[offset+1]<<8)>>>0) +
+		  (data[offset+0]);
+	}
+	
+	var maxDataDisplaySize = 4;
+	/*
 	for(var i=0; i<size && i<maxDataDisplaySize; i++) {
 		dataValue += convertToHex(data[offset+i]); 
 	}
+	dataValue = addHexIdentifier(dataValue);
+	*/
 	if(size>maxDataDisplaySize) {
 		dataValue +="...";
 	}
-	dataValue = addHexIdentifier(dataValue);
 	
-	return {label: label, offset: offset, size: size, data: dataValue};
+	
+	return {label: label, offset: offset, size: size, data: dataValue, varName: name};
 }
 
 
@@ -312,33 +324,53 @@ function getStructSize(children) {
 	return size;
 }
 
+var parser;
+var treedata = [];
+
+function parseStruct(offset, structText) {
+	expectedOffset = offset;
+	var parseData = parser.parse(structText);
+	
+	var struct = parseData;
+	var treeDataStruct = { label: struct.label, offset: offset, size: getStructSize(struct.children), children:[]};
+	for (i in struct.children) {
+		var child = struct.children[i];
+		treeDataStruct.children.push(node(child.text, child.size, child.varName));
+	}
+	
+	treedata.push(treeDataStruct);
+
+	return treeDataStruct;
+}
+
+function getStructValue(struct, varName) {
+	for (i in struct.children) {
+		var child = struct.children[i];
+		if (child.varName == varName) {
+			return child.data;
+		}
+	}
+  return 0;
+}
 
 function SetParseTree() {
 	var parseGrammer = "";
 	var parseInput = "";
 	
-	$.get("parseFile_pe.txt", function(response) {
-		parseInput = response;
-		$.get("parseGrammer.txt", function(response) {
-			parseGrammer = response;
-			var parser = PEG.buildParser(parseGrammer);
+	treedata = [];
+	
+	$.get("parseGrammer.txt", function(response) {
+		parseGrammer = response;
+		parser = PEG.buildParser(parseGrammer);
+		
+		$.get("parseFile_pe.txt", function(response) {
+			parseInput = response;
 			
 			try {
-				var parseData = parser.parse(parseInput);
 				
-				var treedata = [];
-				for (var s in parseData)
-				{
-					var struct = parseData[s];
-					var treeDataStruct = { label: struct.label, offset: 0, size: getStructSize(struct.children), children:[]};
-					for (i in struct.children) {
-						var c = struct.children[i];
-						treeDataStruct.children.push(node(c.text, c.size));
-					}
-					
-					treedata.push(treeDataStruct);
-				}
-				
+				var parseFunc = new Function(parseInput);
+				parseFunc();
+							
 				$('#parsetree').tree({
 					data: treedata,
 					autoOpen: true
@@ -349,12 +381,11 @@ function SetParseTree() {
 				    clickParseTreeNode
 				);
 				
-				
-				//$('#parsetree').html(mytext);
 			} catch (e) {
 				$('#parsetree').html("Parsing failed; "+e);
 			}
 		});
+		
 	});
 	
 	return;
