@@ -553,16 +553,18 @@ limitations under the License.
         return $li;
       };
       createNodeLi = function(node) {
+    	  /*
     	  return $("<li><div><span class=\"title\">" + node.name + "<br>" +
           		"</span></div></li>");
-    	  /*
+          */
+    	  
         return $("<li><div><span class=\"title\">" + node.name + "<br>" +
         		"<span class=\"parseTreeData\">" +
         		"Offset: " + node.offset +
         		"; Size: " + node.size +
-        		"; Data: " + node.data +
+        		"; Data: " + node.hexData +
         		"</span></span></div></li>");
-        		*/
+        		
       };
       createFolderLi = function(node) {
         var button_class, folder_class, getButtonClass, getFolderClass;
