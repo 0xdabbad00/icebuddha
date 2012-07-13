@@ -1,15 +1,5 @@
 start 
- = structVars:structVar* 
-  {
-    var structs = [];
-    for (var i in structVars) {
-      structs.push(structVars[i]);
-    }
-    return structs;
-  }
- 
-structVar
- =
+ = ws*
    "typedef" ws 
    "struct" ws 
    structName:Variable ws 
@@ -37,6 +27,7 @@ item
  { 
  	var itemData = {};
  	itemData.text = type + s1 + name + array + ";" + s2 + comment;
+ 	itemData.varName = name;
  	itemData.size = 0;
  	if (type == "BYTE") itemData.size = 1;
  	if (type == "WORD") itemData.size = 2;
@@ -71,4 +62,3 @@ ws
  	}
  	return s;
  }
- 
