@@ -298,21 +298,31 @@ function node(label, size, name, offset) {
 		  ((data[offset+2]<<16)>>>0) +
 		  ((data[offset+1]<<8)>>>0) +
 		  (data[offset+0]);
+	} else if (size == 2) {
+		dataValue = 
+			  ((data[offset+1]<<8)>>>0) +
+			  (data[offset+0]);
+	} else if (size == 1) {
+		dataValue = 
+			  (data[offset+0]);
+	} else {
+		dataValue = 0;
 	}
 	
 	var maxDataDisplaySize = 4;
-	/*
-	for(var i=0; i<size && i<maxDataDisplaySize; i++) {
-		dataValue += convertToHex(data[offset+i]); 
-	}
-	dataValue = addHexIdentifier(dataValue);
-	*/
+	var hexData="";
 	if(size>maxDataDisplaySize) {
-		dataValue +="...";
+		hexData = "...";
+	} else if (size == 0) {
+		hexData = "";
+	} else {
+		for(var i=0; i<size && i<maxDataDisplaySize; i++) {
+			hexData += convertToHex(data[offset+i]); 
+		}
+		hexData = addHexIdentifier(hexData);
 	}
 	
-	
-	return {label: label, offset: offset, size: size, data: dataValue, varName: name};
+	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name};
 }
 
 
