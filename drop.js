@@ -56,13 +56,14 @@ function dispAscii(val) {
 
 
 function str2ArrayBuffer(str) {
-	  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-	  var bufView = new Uint16Array(buf);
-	  for (var i=0, strLen=str.length; i<strLen; i++) {
-	    bufView[i] = str.charCodeAt(i);
-	  }
-	  return buf;
-	}
+  var buf = new ArrayBuffer(str.length); 
+  var bufView = new Uint8Array(buf);
+  for (var i=0, strLen=str.length; i<strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  var tmp = buf.byteLength;
+  return bufView;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ function handleFinishedRead(evt) {
 function doRead(readBlock, length) {
 	var output = [""];
 	start = lastBytesRead; 
-	for (var i = 0; i < readBlock.length; i++) {
+	for (var i = 0; i < length; i++) {
 		data[start+i] = readBlock[i];
 	}
 	
@@ -89,7 +90,7 @@ function doRead(readBlock, length) {
 	var ascii = [""];
 	
 	var column = 0;
-	for (var i = lastBytesRead; i < lastBytesRead + readBlock.length; i++) {
+	for (var i = lastBytesRead; i < lastBytesRead + length; i++) {
 		// Show address
 		if (column == 0) {
 			address.push(intToHex(i)+"<br>\n");
@@ -432,7 +433,7 @@ function SetParseTree() {
 	
 	$.get("parseGrammer.txt", function(response) {
 		parseGrammer = response;
-		parser = PEG.buildParser(parseGrammer);
+		parser = PEG.buildParser(parseGrammer, trackLineAndColumn=true);
 		
 		$.get("parseFile_pe.txt", function(response) {
 			parseInput = response;
@@ -530,9 +531,10 @@ if ($_GET('test')) {
 	
 	$.get(filename, function(response) {
 		readBlock =  str2ArrayBuffer(response);
-		data = new Uint8Array(readBlock.byteLength);
-		createTemplate(filename, readBlock.byteLength);
-		doRead(readBlock, readBlock.byteLength);
+		var length = readBlock.byteLength;
+		data = new Uint8Array(length);
+		createTemplate(filename, length);
+		doRead(readBlock, length);
 	});
 	
 }
