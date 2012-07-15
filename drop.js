@@ -439,6 +439,9 @@ function SetParseTree() {
 			parseInput = response;
 			// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
 			parseInput = parseInput.replace(/(\r\n|\n|\r)/gm," ");
+			// Also, I need to make all the "typedef struct"'s into string's 
+			parseInput = parseInput.replace(/typedef struct ([A-Za-z0-9_]+) {/g,  "var $1 =  \"typedef struct $1 {");
+			parseInput = parseInput.replace(/(} [A-Za-z0-9_]+, \*P[A-Za-z0-9_]+;)/g,  "$1\";");
 			
 			try {
 				
