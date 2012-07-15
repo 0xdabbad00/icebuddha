@@ -437,6 +437,8 @@ function SetParseTree() {
 		
 		$.get("parseFile_pe.txt", function(response) {
 			parseInput = response;
+			// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
+			parseInput = parseInput.replace(/(\r\n|\n|\r)/gm," ");
 			
 			try {
 				
@@ -445,7 +447,7 @@ function SetParseTree() {
 							
 				$('#parsetree').tree({
 					data: treedata,
-					autoOpen: true
+					autoOpen: false
 				});
 				
 				$('#parsetree').bind(
@@ -460,13 +462,7 @@ function SetParseTree() {
 		
 	});
 	
-	return;
-	
-	
-
-	var e_lfanew = data[60]+data[61]*256;
-	expectedOffset = 0;
-	
+	return;	
 }
 
 function clickParseTreeNode(event) {
