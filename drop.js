@@ -130,6 +130,11 @@ function doRead(readBlock, length) {
 	
 	$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>test</footer>"));
 	
+	// Add right-click menu
+	$("#hexCell").contextMenu({
+	      menu : 'hexCallbackMenu'
+	});
+	
 	log.info((new Date().getTime()) + " " + "Done with append");
 	
 	lastBytesRead = lastBytesRead + length;
@@ -151,7 +156,6 @@ function doRead(readBlock, length) {
 	$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 	$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 	$(".hex").mouseup(snapSelectionToWord);
-	
 
 	if (!isValueElementSet) {
 		SetValueElement(0);
@@ -213,7 +217,7 @@ function getByteContentHTML(address, hex, ascii) {
 	output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
 	output.push(address);
-	output.push("<td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");
+	output.push("<td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");	
 	output.push(hex);
 	output.push("<td id=\"asciiCell\">");
 	output.push(ascii);
@@ -265,6 +269,16 @@ function createTemplate(fileName, fileSize) {
 	output.push(" <td id=\"value\">");
 	output.push("</table>\n");
 	output.push("<div id=\"parsetree\"></div>\n");
+
+	// Right-click menu
+	output.push("<div id=\"hexCallbackMenu\">\n");
+	output.push("<ul>");
+	output.push("<li id=\"MenuItem1\"><a href=\"#Item1\">xor</a></li>");
+	output.push("<li id=\"MenuItem2\"><a href=\"#Item2\">Menu Item 2</a></li>");
+	output.push("</ul>");
+	output.push("</div>");
+	
+	
 	$('#content').html(output.join(""));
 	
 	$('#byte_content').scrollTo(0);  // Start at top
