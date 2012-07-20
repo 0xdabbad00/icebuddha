@@ -271,12 +271,18 @@ function createTemplate(fileName, fileSize) {
 	output.push("<div id=\"parsetree\"></div>\n");
 
 	// Right-click menu
-	output.push("<div id=\"hexCallbackMenu\">\n");
-	output.push("<ul>");
-	output.push("<li id=\"MenuItem1\"><a href=\"#Item1\">xor</a></li>");
-	output.push("<li id=\"MenuItem2\"><a href=\"#Item2\">Menu Item 2</a></li>");
-	output.push("</ul>");
-	output.push("</div>");
+	output.push(
+			"<div id=\"hexCallbackMenu\">\n" + 
+			"<ul>" +
+			"<li id=\"Hash\"><a href=\"#Hash\">Hash</a></li>" +
+			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
+			"<li id=\"Copy\"><a href=\"#Copy\">Copy</a>" +
+			"<ul>" +
+			"  <li id=\"Copy_bytes\"><a href=\"#Copy_bytes\">Copy bytes</a></li>" +
+			"  <li id=\"Copy_hex\"><a href=\"#Copy_hex\">Copy hex</a></li>" +
+			"</ul></li>" +
+			"</ul>" +
+			"</div>");
 	
 	
 	$('#content').html(output.join(""));
