@@ -553,17 +553,10 @@ limitations under the License.
         return $li;
       };
       createNodeLi = function(node) {
-    	  /*
-    	  return $("<li><div><span class=\"title\">" + node.name + "<br>" +
-          		"</span></div></li>");
-          */
-    	  
-        return $("<li><div><span class=\"title\">" + node.name + "<br>" +
-        		"<span class=\"parseTreeData\">" +
-        		"Offset: " + node.offset +
-        		"; Size: " + node.size +
-        		"; Data: " + node.hexData +
-        		"</span></span></div></li>");
+    	  // 
+    	  // Node data display
+    	  //
+        return $("<li><div><span class=\"parseTreeData\">" + convertToHexWord(node.offset) +" "+node.hexData+node.varName + node.comment +"</span></div></li>");
         		
       };
       createFolderLi = function(node) {

@@ -28,6 +28,7 @@ item
  	var itemData = {};
  	itemData.text = type + s1 + name + array + ";" + s2 + comment;
  	itemData.varName = name;
+ 	itemData.description = comment;
  	itemData.size = 0;
  	if (type == "BYTE") itemData.size = 1;
  	if (type == "WORD") itemData.size = 2;
@@ -37,7 +38,7 @@ item
  	  var arrayInt = array.substring(1, array.length-1);
  	  itemData.size *= arrayInt;
  	}
- 	
+
 	return itemData;
  }
 
@@ -45,7 +46,7 @@ ArrayData
  = "[" digits:[0-9]+ "]" { return "[" + digits.join("") + "]"; } 
  
 Comment
- = "/*" text:[A-Za-z_0-9' '\t\r\n')''('';'':']+ "*/" ws {return "/*" + text.join("") + "*/";}
+ = "/*" text:[A-Za-z_0-9' '\t\r\n')''('';'':']+ "*/" ws {return text.join("");}
  
 Variable
  = characters:[A-Za-z_0-9]* 
