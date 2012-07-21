@@ -5,6 +5,7 @@ var data;
 var file;
 var reader;
 
+var MAX_FILE_SIZE = 10*1024*1024; // 10MB
 var NUM_BYTES_TO_LOAD = 16*100;
 var lastBytesRead = 0;
 
@@ -14,16 +15,36 @@ var addressString = "";
 var hexString = "";
 var asciiString = "";
 
+var start = new Date().getTime();
+var time = new Date().getTime();
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
 ///////////////////////////////////////////////////////////////////////////////
+var hexArray = new Array( "0", "1", "2", "3",
+        "4", "5", "6", "7",
+        "8", "9", "A", "B",
+        "C", "D", "E", "F" );
+
+var displayableAscii = new Array(
+		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+		".", "!", "\"", "#", "$", "%", ".", "\'", "(", ")", "*", "+", ",", "-", ".", "\/", 
+		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", ".", "=", ".", "?", 
+		"@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", 
+		"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", 
+		".", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
+		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ".");
+
+function timeLog(message)
+{
+	time = new Date().getTime();
+	console.log("\n"+(time-start) + " " + message);
+	start = time;
+}
+
 function convertToHex(dec)
 {
-    var hexArray = new Array( "0", "1", "2", "3",
-                              "4", "5", "6", "7",
-                              "8", "9", "A", "B",
-                              "C", "D", "E", "F" );
     var decToHex = hexArray[(dec&0xf0)>>4]+hexArray[(dec&0x0f)];
     return (decToHex);
 }
@@ -41,15 +62,6 @@ function intToHex(val) {
 }
 
 function dispAscii(val) {
-	var displayableAscii = new Array(
-			".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
-			".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
-			".", "!", "\"", "#", "$", "%", ".", "\'", "(", ")", "*", "+", ",", "-", ".", "\/", 
-			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", ".", "=", ".", "?", 
-			"@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", 
-			"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", 
-			".", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
-			"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ".");
 	if (val > 127) return '.';
 	return displayableAscii[val];
 }
@@ -73,7 +85,8 @@ function handleFinishedRead(evt) {
 	if(evt.target.readyState == FileReader.DONE) {
 		var length = evt.target.result.byteLength;
 		var readBlock =  new Uint8Array(evt.target.result, 0, length);
-		doRead(readBlock, length);
+		doRead(readBlock, NUM_BYTES_TO_LOAD);
+		SetParseTree();
 	}
 }
 
@@ -89,22 +102,33 @@ function doRead(readBlock, length) {
 	var hex = [""];
 	var ascii = [""];
 	
+	
+	timeLog("Building data");
+	
 	var column = 0;
 	for (var i = lastBytesRead; i < lastBytesRead + length; i++) {
 		// Show address
 		if (column == 0) {
-			address.push(intToHex(i)+"<br>\n");
+			address.push(intToHex(i));
+			address.push("<br>\n");
 		}
 		// Show value
-		hex.push("<i id=\"h"+i+"\" class=\"hex\">");
-		hex.push(convertToHex(data[i]));
+		hex.push("<i id=\"h");
+		hex.push(i);
+		hex.push("\" class=\"hex\">");
+	
+		hex.push(hexArray[(i&0xf0)>>4]);
+		hex.push(hexArray[(i&0x0f)]);
+		
 		if (column % 16 != 0 && column % 8 == 0) {
 		  hex.push("&nbsp;");
 		}
 		hex.push(" </i>");
 		
 		// Show ascii
-		ascii.push("<i id=\"a"+i+"\" class=\"ascii\">");
+		ascii.push("<i id=\"a");
+		ascii.push(i);
+		ascii.push("\" class=\"ascii\">");
 		ascii.push(dispAscii(data[i]));
 		ascii.push("</i>");
 		
@@ -117,25 +141,23 @@ function doRead(readBlock, length) {
 		}
 	}
 	
-	// TODO This is slow (the appending below), reason unknown
-	
-	
-	log.info((new Date().getTime()) + " " + "Doing append");
+	timeLog("Doing joins");
 
 	// Set html
 	addressString += address.join("");
 	hexString += hex.join("");
 	asciiString += ascii.join("");
 	
+	timeLog("Joins finished");
 	
-	$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>test</footer>"));
+	$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>more data</footer>"));
+	
+	timeLog("Updated divs");
 	
 	// Add right-click menu
 	$("#hexCell").contextMenu({
 	      menu : 'hexCallbackMenu'
 	});
-	
-	log.info((new Date().getTime()) + " " + "Done with append");
 	
 	lastBytesRead = lastBytesRead + length;
 	
@@ -146,22 +168,27 @@ function doRead(readBlock, length) {
 		context: '#byte_content'
 	};
 	
+	
+	/*
+	// TODO Re-enable waypoint to read more as we go
 	$footer.waypoint(function(event, direction) {
 		$footer.waypoint('remove');
 		$footer.detach();
 		
-		readFileSlice(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
+		doRead(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
 	}, opts);
+	*/
 	
-	$(".ascii").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
-	$(".hex").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
-	$(".hex").mouseup(snapSelectionToWord);
+	
+	
+	$("#asciiCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+	$("#hexCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
+	$("#hexCell").mouseup(snapSelectionToWord);
+	$("#addressCell").mouseup(snapSelectionToWord);
 
 	if (!isValueElementSet) {
 		SetValueElement(0);
 	}
-	
-	SetParseTree();
 }
 
 function snapSelectionToWord() {
@@ -213,16 +240,19 @@ function snapSelectionToWord() {
 }
 
 function getByteContentHTML(address, hex, ascii) {
+	timeLog("Start getByteContentHTML");
 	output = [];
 	output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
 	output.push(address);
-	output.push("<td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");	
+	output.push("</td><td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");	
 	output.push(hex);
-	output.push("<td id=\"asciiCell\">");
+	output.push("</td><td id=\"asciiCell\">");
 	output.push(ascii);
-	output.push("</table>");
-	return output.join("");
+	output.push("</td></tr></table>");
+	ret =  output.join("");
+	timeLog("Finished getByteContentHTML");
+	return ret;
 }
 
 
@@ -244,7 +274,7 @@ function handleFileSelect(evt) {
 	reader = new FileReader();
 	reader.onloadend = handleFinishedRead;
 	
-	readFileSlice(lastBytesRead, NUM_BYTES_TO_LOAD);
+	readFileSlice(lastBytesRead, MAX_FILE_SIZE);
 }
 
 function createTemplate(fileName, fileSize) {
@@ -317,18 +347,26 @@ function handleDragOver(evt) {
 ///////////////////////////////////////////////////////////////////////////////
 // Mouse hovering
 ///////////////////////////////////////////////////////////////////////////////
-function mouseoverBytes() {
-	var currentId = this.id;
-	var byte = currentId.substring(1, currentId.length); 
+function mouseoverBytes(e) {
+	var currentId = e.target.id;
+	if (currentId == "hexCell" || currentId == "asciiCell") {
+		return;
+	}
+	
+	var byte = currentId.substring(1, currentId.length);	
     $("#a"+byte).addClass( "hovered");
     $("#h"+byte).addClass( "hovered");
     
     SetValueElement(byte);
   }
 
-function mouseoutBytes() {
-	var currentId = this.id;
-	var byte = currentId.substring(1, currentId.length); 
+function mouseoutBytes(e) {
+	var currentId = e.target.id;
+	if (currentId == "hexCell" || currentId == "asciiCell") {
+		return;
+	}
+	
+	var byte = currentId.substring(1, currentId.length);
     $("#a"+byte).removeClass( "hovered");
     $("#h"+byte).removeClass( "hovered");
   };
@@ -554,6 +592,7 @@ if ($_GET('test')) {
 		data = new Uint8Array(length);
 		createTemplate(filename, length);
 		doRead(readBlock, length);
+		SetParseTree();
 	});
 	
 }
