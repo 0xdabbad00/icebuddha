@@ -152,9 +152,10 @@ div#footer {
 }
 
 .parseTreeData {
-  font-size: 70%;
+  font-size: 90%;
   margin-left: 10px;
-  color: #808080;
+  color: #505050;
+  font-family: monospace, monospace;
   font-style: normal;
 }
 

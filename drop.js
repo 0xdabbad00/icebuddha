@@ -49,6 +49,16 @@ function convertToHex(dec)
     return (decToHex);
 }
 
+function convertToHexWord(dec)
+{
+    var decToHex =
+    	hexArray[(dec&0xf0000000)>>0x1c]+hexArray[(dec&0x0f000000)>>0x18] +
+    	hexArray[(dec&0x00f00000)>>0x14]+hexArray[(dec&0x000f0000)>>0x0f] +
+    	hexArray[(dec&0x0000f000)>>0x0c]+hexArray[(dec&0x00000f00)>>0x08] +
+    	hexArray[(dec&0x000000f0)>>0x04]+hexArray[(dec&0x0000000f)>>0x00];
+    return (decToHex);
+}
+
 function addHexIdentifier(value) {
 	return value+"h";
 }
@@ -117,8 +127,8 @@ function doRead(readBlock, length) {
 		hex.push(i);
 		hex.push("\" class=\"hex\">");
 	
-		hex.push(hexArray[(i&0xf0)>>4]);
-		hex.push(hexArray[(i&0x0f)]);
+		hex.push(hexArray[(data[i]&0xf0)>>4]);
+		hex.push(hexArray[(data[i]&0x0f)]);
 		
 		if (column % 16 != 0 && column % 8 == 0) {
 		  hex.push("&nbsp;");
@@ -263,7 +273,7 @@ function handleFileSelect(evt) {
 	var files = evt.dataTransfer.files; // FileList
 
 	file = files[0];  // File object
-	log.info((new Date().getTime()) + " " + "Loading: "+escape(file.name));
+	console.log((new Date().getTime()) + " " + "Loading: "+escape(file.name));
 	
 
 	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
@@ -406,7 +416,7 @@ function SetValueElement(offset) {
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
 var expectedOffset = 0;
-function node(label, size, name, offset) {
+function node(label, size, name, comment, offset) {
 	offset = offset || expectedOffset;
 	expectedOffset = offset + size;
 	
@@ -432,17 +442,28 @@ function node(label, size, name, offset) {
 	var maxDataDisplaySize = 4;
 	var hexData="";
 	if(size>maxDataDisplaySize) {
-		hexData = "...";
+		hexData = "...["+size+"]";
 	} else if (size == 0) {
 		hexData = "";
 	} else {
 		for(var i=0; i<size && i<maxDataDisplaySize; i++) {
-			hexData += convertToHex(data[offset+i]); 
+			hexData += convertToHex(data[offset+i]) + " "; 
 		}
-		hexData = addHexIdentifier(hexData);
 	}
 	
-	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name};
+	// Make hexData specific length
+	var fillNeeded = maxDataDisplaySize*3+1 - hexData.length;
+	for(var i=0; i<fillNeeded; i++) {
+		hexData+="&nbsp;";
+	}
+	
+	commentString = "";
+	if (comment) {
+		commentString = "&nbsp;&nbsp;; "+comment;
+	}
+	
+	
+	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString};
 }
 
 
@@ -465,7 +486,7 @@ function parseStruct(offset, structText) {
 	var treeDataStruct = { label: struct.label, offset: offset, size: getStructSize(struct.children), children:[]};
 	for (i in struct.children) {
 		var child = struct.children[i];
-		treeDataStruct.children.push(node(child.text, child.size, child.varName));
+		treeDataStruct.children.push(node(child.text, child.size, child.varName, child.description));
 	}
 	
 	treedata.push(treeDataStruct);
@@ -489,11 +510,13 @@ function SetParseTree() {
 	
 	treedata = [];
 	
-	$.get("parseGrammer.txt", function(response) {
+	cacheBreaker = "?"+new Date().getTime();
+	
+	$.get("parseGrammer.txt"+cacheBreaker, function(response) {
 		parseGrammer = response;
 		parser = PEG.buildParser(parseGrammer, trackLineAndColumn=true);
 		
-		$.get("parseFile_pe.txt", function(response) {
+		$.get("parseFile_pe.txt"+cacheBreaker, function(response) {
 			parseInput = response;
 			// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
 			parseInput = parseInput.replace(/(\r\n|\n|\r)/gm," ");
