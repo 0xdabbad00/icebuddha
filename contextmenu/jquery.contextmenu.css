@@ -25,17 +25,20 @@
 }
 .uctxMenu a {
     text-decoration: none;
-    color: inherit;
+	color: #333;
     display: block;
     line-height: 20px;
     height: 20px;
     outline: none;
-    padding: 3px 5px 5px 5px;
-    margin-left: 28px;
+    padding: 1px 1px 1px 1px;
+    margin-left: 0px;
     border-left: 1px solid #e3e3e3;
     margin-top: -1px;
     margin-bottom: -3px;
 }
+
+#content .uctxMenu a {color: #333;}
+
 .uctxMenu img {
     float: left;
     margin-top: 2px;
