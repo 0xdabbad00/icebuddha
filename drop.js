@@ -87,6 +87,26 @@ function str2ArrayBuffer(str) {
   return bufView;
 }
 
+function showError(str) {
+	$(function() {
+		$( "#dialog-message" ).html("<span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin: 0 7px 50px 0;\"></span>"+str);
+		
+        $( "#dialog-message" ).dialog({
+        	title: "Error",
+            modal: true,
+            disabled: false,
+
+            buttons: {
+                Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+
+        $( "#dialog-message" ).dialog( "enable" );
+    });
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // File reading
@@ -273,6 +293,12 @@ function handleFileSelect(evt) {
 	var files = evt.dataTransfer.files; // FileList
 
 	file = files[0];  // File object
+
+	if (file.size > MAX_FILE_SIZE) {
+		showError("File is too large.<br>IceBuddha currently only accepts files under 10MB.");
+		return;
+	}
+
 	console.log((new Date().getTime()) + " " + "Loading: "+escape(file.name));
 	
 
@@ -598,6 +624,8 @@ function $_GET(q,s) {
 var selectStart = 0;
 var selectEnd = 0;
 var selectedNode = null;
+
+$( "#dialog-message" ).dialog( "option", "disabled", true );
 
 //Setup the dnd listeners.
 var dropZone = document.getElementById('container');
