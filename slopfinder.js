@@ -37,9 +37,9 @@ function displayResults() {
 	}
 
 	if (executables.length>1) {
-		output.push("<b>Executables</b><br>"+
+		output.push(""+
 			"<table border=0 cellpadding=0 cellspacing=0>"+
-			"<tr><th width=100>Name<th width=100>DEP<br>protection<th width=100>ALSR<br>protection</tr>" 
+			"<tr><th width=100>Executable name<th width=100>DEP<br>protection<th width=100>ALSR<br>protection</tr>" 
 			+ executables.join("")
 			+"</table>");
 	} else {
@@ -63,6 +63,24 @@ function doRead(readBlock, length, i) {
 		fileData[i].aslr = '<font color="red"><b>NO</b></font>';
 
 		// TODO actually check
+		offset = 0x3c;
+		e_lfanew = ((readBlock[offset+3]<<24)>>>0) +
+		  ((readBlock[offset+2]<<16)>>>0) +
+		  ((readBlock[offset+1]<<8)>>>0) +
+		  (readBlock[offset+0]);
+		var offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
+		var sizeof_IMAGE_FILE_HEADER = 24;
+		offset = e_lfanew + sizeof_IMAGE_FILE_HEADER + offset_in_IMAGE_OPTIONAL_HEADER;
+		DllCharacteristics = ((readBlock[offset+1]<<8)>>>0) +
+		  (readBlock[offset+0]);
+		  
+		if ((DllCharacteristics & 0x100) != 0) {
+			fileData[i].dep = 'yes';
+		}
+		if ((DllCharacteristics & 0x40) != 0) {
+			fileData[i].aslr = 'yes';
+		}
+		
 	}
 }
 
