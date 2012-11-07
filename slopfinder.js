@@ -36,6 +36,10 @@ function displayResults() {
 		}
 	}
 
+	output.push("<h1>SlopFinder</h1>"+
+		"<p>Statically analyzes Windows executable files to look for indicators of bad software development practices, focusing on those which pose security risks.   Heavily leverages HTML5 and javascript so no files are uploaded to the server.  Created 2012.11.06 by <a href=\"http://0xdabbad00.com\">0xdabbad00</a>.  Part of the IceBuddha project.<br><br><br>"
+		);
+
 	if (executables.length>1) {
 		output.push(""+
 			"<table border=0 cellpadding=0 cellspacing=0>"+
