@@ -38,9 +38,7 @@ function displayResults() {
 		}
 	}
 
-	output.push("<h1>SlopFinder</h1>"+
-		"<p>Statically analyzes Windows executable files to look for indicators of bad software development practices, focusing on those which pose security risks.   Heavily leverages HTML5 and javascript so no files are uploaded to the server.  Created 2012.11.06 by <a href=\"http://0xdabbad00.com\">0xdabbad00</a>.  Part of the IceBuddha project.<br><br><br>"
-		);
+	output.push("<hr>");
 
 	if (executables.length>1) {
 		output.push(""+
@@ -54,7 +52,10 @@ function displayResults() {
 	if (unknownFiles.length>1) {
 		output.push("<br><b>Nonexecutables</b><br>" + unknownFiles.join(""));
 	}
-	$('#content').html(output.join(""));
+	output.push("<br><br><hr><h2>Protections</h2>");
+	output.push("<h3>DEP</h3><a href=\"http://en.wikipedia.org/wiki/Data_Execution_Prevention\">Data Execution Prevention</a> can be turned on by compiling with Visual Studio > 2005 and ensure NXCOMPAT is on (default).");
+	output.push("<p><h3>ASLR</h3><a href=\"http://en.wikipedia.org/wiki/Address_space_layout_randomization\">Address Space Layout Randomization</a> can be turned on by compiling with Visual Studio > 2005 and ensure DYNAMICBASE in on (default)");
+	$('#analysis').html(output.join(""));
 }
 
 
