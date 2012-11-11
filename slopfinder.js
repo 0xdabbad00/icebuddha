@@ -32,9 +32,9 @@ function displayResults() {
 	for (var i = 0; i < fileData.length; i++) {
 		file = fileData[i];
 		if (file.type == 'exe') {
-			executables.push("<tr><td>"+escape(file.name).replace("%20", " ") + "<td align=center>"+file.dep+"<td align=center>"+file.aslr+"\n");
+			executables.push("<tr><td>"+escape(file.name).replace(/%20/g, " ") + "<td align=center>"+file.dep+"<td align=center>"+file.aslr+"\n");
 		} else {
-			unknownFiles.push(escape(file.name) + "<br>\n");
+			unknownFiles.push(escape(file.name).replace(/%20/g, " ") + "<br>\n");
 		}
 	}
 
