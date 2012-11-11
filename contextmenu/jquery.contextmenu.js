@@ -29,6 +29,7 @@
         onHide : function() {}
     },
     menus = [],
+    target,
     methods = {
         init : function(options) {
             options = $.extend({}, defaults, options);
@@ -71,7 +72,9 @@
                             'z-index' : 99999
                         });			
                     }
-                    $this.bind((((options.mouseButton === 'right') ? 'contextmenu' : 'click') + '.' + eventNamespace), function(e){		
+                    $this.bind((((options.mouseButton === 'right') ? 'contextmenu' : 'click') + '.' + eventNamespace), function(e){
+                        target = $(e.target);
+
                         if (! $this.data('uctxEnable')) {
                             return true;
                         }
@@ -138,7 +141,8 @@
                                 if (!$(this).hasClass(classes.disabled)) {
                                     options.onSelect.call(this, {
                                         id : $(this).attr('id'),
-                                        action : $('a:first', this).attr('href').substr(1)
+                                        action : $('a:first', this).attr('href').substr(1),
+                                        target: target
                                     });
                                 }
                             });

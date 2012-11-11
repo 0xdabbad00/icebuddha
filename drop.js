@@ -15,12 +15,13 @@ var addressString = "";
 var hexString = "";
 var asciiString = "";
 
-var start = new Date().getTime();
-var time = new Date().getTime();
+var clickedNode;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
 ///////////////////////////////////////////////////////////////////////////////
+
 var hexArray = new Array( "0", "1", "2", "3",
         "4", "5", "6", "7",
         "8", "9", "A", "B",
@@ -36,12 +37,6 @@ var displayableAscii = new Array(
 		".", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
 		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ".");
 
-function timeLog(message)
-{
-	time = new Date().getTime();
-	console.log("\n"+(time-start) + " " + message);
-	start = time;
-}
 
 function convertToHex(dec)
 {
@@ -132,9 +127,6 @@ function doRead(readBlock, length) {
 	var hex = [""];
 	var ascii = [""];
 	
-	
-	timeLog("Building data");
-	
 	var column = 0;
 	for (var i = lastBytesRead; i < lastBytesRead + length; i++) {
 		// Show address
@@ -170,23 +162,21 @@ function doRead(readBlock, length) {
 			column = 0;
 		}
 	}
-	
-	timeLog("Doing joins");
 
 	// Set html
 	addressString += address.join("");
 	hexString += hex.join("");
 	asciiString += ascii.join("");
 	
-	timeLog("Joins finished");
-	
 	$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>more data</footer>"));
-	
-	timeLog("Updated divs");
 	
 	// Add right-click menu
 	$("#hexCell").contextMenu({
-	      menu : 'hexCallbackMenu'
+	      menu : 'hexContextMenu',
+	      onSelect: function(e) {
+	      	hexId = e.target.closest('#hexCell i.hex').attr('id');
+	      	alert("The item's action is: " + e.action + "\nTarget:"+hexId);
+	      }
 	});
 	
 	lastBytesRead = lastBytesRead + length;
@@ -270,7 +260,6 @@ function snapSelectionToWord() {
 }
 
 function getByteContentHTML(address, hex, ascii) {
-	timeLog("Start getByteContentHTML");
 	output = [];
 	output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
@@ -281,7 +270,6 @@ function getByteContentHTML(address, hex, ascii) {
 	output.push(ascii);
 	output.push("</td></tr></table>");
 	ret =  output.join("");
-	timeLog("Finished getByteContentHTML");
 	return ret;
 }
 
@@ -338,7 +326,7 @@ function createTemplate(fileName, fileSize) {
 
 	// Right-click menu
 	output.push(
-			"<div id=\"hexCallbackMenu\">\n" + 
+			"<div id=\"hexContextMenu\">\n" + 
 			"<ul>" +
 			"<li id=\"Hash\"><a href=\"#Hash\">Hash</a></li>" +
 			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
@@ -350,6 +338,12 @@ function createTemplate(fileName, fileSize) {
 			"</ul>" +
 			"</div>");
 	
+	output.push(
+			"<div id=\"parseTreeContextMenu\">\n" + 
+			"<ul>" +
+			"<li id=\"Colorize\"><a href=\"#Colorize\">Colorize</a></li>" +
+			"</ul>" +
+			"</div>");
 	
 	$('#content').html(output.join(""));
 	
@@ -564,7 +558,26 @@ function SetParseTree() {
 				    'tree.click',
 				    clickParseTreeNode
 				);
-				
+
+				// Add right-click menu
+				$('#parsetree').bind(
+				    'tree.contextmenu',
+				    function(event) {
+				        clickedNode = event.node;
+				    }
+				);
+
+				 $("#parsetree").contextMenu({
+				 	menu : 'parseTreeContextMenu',
+				 	onSelect: function(e) {
+				 		if (clickedNode.children.length == 0) {
+				 			// If you click on a child node, then ensure we focus on the parent
+				 			clickedNode = clickedNode.parent;
+				 		}
+				 		alert("The item's action is: " + e.action + 
+				 			"\nNode: "+clickedNode.name);
+				 	}
+				});
 			} catch (e) {
 				$('#parsetree').html("Parsing failed; "+e);
 			}
