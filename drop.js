@@ -17,6 +17,13 @@ var asciiString = "";
 
 var clickedNode;
 
+var selectData = [];
+var selectedNodes = [];
+
+var selectStart = 0;
+var selectEnd = 0;
+var selectedNode = null;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
@@ -574,8 +581,9 @@ function SetParseTree() {
 				 			// If you click on a child node, then ensure we focus on the parent
 				 			clickedNode = clickedNode.parent;
 				 		}
-				 		alert("The item's action is: " + e.action + 
-				 			"\nNode: "+clickedNode.name);
+				 		if (e.action == 'Colorize') {
+				 			colorize(clickedNode);
+				 		}
 				 	}
 				});
 			} catch (e) {
@@ -588,40 +596,80 @@ function SetParseTree() {
 	return;	
 }
 
+function pickHighliteColor() {
+	colors = ['#f99', '#00ff40', '#2E9AFE', '#F7D358', '#F781F3', '#58FAF4', '#DA81F5', '#F79F81', '#81F781', '#F6CEEC', '#A9E2F3', '#F5A9E1', '#F5D0A9', '#CEF6CE'];
+	return colors[selectData.length%colors.length];
+}
+
+function highlite(start, end, node, color) {
+	color = typeof color !== 'undefined' ? color : pickHighliteColor();
+	for(var i=start; i<end; i++) {
+      $("#a"+i).css("background", color);
+      $("#h"+i).css("background", color);
+    }
+    node.style.background = color;
+    selectData.push({start: start, end: end, color: color, node: node});
+}
+
+function unhighlite() {
+	for (var selection=0; selection<selectData.length; selection++) {
+	    for(var i=selectData[selection].start; i<selectData[selection].end; i++) {
+	    	$("#a"+i).css("background", "");
+	    	$("#h"+i).css("background", "");
+	    }
+      	selectData[selection].node.style.background = "";
+	}
+	selectData = [];
+}
+
+function colorize(node) {
+	// High-lite byte data
+    unhighlite();
+
+	selectStart = node.offset;
+    selectedNode = node;
+	for (var i = 0; i<node.children.length; i++) {
+		var child = node.children[i];
+		//child.element.style.background = pickHighliteColor();
+		highlite(child.offset, child.offset + child.size, child.element);
+	}
+
+	// Set new
+
+    // selectedNode = event.target;
+    // if (selectedNode.hasClass("parseTreeData")) {
+    // 	selectedNode = selectedNode.parent();
+    // }
+    // highlite(selectStart, selectStart + node.size, selectedNode);
+    
+    SetValueElement(selectStart);
+    
+    // Scroll to element
+    $('#byte_content').scrollTo($("#h"+selectStart), 800);
+}
+
 function clickParseTreeNode(event) {
     var node = event.node;
     
     // High-lite byte data
-    // Unset old
-    for(var i=selectStart; i<selectEnd; i++) {
-      $("#a"+i).removeClass( "selected");
-      $("#h"+i).removeClass( "selected");
-    }
+    unhighlite();
     
     // Set new
     selectStart = node.offset;
-    selectEnd = node.offset + node.size;
-    for(var i=selectStart; i<selectEnd; i++) {
-      $("#a"+i).addClass( "selected");
-      $("#h"+i).addClass( "selected");
+    selectedNode = event.target;
+    if (selectedNode.hasClass("parseTreeData")) {
+    	selectedNode = selectedNode.parent();
     }
+    //selectedNode.css("background", pickHighliteColor());
+    highlite(selectStart, selectStart + node.size, selectedNode[0]);
     
     SetValueElement(selectStart);
     
     // Scroll to element
     $('#byte_content').scrollTo($("#h"+selectStart), 800);
     
-    // High-lite parse tree
-    // Unset old
-    if (selectedNode != null) {
-      selectedNode.removeClass("selected");
-    }
-    // Set new
-    selectedNode = event.target;
-    if (selectedNode.hasClass("parseTreeData")) {
-    	selectedNode = selectedNode.parent();
-    }
-    selectedNode.addClass("selected");
+    
+    
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -634,9 +682,6 @@ function $_GET(q,s) {
 ///////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////
-var selectStart = 0;
-var selectEnd = 0;
-var selectedNode = null;
 
 $( "#dialog-message" ).dialog( "option", "disabled", true );
 
@@ -660,3 +705,4 @@ if ($_GET('test')) {
 	});
 	
 }
+
