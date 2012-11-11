@@ -4,9 +4,11 @@
 var MAX_FILE_SIZE = 10*1024; // 10K
 var NUM_BYTES_TO_LOAD = 16*100;
 
+var files;
 var fileData;
 var numFilesRead = 0;
-var filesToRead = 0;
+var numFiles = 0;
+var filesOnly = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 // File reading
@@ -17,7 +19,7 @@ function handleFinishedRead(evt, i) {
 		var readBlock =  new Uint8Array(evt.target.result, 0, length);
 		doRead(readBlock, length, i);
 		numFilesRead++;
-		if (numFilesRead == filesToRead) {
+		if (numFilesRead == numFiles) {
 			displayResults();
 		}
 	}
@@ -66,7 +68,7 @@ function doRead(readBlock, length, i) {
 		fileData[i].dep = '<font color="red"><b>NO</b></font>';
 		fileData[i].aslr = '<font color="red"><b>NO</b></font>';
 
-		// TODO actually check
+		// Get to DllCharacteristics data
 		offset = 0x3c;
 		e_lfanew = ((readBlock[offset+3]<<24)>>>0) +
 		  ((readBlock[offset+2]<<16)>>>0) +
@@ -88,28 +90,108 @@ function doRead(readBlock, length, i) {
 	}
 }
 
+function handleFile(file, path)
+{
+	var fileNum = numFiles;
+	numFiles++;
+	fileData[fileNum] = {};
+	fileData[fileNum].name = path;
+	fileData[fileNum].type = '';
+	reader = new FileReader();
+	fileData[fileNum].reader = reader;
+	reader.onloadend = function(evt) { handleFinishedRead(evt, fileNum); }
+	readFile(reader, file);
+}
+
+function handleFileTree(entry, i) {
+	var directoryReader = entry.createReader();
+            getAllEntries(
+                    directoryReader,
+                    readDirectory,
+                    appendIndentList(parentNode)
+                );
+}
+
+function readDirectory(entries) {
+    for (i = 0; i < entries.length; i++) {
+    	(function(i) {
+        if (entries[i].isDirectory) {
+            var directoryReader = entries[i].createReader();
+            getAllEntries(
+                    directoryReader,
+                    readDirectory
+                );
+        } else {
+            entries[i].file(function(file) {handleFile(file, entries[i].fullPath);}, errorHandler);
+        }
+    	})(i);
+    }
+}
+
+function errorHandler(e) {
+    console.log('FileSystem API error code: ' + e.code)
+}
+
+
+function getAllEntries(directoryReader, callback) {
+    var entries = [];
+
+    var readEntries = function () {
+        directoryReader.readEntries(function (results) {
+            if (!results.length) {
+                entries.sort();
+                callback(entries);
+            } else {
+                entries = entries.concat(toArray(results));
+                readEntries();
+            }
+        }, errorHandler);
+    };
+
+    readEntries();
+}
+
+function toArray(list) {
+    return Array.prototype.slice.call(list || [], 0);
+}
+
+
+
 function handleFileSelect(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 
-	var files = evt.dataTransfer.files; // FileList
+	items = evt.dataTransfer.items;
+	if (!items || !items[0] || !items[0].webkitGetAsEntry)
+	{
+		alert("You should really upgrade your browser.  This site needs at least Google Chrome 21 to handle dropped folders.  You can still drop files though.");
+		items = evt.dataTransfer.files;
+		filesOnly = true;
+	}
 	numFilesRead = 0;
-	filesToRead = files.length;
-	fileData = []
+	numFiles = 0;
+	fileData = [];
 
-	for (var i = 0; i < files.length; i++) {
-		(function(i)
-		{
-			//output.push(evaluateFile(files[0]));
-			fileData[i] = {};
-			fileData[i].name = files[i].name;
-			fileData[i].type = '';
-			reader = new FileReader();
-			fileData[i].reader = reader;
-			var fileNum = i;
-			reader.onloadend = function(evt) { handleFinishedRead(evt, fileNum); }
-			readFile(reader, files[i]);
-		})(i);
+	for (var i = 0; i < items.length; i++) {
+		var entry = items[i];
+		if (filesOnly) {
+			handleFile(entry, entry.name);
+		} else {
+			if (entry.getAsEntry){  //Standard HTML5 API
+				entry = entry.getAsEntry();
+			} else if (entry.webkitGetAsEntry){  //WebKit implementation of HTML5 API.
+				entry = entry.webkitGetAsEntry();
+			}
+			if (entry.isFile){
+				handleFile(evt.dataTransfer.files[i], "/" + entry.name);
+			} else if (entry.isDirectory){
+				var entries = [];
+            	entries[0] = evt.dataTransfer.items[i].webkitGetAsEntry();
+				readDirectory(entries);
+			} else {
+				alert("Error, unkown type given");
+			}
+		}
 	}
 	
 }
