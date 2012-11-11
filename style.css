@@ -30,6 +30,13 @@ li {
   margin:0px;
 }
 
+h1, h2, h3 {
+	padding: 1px;
+	margin: 0px;
+}
+h2 { font-size: 110%;}
+h3 { font-size: 100%;}
+
 div#parsetree {
   margin: 5px;
   
@@ -97,7 +104,7 @@ div#drop_zone {
  
  text-align: center;
  
- font-size: 800%;
+ font-size: 600%;
  color: #909090;
  
  background: #e0e0e0;
