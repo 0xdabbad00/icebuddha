@@ -6,8 +6,7 @@ var file;
 var reader;
 
 var MAX_FILE_SIZE = 10*1024*1024; // 10MB
-var NUM_BYTES_TO_LOAD = 16*100;
-var lastBytesRead = 0;
+var NUM_BYTES_PER_DISPLAY = 16*100;
 
 var isValueElementSet = false;
 
@@ -113,29 +112,74 @@ function showError(str) {
 ///////////////////////////////////////////////////////////////////////////////
 // File reading
 ///////////////////////////////////////////////////////////////////////////////
+function handleFileSelect(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+
+	var files = evt.dataTransfer.files; // FileList
+
+	file = files[0];  // File object
+
+	if (file.size > MAX_FILE_SIZE) {
+		showError("File is too large.<br>IceBuddha currently only accepts files under 10MB.");
+		return;
+	}
+
+	console.log((new Date().getTime()) + " " + "Loading: "+escape(file.name));
+
+	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
+	data = new Uint8Array(file.size);
+	
+	createTemplate(file.name, file.size);
+
+	reader = new FileReader();
+	reader.onloadend = handleFinishedRead;
+	
+	readFileSlice(0, MAX_FILE_SIZE);
+}
+
+function handleDragOver(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+	evt.dataTransfer.dropEffect = 'copy';
+}
+
+function readFileSlice(start, end) {
+	if (file == null) return;
+	
+	// Determine how much to read
+	if(file.webkitSlice) {
+		var blob = file.webkitSlice(start, end);
+	} else if(file.mozSlice) {
+		var blob = file.mozSlice(start, end);
+	}
+
+	reader.readAsArrayBuffer(blob);
+}
+
 function handleFinishedRead(evt) {
 	if(evt.target.readyState == FileReader.DONE) {
 		var length = evt.target.result.byteLength;
-		var readBlock =  new Uint8Array(evt.target.result, 0, length);
-		doRead(readBlock, NUM_BYTES_TO_LOAD);
+		data =  new Uint8Array(evt.target.result, 0, length);
+		displayHexDump(0);
 		SetParseTree();
 	}
 }
 
 
-function doRead(readBlock, length) {
+function displayHexDump(position) {
+	console.log("Set read position to: "+position);
 	var output = [""];
-	start = lastBytesRead; 
-	for (var i = 0; i < length; i++) {
-		data[start+i] = readBlock[i];
-	}
 	
 	var address = [""];
 	var hex = [""];
 	var ascii = [""];
+
+	length = NUM_BYTES_PER_DISPLAY;
+	// TODO sanity check for end of file
 	
 	var column = 0;
-	for (var i = lastBytesRead; i < lastBytesRead + length; i++) {
+	for (var i = position; i < position + length; i++) {
 		// Show address
 		if (column == 0) {
 			address.push(intToHex(i));
@@ -171,11 +215,20 @@ function doRead(readBlock, length) {
 	}
 
 	// Set html
-	addressString += address.join("");
-	hexString += hex.join("");
-	asciiString += ascii.join("");
+	addressString = address.join("");
+	hexString = hex.join("");
+	asciiString = ascii.join("");
+
+	footer = "";
+	if (position + NUM_BYTES_PER_DISPLAY < data.length) {
+		footer = "<footer>Loading more data...</footer>";
+		console.log("Adding footer");
+	} else {
+		console.log("Not adding footer");
+	}
+
 	
-	$('#byte_content').html(getByteContentHTML(addressString, hexString, asciiString+"<footer>more data</footer>"));
+	$('#byte_content').html(getByteContentHTML(addressString, hexString + footer, asciiString));
 	
 	// Add right-click menu
 	$("#hexCell").contextMenu({
@@ -185,26 +238,26 @@ function doRead(readBlock, length) {
 	      	alert("The item's action is: " + e.action + "\nTarget:"+hexId);
 	      }
 	});
-	
-	lastBytesRead = lastBytesRead + length;
-	
-	// Set waypoint for infinite scrolling through file (until end of file)
-	$footer = $('footer'),
-	opts = {
-		offset: '100%',
-		context: '#byte_content'
-	};
-	
-	
-	/*
-	// TODO Re-enable waypoint to read more as we go
-	$footer.waypoint(function(event, direction) {
-		$footer.waypoint('remove');
-		$footer.detach();
-		
-		doRead(lastBytesRead, lastBytesRead+NUM_BYTES_TO_LOAD);
-	}, opts);
-	*/
+
+	$('#byte_content').scrollTo($("#h"+position), 1, {onAfter:function(){
+		if (position + NUM_BYTES_PER_DISPLAY < data.length) {
+			// Set waypoint for infinite scrolling through file (until end of file)
+			$footer = $('footer'),
+			opts = {
+				offset: '100%',
+				context: '#byte_content'
+			};
+			
+			// Waypoint to read more as we go
+			$footer.waypoint(function(event, direction) {
+				$footer.waypoint('remove');
+				$footer.detach();
+				
+				displayHexDump(position+NUM_BYTES_PER_DISPLAY);
+			}, opts);
+		}
+
+	}});
 	
 	
 	
@@ -280,41 +333,12 @@ function getByteContentHTML(address, hex, ascii) {
 	return ret;
 }
 
-
-function handleFileSelect(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-
-	var files = evt.dataTransfer.files; // FileList
-
-	file = files[0];  // File object
-
-	if (file.size > MAX_FILE_SIZE) {
-		showError("File is too large.<br>IceBuddha currently only accepts files under 10MB.");
-		return;
-	}
-
-	console.log((new Date().getTime()) + " " + "Loading: "+escape(file.name));
-	
-
-	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
-	data = new Uint8Array(file.size);
-	
-	createTemplate(file.name, file.size);
-
-	reader = new FileReader();
-	reader.onloadend = handleFinishedRead;
-	
-	readFileSlice(lastBytesRead, MAX_FILE_SIZE);
-}
-
 function createTemplate(fileName, fileSize) {
 	var output = [];
 	output.push('<strong>' + escape(fileName)+ '</strong> - ' + fileSize + ' bytes');
 	document.getElementById('subheader').innerHTML = output.join(""); 
 	
 	// Set defaults for new file read
-	lastBytesRead = 0;
 	isValueElementSet = false;
 	addressString = "";
 	hexString = "";
@@ -361,24 +385,6 @@ function createTemplate(fileName, fileSize) {
 	$asciiCell = $('#asciiCell')
 }
 
-function readFileSlice(start, end) {
-	if (file == null) return;
-	
-	// Determine how much to read
-	if(file.webkitSlice) {
-		var blob = file.webkitSlice(start, end);
-	} else if(file.mozSlice) {
-		var blob = file.mozSlice(start, end);
-	}
-
-	reader.readAsArrayBuffer(blob);
-}
-
-function handleDragOver(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-	evt.dataTransfer.dropEffect = 'copy';
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -633,14 +639,6 @@ function colorize(node) {
 		//child.element.style.background = pickHighliteColor();
 		highlite(child.offset, child.offset + child.size, child.element);
 	}
-
-	// Set new
-
-    // selectedNode = event.target;
-    // if (selectedNode.hasClass("parseTreeData")) {
-    // 	selectedNode = selectedNode.parent();
-    // }
-    // highlite(selectStart, selectStart + node.size, selectedNode);
     
     SetValueElement(selectStart);
     
@@ -693,14 +691,13 @@ dropZone.addEventListener('drop', handleFileSelect, false);
 
 if ($_GET('test')) {
 	var filename = $_GET('test');
-	filename = "putty.exe";  // TODO force only putty to be loaded for now
+	filename = "putty.exe";
 	
 	$.get(filename, function(response) {
-		readBlock =  str2ArrayBuffer(response);
-		var length = readBlock.byteLength;
-		data = new Uint8Array(length);
+		data =  str2ArrayBuffer(response);
+		var length = data.byteLength;
 		createTemplate(filename, length);
-		doRead(readBlock, length);
+		displayHexDump(0);
 		SetParseTree();
 	});
 	
