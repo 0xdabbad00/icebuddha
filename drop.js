@@ -333,7 +333,7 @@ function createTemplate(fileName, fileSize) {
 
 	// Right-click menu
 	output.push(
-			"<div id=\"hexContextMenu\">\n" + 
+			"<div id=\"hexContextMenu\" style=\"display: none;\">\n" + 
 			"<ul>" +
 			"<li id=\"Hash\"><a href=\"#Hash\">Hash</a></li>" +
 			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
@@ -346,7 +346,7 @@ function createTemplate(fileName, fileSize) {
 			"</div>");
 	
 	output.push(
-			"<div id=\"parseTreeContextMenu\">\n" + 
+			"<div id=\"parseTreeContextMenu\" style=\"display: none;\">\n" + 
 			"<ul>" +
 			"<li id=\"Colorize\"><a href=\"#Colorize\">Colorize</a></li>" +
 			"</ul>" +
