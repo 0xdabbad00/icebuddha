@@ -168,7 +168,6 @@ function handleFinishedRead(evt) {
 
 
 function displayHexDump(position) {
-	console.log("Set read position to: "+position);
 	var output = [""];
 	
 	var address = [""];
@@ -177,9 +176,12 @@ function displayHexDump(position) {
 
 	length = NUM_BYTES_PER_DISPLAY;
 	if (position + length > data.length) { length = data.length - position; }
+
+	bytesAbove = position;
+	if (bytesAbove > NUM_BYTES_PER_DISPLAY * .25) { bytesAbove = NUM_BYTES_PER_DISPLAY * .25; }
 	
 	var column = 0;
-	for (var i = position; i < position + length; i++) {
+	for (var i = position - bytesAbove; i < position + length; i++) {
 		// Show address
 		if (column == 0) {
 			address.push(intToHex(i));
@@ -220,9 +222,6 @@ function displayHexDump(position) {
 	asciiString = ascii.join("");
 
 	footer = "";
-	console.log("position:"+position);
-	console.log("NUM_BYTES_PER_DISPLAY:"+NUM_BYTES_PER_DISPLAY);
-	console.log("data.length:"+data.length);
 	if (position + NUM_BYTES_PER_DISPLAY < data.length) {
 		footer = "<footer>Loading more data...</footer>";
 		console.log("Adding footer");
@@ -231,7 +230,7 @@ function displayHexDump(position) {
 	}
 
 	
-	$('#byte_content').html(getByteContentHTML(addressString, hexString + footer, asciiString, position));
+	$('#byte_content').html(getByteContentHTML(addressString, hexString + footer, asciiString, position-bytesAbove));
 	
 	// Add right-click menu
 	$("#hexCell").contextMenu({
@@ -242,44 +241,56 @@ function displayHexDump(position) {
 	      }
 	});
 
+	// On refresh, scroll to the correct place
 	$('#byte_content').scrollTo($("#h"+position), 1, {onAfter:function(){
-		if (position + NUM_BYTES_PER_DISPLAY < data.length) {
-			// Set waypoint for infinite scrolling through file (until end of file)
-			/*
-			$footer = $('footer'),
+		//
+		// After getting to the location, set events to cause data refreshes on scrolls
+		//
+
+		// Scroll up
+		if (position - NUM_BYTES_PER_DISPLAY*.25 > 0) {
+			scrollPointOffset = position-NUM_BYTES_PER_DISPLAY*.25;
+			$scrollPoint = $('#h'+scrollPointOffset),
+
 			opts = {
-				offset: '100%',
+				offset: 0,
 				context: '#byte_content'
 			};
 			
-			// Waypoint to read more as we go
-			$footer.waypoint(function(event, direction) {
-				$footer.waypoint('remove');
-				$footer.detach();
-				
-				displayHexDump(position+NUM_BYTES_PER_DISPLAY);
+			$scrollPoint.waypoint(function(event, direction) {
+				if (direction === 'up') {
+					// Upwards scroll event triggered
+					$scrollPoint.waypoint('remove');
+					$scrollPoint.detach();
+					
+					displayHexDump(scrollPointOffset);
+				}
 			}, opts);
-			*/
-
-			footerOffset = position+(NUM_BYTES_PER_DISPLAY*.75);
-			console.log("footerOffset:"+footerOffset);
-			$footer = $('#h'+footerOffset),
-
-			opts = {
-				offset: '100%',
-				context: '#byte_content'
-			};
-			
-			// Waypoint to read more as we go
-			$footer.waypoint(function(event, direction) {
-				$footer.waypoint('remove');
-				$footer.detach();
-				
-				displayHexDump(footerOffset);
-			}, opts);
-
+		} else {
+			console.log("Not adding upwards scroll event");
 		}
 
+
+		// Scroll down
+		if (position + NUM_BYTES_PER_DISPLAY*.75 < data.length) {
+			scrollPointOffset = position+(NUM_BYTES_PER_DISPLAY*.75);
+			$scrollPoint = $('#h'+scrollPointOffset),
+
+			opts = {
+				offset: '100%',
+				context: '#byte_content'
+			};
+			
+			$scrollPoint.waypoint(function(event, direction) {
+				// Downward scroll event triggered
+				$scrollPoint.waypoint('remove');
+				$scrollPoint.detach();
+				
+				displayHexDump(scrollPointOffset);
+			}, opts);
+		} else {
+			console.log("Not adding downwards scroll event");
+		}
 	}});
 	
 	$("#asciiCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
