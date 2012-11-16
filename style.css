@@ -143,6 +143,7 @@ div#footer {
  font-family: monospace, monospace;
  max-height: 200px;
  font-style: normal;
+ font-size: 13px;
 }
 
 .address {
@@ -159,7 +160,7 @@ div#footer {
 }
 
 .parseTreeData {
-  font-size: 90%;
+  font-size: 12px;
   margin-left: 10px;
   color: #505050;
   font-family: monospace, monospace;

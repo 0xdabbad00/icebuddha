@@ -176,7 +176,7 @@ function displayHexDump(position) {
 	var ascii = [""];
 
 	length = NUM_BYTES_PER_DISPLAY;
-	// TODO sanity check for end of file
+	if (position + length > data.length) { length = data.length - position; }
 	
 	var column = 0;
 	for (var i = position; i < position + length; i++) {
@@ -220,6 +220,9 @@ function displayHexDump(position) {
 	asciiString = ascii.join("");
 
 	footer = "";
+	console.log("position:"+position);
+	console.log("NUM_BYTES_PER_DISPLAY:"+NUM_BYTES_PER_DISPLAY);
+	console.log("data.length:"+data.length);
 	if (position + NUM_BYTES_PER_DISPLAY < data.length) {
 		footer = "<footer>Loading more data...</footer>";
 		console.log("Adding footer");
@@ -228,7 +231,7 @@ function displayHexDump(position) {
 	}
 
 	
-	$('#byte_content').html(getByteContentHTML(addressString, hexString + footer, asciiString));
+	$('#byte_content').html(getByteContentHTML(addressString, hexString + footer, asciiString, position));
 	
 	// Add right-click menu
 	$("#hexCell").contextMenu({
@@ -242,6 +245,7 @@ function displayHexDump(position) {
 	$('#byte_content').scrollTo($("#h"+position), 1, {onAfter:function(){
 		if (position + NUM_BYTES_PER_DISPLAY < data.length) {
 			// Set waypoint for infinite scrolling through file (until end of file)
+			/*
 			$footer = $('footer'),
 			opts = {
 				offset: '100%',
@@ -255,11 +259,28 @@ function displayHexDump(position) {
 				
 				displayHexDump(position+NUM_BYTES_PER_DISPLAY);
 			}, opts);
+			*/
+
+			footerOffset = position+(NUM_BYTES_PER_DISPLAY*.75);
+			console.log("footerOffset:"+footerOffset);
+			$footer = $('#h'+footerOffset),
+
+			opts = {
+				offset: '100%',
+				context: '#byte_content'
+			};
+			
+			// Waypoint to read more as we go
+			$footer.waypoint(function(event, direction) {
+				$footer.waypoint('remove');
+				$footer.detach();
+				
+				displayHexDump(footerOffset);
+			}, opts);
+
 		}
 
 	}});
-	
-	
 	
 	$("#asciiCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 	$("#hexCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
@@ -319,9 +340,17 @@ function snapSelectionToWord() {
     }
 }
 
-function getByteContentHTML(address, hex, ascii) {
+function getByteContentHTML(address, hex, ascii, start) {
 	output = [];
-	output.push("<table border=0 cellpadding=0 cellspacing=0><tr>");
+	fontHeight = 15;
+	tableHeight = data.length/16*fontHeight;
+	preHeight = start/16*fontHeight;
+	console.log("preHeight: "+preHeight);
+	
+	output.push("<table border=0 cellpadding=0 cellspacing=0");
+	output.push("  style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px;\">");
+	output.push("<tr><td style=\"min-height:"+preHeight+"px; height:"+preHeight+"px;\"><td><td></tr>");
+	output.push("<tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
 	output.push(address);
 	output.push("</td><td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");	
@@ -349,7 +378,7 @@ function createTemplate(fileName, fileSize) {
 	output.push("<table border=0 cellpadding=0 cellspacing=0>\n");
 	output.push(" <tr><td width=650px>\n");
 	output.push(" <div id=\"byte_content\">");
-	output.push(getByteContentHTML("", "", ""));
+	output.push(getByteContentHTML("", "", "", 0));
 	output.push(" </div>\n");
 	output.push(" <td id=\"value\">");
 	output.push("</table>\n");
