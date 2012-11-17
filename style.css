@@ -37,6 +37,7 @@ h1, h2, h3 {
 h2 { font-size: 110%;}
 h3 { font-size: 100%;}
 .ui-accordion h3.ui-accordion-header  {padding: 0; padding-left: 2.2em;}
+.ui-accordion h3.ui-accordion-header-active  {background: #CCC}
 .ui-accordion  .ui-accordion-content  {padding: 0;}
 
 .ui-state-active, .ui-widget-content {
@@ -189,3 +190,12 @@ div#footer {
 .hex:hover, .ascii:hover, .hovered {
   background: #c0c0c0; 
 }
+
+#editor {
+    height: 500px;
+    position: relative;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    border-bottom-right-radius: 0px;
+    margin-top: 5px;
+    }
