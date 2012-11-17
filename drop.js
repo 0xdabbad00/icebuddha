@@ -441,10 +441,19 @@ function createTemplate(fileName, fileSize) {
 		autoHeight: false,
 		beforeActivate: function(event, ui) {
         	if (ui.newHeader[0].id == 'ui-accordion-accordion-header-0') {
-        		console.log("File parsing clicked!");
+        		// If we are showing the hexdump view, recreate it before it is displayed
         		ParseInstructions(editor.getSession().getValue());
         	}
-    	}
+    	},
+    	activate : function(event, ui) {
+        	if (ui.newHeader[0].id == 'ui-accordion-accordion-header-1') {
+        		// If we are showing the ACE editor, tell it to refresh after the accordion
+        		// expands
+        		editor.renderer.onResize(true); 
+        		editor.renderer.updateFull(force=true);
+        	}
+    	},
+
 
 	});
 
