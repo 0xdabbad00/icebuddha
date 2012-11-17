@@ -23,6 +23,9 @@ var selectStart = 0;
 var selectEnd = 0;
 var selectedNode = null;
 
+var hexDumpStart;
+var hexDumpEnd;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
@@ -179,9 +182,12 @@ function displayHexDump(position) {
 
 	bytesAbove = position;
 	if (bytesAbove > NUM_BYTES_PER_DISPLAY * .25) { bytesAbove = NUM_BYTES_PER_DISPLAY * .25; }
+
+	hexDumpStart = position - bytesAbove;
+	hexDumpEnd = position + length;
 	
 	var column = 0;
-	for (var i = position - bytesAbove; i < position + length; i++) {
+	for (var i = hexDumpStart; i < hexDumpEnd; i++) {
 		// Show address
 		if (column == 0) {
 			address.push(intToHex(i));
@@ -296,6 +302,8 @@ function displayHexDump(position) {
 	if (!isValueElementSet) {
 		SetValueElement(0);
 	}
+
+	reHighlite();
 }
 
 function snapSelectionToWord() {
@@ -645,6 +653,15 @@ function pickHighliteColor() {
 	return colors[selectData.length%colors.length];
 }
 
+function reHighlite() {
+	for (var selection=0; selection<selectData.length; selection++) {
+	    for(var i=selectData[selection].start; i<selectData[selection].end; i++) {
+	    	$("#a"+i).css("background", selectData[selection].color);
+	    	$("#h"+i).css("background", selectData[selection].color);
+	    }
+	}
+}
+
 function highlite(start, end, node, color) {
 	color = typeof color !== 'undefined' ? color : pickHighliteColor();
 	for(var i=start; i<end; i++) {
@@ -681,7 +698,15 @@ function colorize(node) {
     SetValueElement(selectStart);
     
     // Scroll to element
-    $('#byte_content').scrollTo($("#h"+selectStart), 800);
+    scrollToByte(selectStart);
+}
+
+function scrollToByte(start) {
+	if (hexDumpStart > start || hexDumpEnd < start) {
+		displayHexDump(start- start%16);
+	} else {
+		$('#byte_content').scrollTo($("#h"+selectStart), 800);
+	}
 }
 
 function clickParseTreeNode(event) {
@@ -702,10 +727,7 @@ function clickParseTreeNode(event) {
     SetValueElement(selectStart);
     
     // Scroll to element
-    $('#byte_content').scrollTo($("#h"+selectStart), 800);
-    
-    
-    
+    scrollToByte(selectStart);
 }
 
 /////////////////////////////////////////////////////////////////////////////
