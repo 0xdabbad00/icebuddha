@@ -402,8 +402,8 @@ function createTemplate(fileName, fileSize) {
 	output.push("</table>\n");
 	output.push("<div id=\"parsetree\"></div>\n");
 	output.push("</div>");
-	output.push("<h3>Parse grammer: EXE</h3>");
-	output.push("<div id=\"parseGrammer\">This is my parse grammer</div>");
+	output.push("<h3>Parse grammar: EXE</h3>");
+	output.push("<div id=\"parseGrammar\">This is my parse grammar</div>");
 	output.push("</div>");
 
 	// Right-click menu
@@ -591,16 +591,16 @@ function getStructValue(struct, varName) {
 }
 
 function SetParseTree() {
-	var parseGrammer = "";
+	var parseGrammar = "";
 	var parseInput = "";
 	
 	treedata = [];
 	
 	cacheBreaker = "?"+new Date().getTime();
 	
-	$.get("parseGrammer.txt"+cacheBreaker, function(response) {
-		parseGrammer = response;
-		parser = PEG.buildParser(parseGrammer, trackLineAndColumn=true);
+	$.get("parseGrammar.txt"+cacheBreaker, function(response) {
+		parseGrammar = response;
+		parser = PEG.buildParser(parseGrammar, trackLineAndColumn=true);
 		
 		$.get("parseFile_pe.txt"+cacheBreaker, function(response) {
 			parseInput = response;
