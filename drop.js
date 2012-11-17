@@ -26,6 +26,12 @@ var selectedNode = null;
 var hexDumpStart;
 var hexDumpEnd;
 
+var editor;
+var parser;
+var treedata = [];
+var expectedOffset = 0; // for parse tree
+
+var lastHexDumpPosition = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
@@ -171,6 +177,7 @@ function handleFinishedRead(evt) {
 
 
 function displayHexDump(position) {
+	lastHexDumpPosition = position;
 	var output = [""];
 	
 	var address = [""];
@@ -400,10 +407,10 @@ function createTemplate(fileName, fileSize) {
 	output.push(" </div>\n");
 	output.push(" <td id=\"value\">");
 	output.push("</table>\n");
-	output.push("<div id=\"parsetree\"></div>\n");
+	output.push("<div id=\"parseTreeEnvelope\"><div id=\"parsetree\"></div></div>\n");
 	output.push("</div>");
-	output.push("<h3>Parse grammar: EXE</h3>");
-	output.push("<div id=\"parseGrammar\">This is my parse grammar</div>");
+	output.push("<h3>Parse as: EXE</h3>");
+	output.push("<div id=\"editor\"></div>");
 	output.push("</div>");
 
 	// Right-click menu
@@ -429,7 +436,18 @@ function createTemplate(fileName, fileSize) {
 	
 	$('#content').html(output.join(""));
 
-	$( "#accordion" ).accordion({ clearStyle: true, autoHeight: false });
+	$( "#accordion" ).accordion({ 
+		clearStyle: true,
+		autoHeight: false,
+		beforeActivate: function(event, ui) {
+        	if (ui.newHeader[0].id == 'ui-accordion-accordion-header-0') {
+        		console.log("File parsing clicked!");
+        		ParseInstructions(editor.getSession().getValue());
+        	}
+    	}
+
+	});
+
 	
 	$('#byte_content').scrollTo(0);  // Start at top
 	
@@ -501,7 +519,6 @@ function SetValueElement(offset) {
 ///////////////////////////////////////////////////////////////////////////////
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
-var expectedOffset = 0;
 function node(label, size, name, comment, offset) {
 	offset = offset || expectedOffset;
 	expectedOffset = offset + size;
@@ -561,9 +578,6 @@ function getStructSize(children) {
 	return size;
 }
 
-var parser;
-var treedata = [];
-
 function parseStruct(offset, structText) {
 	expectedOffset = offset;
 	var parseData = parser.parse(structText);
@@ -590,11 +604,61 @@ function getStructValue(struct, varName) {
   return 0;
 }
 
+function ParseInstructions(parseInstructions) {
+	treedata = [];
+
+	// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
+	parseInstructions = parseInstructions.replace(/(\r\n|\n|\r)/gm," ");
+	// Also, I need to make all the "typedef struct"'s into string's 
+	parseInstructions = parseInstructions.replace(/typedef struct ([A-Za-z0-9_]+) {/g,  "var $1 =  \"typedef struct $1 {");
+	parseInstructions = parseInstructions.replace(/(} [A-Za-z0-9_]+, \*P[A-Za-z0-9_]+;)/g,  "$1\";");
+	
+	try {
+		console.log("Creating tree");
+		$('#parsetree').remove(); // Remove old parse tree
+		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
+		
+		var parseFunc = new Function(parseInstructions);
+		parseFunc();
+					
+		$('#parsetree').tree({
+			data: treedata,
+			autoOpen: false
+		});
+		
+		$('#parsetree').bind(
+		    'tree.click',
+		    clickParseTreeNode
+		);
+
+		// Add right-click menu
+		$('#parsetree').bind(
+		    'tree.contextmenu',
+		    function(event) {
+		        clickedNode = event.node;
+		    }
+		);
+
+		 $("#parsetree").contextMenu({
+		 	menu : 'parseTreeContextMenu',
+		 	onSelect: function(e) {
+		 		if (clickedNode.children.length == 0) {
+		 			// If you click on a child node, then ensure we focus on the parent
+		 			clickedNode = clickedNode.parent;
+		 		}
+		 		if (e.action == 'Colorize') {
+		 			colorize(clickedNode);
+		 		}
+		 	}
+		});
+	} catch (e) {
+		$('#parsetree').html("Parsing failed; "+e);
+	}    
+}
+
 function SetParseTree() {
 	var parseGrammar = "";
 	var parseInput = "";
-	
-	treedata = [];
 	
 	cacheBreaker = "?"+new Date().getTime();
 	
@@ -604,50 +668,17 @@ function SetParseTree() {
 		
 		$.get("parseFile_pe.txt"+cacheBreaker, function(response) {
 			parseInput = response;
-			// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
-			parseInput = parseInput.replace(/(\r\n|\n|\r)/gm," ");
-			// Also, I need to make all the "typedef struct"'s into string's 
-			parseInput = parseInput.replace(/typedef struct ([A-Za-z0-9_]+) {/g,  "var $1 =  \"typedef struct $1 {");
-			parseInput = parseInput.replace(/(} [A-Za-z0-9_]+, \*P[A-Za-z0-9_]+;)/g,  "$1\";");
-			
-			try {
-				
-				var parseFunc = new Function(parseInput);
-				parseFunc();
-							
-				$('#parsetree').tree({
-					data: treedata,
-					autoOpen: false
-				});
-				
-				$('#parsetree').bind(
-				    'tree.click',
-				    clickParseTreeNode
-				);
 
-				// Add right-click menu
-				$('#parsetree').bind(
-				    'tree.contextmenu',
-				    function(event) {
-				        clickedNode = event.node;
-				    }
-				);
+			// Set up ace editor
+			$("#editor").html(parseInput);
+		    editor = ace.edit("editor");
+    		editor.getSession().setMode("ace/mode/javascript");
+		    editor.setTheme("ace/theme/chrome");
+		    editor.session.setUseWorker(false);
+		    editor.setShowFoldWidgets(false);
 
-				 $("#parsetree").contextMenu({
-				 	menu : 'parseTreeContextMenu',
-				 	onSelect: function(e) {
-				 		if (clickedNode.children.length == 0) {
-				 			// If you click on a child node, then ensure we focus on the parent
-				 			clickedNode = clickedNode.parent;
-				 		}
-				 		if (e.action == 'Colorize') {
-				 			colorize(clickedNode);
-				 		}
-				 	}
-				});
-			} catch (e) {
-				$('#parsetree').html("Parsing failed; "+e);
-			}
+		    // Create parse tree
+		    ParseInstructions(parseInput);
 		});
 		
 	});
