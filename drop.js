@@ -362,7 +362,7 @@ function getByteContentHTML(address, hex, ascii, start) {
 	tableHeight = data.length/16*fontHeight;
 	preHeight = start/16*fontHeight;
 
-	tableHeightStyle = "style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px; border-spacing: 2px;\"";
+	tableHeightStyle = "style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px; border-spacing: 0px;\"";
 	preHeightStyle = "style=\"min-height:"+preHeight+"px; height:"+preHeight+"px;\"";
 	
 	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+">");
@@ -381,8 +381,6 @@ function getByteContentHTML(address, hex, ascii, start) {
 
 function createTemplate(fileName, fileSize) {
 	var output = [];
-	output.push('<strong>' + escape(fileName)+ '</strong> - ' + fileSize + ' bytes');
-	document.getElementById('subheader').innerHTML = output.join(""); 
 	
 	// Set defaults for new file read
 	isValueElementSet = false;
@@ -392,6 +390,9 @@ function createTemplate(fileName, fileSize) {
 	
 	// Set byte content
 	output = [];
+	output.push("<div id=\"accordion\">");
+	output.push("<h3><strong>" + escape(fileName)+ "</strong> - " + fileSize + " bytes</h3>");
+	output.push("<div id=\"fileParsing\">");
 	output.push("<table border=0 cellpadding=0 cellspacing=0>\n");
 	output.push(" <tr><td width=650px>\n");
 	output.push(" <div id=\"byte_content\">");
@@ -400,6 +401,10 @@ function createTemplate(fileName, fileSize) {
 	output.push(" <td id=\"value\">");
 	output.push("</table>\n");
 	output.push("<div id=\"parsetree\"></div>\n");
+	output.push("</div>");
+	output.push("<h3>Parse grammer: EXE</h3>");
+	output.push("<div id=\"parseGrammer\">This is my parse grammer</div>");
+	output.push("</div>");
 
 	// Right-click menu
 	output.push(
@@ -423,6 +428,8 @@ function createTemplate(fileName, fileSize) {
 			"</div>");
 	
 	$('#content').html(output.join(""));
+
+	$( "#accordion" ).accordion({ clearStyle: true, autoHeight: false });
 	
 	$('#byte_content').scrollTo(0);  // Start at top
 	
@@ -741,6 +748,8 @@ function $_GET(q,s) {
 // Main
 ///////////////////////////////////////////////////////////////////////////////
 
+// Handler for when the page has loaded
+$( "#dialog-message" ).dialog({ autoOpen: false });
 $( "#dialog-message" ).dialog( "option", "disabled", true );
 
 //Setup the dnd listeners.
