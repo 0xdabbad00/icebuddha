@@ -247,23 +247,29 @@ function displayHexDump(position) {
 		// After getting to the location, set events to cause data refreshes on scrolls
 		//
 
+		console.log("Scrolled to: "+intToHex(position));
+
 		// Scroll up
 		if (position - NUM_BYTES_PER_DISPLAY*.25 > 0) {
-			scrollPointOffset = position-NUM_BYTES_PER_DISPLAY*.25;
-			$scrollPoint = $('#h'+scrollPointOffset),
+			scrollPointOffsetUp = position-NUM_BYTES_PER_DISPLAY*.25;
+			$scrollPointUp = $('#h'+scrollPointOffsetUp);
+
+			console.log("Set up scroll to: "+intToHex(scrollPointOffsetUp));
+
 
 			opts = {
 				offset: 0,
 				context: '#byte_content'
 			};
 			
-			$scrollPoint.waypoint(function(event, direction) {
+			$scrollPointUp.waypoint(function(event, direction) {
 				if (direction === 'up') {
+					console.log("Upward scroll triggered");
 					// Upwards scroll event triggered
-					$scrollPoint.waypoint('remove');
-					$scrollPoint.detach();
+					$scrollPointUp.waypoint('destroy');
+					$scrollPointUp.detach();
 					
-					displayHexDump(scrollPointOffset);
+					displayHexDump(scrollPointOffsetUp);
 				}
 			}, opts);
 		} else {
@@ -273,20 +279,25 @@ function displayHexDump(position) {
 
 		// Scroll down
 		if (position + NUM_BYTES_PER_DISPLAY*.75 < data.length) {
-			scrollPointOffset = position+(NUM_BYTES_PER_DISPLAY*.75);
-			$scrollPoint = $('#h'+scrollPointOffset),
+			scrollPointOffsetDown = position+(NUM_BYTES_PER_DISPLAY*.75);
+			$scrollPointDown = $('#h'+scrollPointOffsetDown);
+
+			console.log("Set down scroll to: "+intToHex(scrollPointOffsetDown));
 
 			opts = {
 				offset: '100%',
 				context: '#byte_content'
 			};
 			
-			$scrollPoint.waypoint(function(event, direction) {
-				// Downward scroll event triggered
-				$scrollPoint.waypoint('remove');
-				$scrollPoint.detach();
-				
-				displayHexDump(scrollPointOffset);
+			$scrollPointDown.waypoint(function(event, direction) {
+				if (direction === 'down') {
+					console.log("Downward scroll triggered");
+					// Downward scroll event triggered
+					$scrollPointDown.waypoint('destroy');
+					$scrollPointDown.detach();
+					
+					displayHexDump(scrollPointOffsetDown);
+				}
 			}, opts);
 		} else {
 			console.log("Not adding downwards scroll event");
