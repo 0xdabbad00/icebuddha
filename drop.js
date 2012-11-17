@@ -224,9 +224,6 @@ function displayHexDump(position) {
 	footer = "";
 	if (position + NUM_BYTES_PER_DISPLAY < data.length) {
 		footer = "<footer>Loading more data...</footer>";
-		console.log("Adding footer");
-	} else {
-		console.log("Not adding footer");
 	}
 
 	
@@ -247,15 +244,10 @@ function displayHexDump(position) {
 		// After getting to the location, set events to cause data refreshes on scrolls
 		//
 
-		console.log("Scrolled to: "+intToHex(position));
-
 		// Scroll up
 		if (position - NUM_BYTES_PER_DISPLAY*.25 > 0) {
 			scrollPointOffsetUp = position-NUM_BYTES_PER_DISPLAY*.25;
 			$scrollPointUp = $('#h'+scrollPointOffsetUp);
-
-			console.log("Set up scroll to: "+intToHex(scrollPointOffsetUp));
-
 
 			opts = {
 				offset: 0,
@@ -264,7 +256,6 @@ function displayHexDump(position) {
 			
 			$scrollPointUp.waypoint(function(event, direction) {
 				if (direction === 'up') {
-					console.log("Upward scroll triggered");
 					// Upwards scroll event triggered
 					$scrollPointUp.waypoint('destroy');
 					$scrollPointUp.detach();
@@ -272,8 +263,6 @@ function displayHexDump(position) {
 					displayHexDump(scrollPointOffsetUp);
 				}
 			}, opts);
-		} else {
-			console.log("Not adding upwards scroll event");
 		}
 
 
@@ -282,8 +271,6 @@ function displayHexDump(position) {
 			scrollPointOffsetDown = position+(NUM_BYTES_PER_DISPLAY*.75);
 			$scrollPointDown = $('#h'+scrollPointOffsetDown);
 
-			console.log("Set down scroll to: "+intToHex(scrollPointOffsetDown));
-
 			opts = {
 				offset: '100%',
 				context: '#byte_content'
@@ -291,7 +278,6 @@ function displayHexDump(position) {
 			
 			$scrollPointDown.waypoint(function(event, direction) {
 				if (direction === 'down') {
-					console.log("Downward scroll triggered");
 					// Downward scroll event triggered
 					$scrollPointDown.waypoint('destroy');
 					$scrollPointDown.detach();
@@ -299,8 +285,6 @@ function displayHexDump(position) {
 					displayHexDump(scrollPointOffsetDown);
 				}
 			}, opts);
-		} else {
-			console.log("Not adding downwards scroll event");
 		}
 	}});
 	
@@ -364,14 +348,17 @@ function snapSelectionToWord() {
 
 function getByteContentHTML(address, hex, ascii, start) {
 	output = [];
+	// Calculate size of the scroll view and any filling that should be added before the hexdump
+	// for smoother looking auto-scrolling
 	fontHeight = 15;
 	tableHeight = data.length/16*fontHeight;
 	preHeight = start/16*fontHeight;
-	console.log("preHeight: "+preHeight);
+
+	tableHeightStyle = "style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px; border-spacing: 2px;\"";
+	preHeightStyle = "style=\"min-height:"+preHeight+"px; height:"+preHeight+"px;\"";
 	
-	output.push("<table border=0 cellpadding=0 cellspacing=0");
-	output.push("  style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px;\">");
-	output.push("<tr><td style=\"min-height:"+preHeight+"px; height:"+preHeight+"px;\"><td><td></tr>");
+	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+">");
+	output.push("<tr "+preHeightStyle+"><td "+preHeightStyle+"><td><td></tr>");
 	output.push("<tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
 	output.push(address);
