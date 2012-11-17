@@ -36,6 +36,14 @@ h1, h2, h3 {
 }
 h2 { font-size: 110%;}
 h3 { font-size: 100%;}
+.ui-accordion h3.ui-accordion-header  {padding: 0; padding-left: 2.2em;}
+.ui-accordion  .ui-accordion-content  {padding: 0;}
+
+.ui-state-active, .ui-widget-content {
+	background:#f0f0f0;
+}
+
+.ui-helper-reset { line-height: 1;}
 
 div#parsetree {
   margin: 5px;
