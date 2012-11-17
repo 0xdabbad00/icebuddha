@@ -569,7 +569,6 @@ function node(label, size, name, comment, offset) {
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString};
 }
 
-
 function getStructSize(children) {
 	var size = 0;
 	for(i in children) {
@@ -577,6 +576,10 @@ function getStructSize(children) {
 	}
 	return size;
 }
+
+function sizeof(struct) { return struct.size; }
+
+function after(struct) { return struct.offset + sizeof(struct); }
 
 function parseStruct(offset, structText) {
 	expectedOffset = offset;
@@ -614,7 +617,6 @@ function ParseInstructions(parseInstructions) {
 	parseInstructions = parseInstructions.replace(/(} [A-Za-z0-9_]+, \*P[A-Za-z0-9_]+;)/g,  "$1\";");
 	
 	try {
-		console.log("Creating tree");
 		$('#parsetree').remove(); // Remove old parse tree
 		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
 		
@@ -664,7 +666,7 @@ function SetParseTree() {
 	
 	$.get("parseGrammar.txt"+cacheBreaker, function(response) {
 		parseGrammar = response;
-		parser = PEG.buildParser(parseGrammar, trackLineAndColumn=true);
+		parser = PEG.buildParser(parseGrammar, options={trackLineAndColumn:true});
 		
 		$.get("parseFile_pe.txt"+cacheBreaker, function(response) {
 			parseInput = response;

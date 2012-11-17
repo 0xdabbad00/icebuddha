@@ -67,5 +67,5 @@ typedef struct IMAGE_OPTIONAL_HEADER {
 
 var imageDosHeader = parseStruct(0, IMAGE_DOS_HEADER);
 var e_lfanew = getStructValue(imageDosHeader, "e_lfanew");
-parseStruct(e_lfanew, IMAGE_FILE_HEADER);
-parseStruct(e_lfanew+24, IMAGE_OPTIONAL_HEADER);
+var imageFileHeader = parseStruct(e_lfanew, IMAGE_FILE_HEADER);
+parseStruct(after(imageFileHeader), IMAGE_OPTIONAL_HEADER);
