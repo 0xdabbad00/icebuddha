@@ -464,7 +464,7 @@ function createTemplate(fileName, fileSize) {
 	output.push(" <div id=\"byte_content\">");
 	output.push(getByteContentHTML("", "", "", 0));
 	output.push(" </div>\n");
-	output.push(" <td style=\"height:100%\"><table border=0 cellpadding=0 cellspacing=0 style=\"height:100%\">\n");
+	output.push(" <td style=\"height:100%\"><table border=0 cellpadding=0 cellspacing=0 style=\"height:208\">\n");
 	output.push("   <tr><td id=\"value\">");
 	output.push("   <tr><td id=\"goto\">Go to<br><input id=\"gotoInput\" value=\"0000000h\"></td>");
 	output.push("</table></table>\n");
