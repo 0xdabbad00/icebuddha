@@ -207,6 +207,7 @@ textarea:focus, input:focus, textarea:hover, input:hover {
   font-family: monospace, monospace;
   font-style: normal;
   max-height: 600px;
+  white-space: nowrap;
 }
 
 .selected {
