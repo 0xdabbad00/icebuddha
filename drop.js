@@ -83,6 +83,11 @@ function intToHex(val) {
 	return addHexIdentifier(str);
 }
 
+function hexToInt(str) {
+	str = str.replace('h', '');
+	return parseInt(str, 16);
+}
+
 function dispAscii(val) {
 	if (val > 127) return '.';
 	return displayableAscii[val];
@@ -149,7 +154,7 @@ function SetStrings() {
 			if (str.length >= minLength) {
 				var uOrA = "A";
 				if (isUnicode) uOrA = "U";
-				stringsData.push(intToHex(startOffset)+" "+uOrA+" "+str.join("")+"<br>");
+				stringsData.push("<a class=\"stringFound\" href=\"#"+intToHex(startOffset)+"\">"+intToHex(startOffset)+" "+uOrA+" "+str.join("")+"</a><br>");
 			}
 			str = [];
 			startOffset = i+1;
@@ -159,13 +164,15 @@ function SetStrings() {
 
 	$('#strings').html(stringsData.join(""));
 
-
-/*
-    highlite(selectStart, selectStart + node.size, selectedNode[0]);
-    
-    // Scroll to element
-    scrollToByte(selectStart);
-    */
+	$('.stringFound').click(function(e) {
+		e.preventDefault();
+		console.log("String clicked");
+		$("#accordion").accordion("activate", 0 );
+		gotoLocation = this.href.split('#')[1].replace('h', '');
+		gotoLocation = hexToInt(gotoLocation);
+  		scrollToByte(gotoLocation);
+  		return false;
+	});
 }
 
 
@@ -509,8 +516,6 @@ function createTemplate(fileName, fileSize) {
         		editor.renderer.updateFull(force=true);
         	}
     	},
-
-
 	});
 
 	// Goto input
@@ -533,7 +538,7 @@ function createTemplate(fileName, fileSize) {
 	        	var gotoFunc = new Function(input);
 				gotoFunc();
 
-	        	$('#byte_content').scrollTo(gotoLocation);
+	        	scrollToByte(gotoLocation);
 	        	SetValueElement(gotoLocation);
 	        	e.preventDefault();
         	} catch (e) {
@@ -837,9 +842,10 @@ function colorize(node) {
 
 function scrollToByte(start) {
 	if (hexDumpStart > start || hexDumpEnd < start) {
-		displayHexDump(start- start%16);
+		displayHexDump(start - start%16);
 	} else {
-		$('#byte_content').scrollTo($("#h"+selectStart), 800);
+		var location = $("#h"+start);
+		$('#byte_content').scrollTo(location, 800);
 	}
 }
 
