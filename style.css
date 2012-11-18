@@ -60,6 +60,7 @@ div#parsetree {
   width: 650px;
   
   max-height: 300px;
+  min-height: 300px;
 }
 
 div#about {
@@ -165,7 +166,31 @@ div#footer {
 #value {
   padding:0px 0px 0px 5px;
   font-family: monospace, monospace;
-  font-size: 70%;
+  font-size: 12px;
+}
+
+textarea, input {
+  text-decoration: none;
+  border: 1px solid #D0D0D0;
+  margin: 1px 0px 5px 2px;
+  padding: 1px;
+}
+
+textarea:focus, input:focus, textarea:hover, input:hover {
+/*  background-color: #FFFFCC; */
+  border: 1px solid #0099FF;
+}
+
+#goto {
+  vertical-align:bottom;
+}
+
+#gotoInput {
+  width: 100px;
+}
+
+.InputError {
+	background-color: #FFCCCC;
 }
 
 .parseTreeData {
@@ -174,6 +199,14 @@ div#footer {
   color: #505050;
   font-family: monospace, monospace;
   font-style: normal;
+}
+
+#strings {
+  font-size: 12px;
+  color: #505050;
+  font-family: monospace, monospace;
+  font-style: normal;
+  max-height: 600px;
 }
 
 .selected {

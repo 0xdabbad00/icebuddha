@@ -33,6 +33,8 @@ var expectedOffset = 0; // for parse tree
 
 var lastHexDumpPosition = 0;
 
+var gotoLocation = 0;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,10 +47,10 @@ var hexArray = new Array( "0", "1", "2", "3",
 var displayableAscii = new Array(
 		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
 		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
-		".", "!", "\"", "#", "$", "%", ".", "\'", "(", ")", "*", "+", ",", "-", ".", "\/", 
-		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", ".", "=", ".", "?", 
+		"&nbsp;", "!", "\"", "#", "$", "%", "&amp;", "\'", "(", ")", "*", "+", ",", "-", ".", "\/", 
+		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "&lt;", "=", "&gt;", "?", 
 		"@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", 
-		"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", 
+		"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "&#92;", "]", "^", "_", 
 		".", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
 		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ".");
 
@@ -86,6 +88,13 @@ function dispAscii(val) {
 	return displayableAscii[val];
 }
 
+function isDisplayable(val) {
+	if (val > 127) return false;
+	if (val == 0x2e) return true; // real period
+	if (displayableAscii[val] == '.') return false;
+	return true;
+}
+
 
 function str2ArrayBuffer(str) {
   var buf = new ArrayBuffer(str.length); 
@@ -115,6 +124,48 @@ function showError(str) {
 
         $( "#dialog-message" ).dialog( "enable" );
     });
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Strings view
+///////////////////////////////////////////////////////////////////////////////
+function SetStrings() {
+	var stringsData = [];
+	var str = [];
+	var minLength = 4;
+	var startOffset = 0;
+	var isUnicode = false;
+
+	// TODO make sure this can handle unicode
+	// check 41 00 41 42 43 44 00 -> ABCD
+	for (var i=0; i<data.length; i++) {
+		if (isUnicode && data[i]==0 && i-startOffset%2==1) {
+			// no op
+		} else if (isDisplayable(data[i])) {
+			str.push(dispAscii(data[i]));
+		} else if (data[i]==0 && i-startOffset==1) {
+			isUnicode=true;
+		} else {
+			if (str.length >= minLength) {
+				var uOrA = "A";
+				if (isUnicode) uOrA = "U";
+				stringsData.push(intToHex(startOffset)+" "+uOrA+" "+str.join("")+"<br>");
+			}
+			str = [];
+			startOffset = i+1;
+			isUnicode=false;
+		}
+	}
+
+	$('#strings').html(stringsData.join(""));
+
+
+/*
+    highlite(selectStart, selectStart + node.size, selectedNode[0]);
+    
+    // Scroll to element
+    scrollToByte(selectStart);
+    */
 }
 
 
@@ -172,6 +223,7 @@ function handleFinishedRead(evt) {
 		data =  new Uint8Array(evt.target.result, 0, length);
 		displayHexDump(0);
 		SetParseTree();
+		SetStrings();
 	}
 }
 
@@ -405,12 +457,16 @@ function createTemplate(fileName, fileSize) {
 	output.push(" <div id=\"byte_content\">");
 	output.push(getByteContentHTML("", "", "", 0));
 	output.push(" </div>\n");
-	output.push(" <td id=\"value\">");
-	output.push("</table>\n");
+	output.push(" <td style=\"height:100%\"><table border=0 cellpadding=0 cellspacing=0 style=\"height:100%\">\n");
+	output.push("   <tr><td id=\"value\">");
+	output.push("   <tr><td id=\"goto\">Go to<br><input id=\"gotoInput\" value=\"0000000h\"></td>");
+	output.push("</table></table>\n");
 	output.push("<div id=\"parseTreeEnvelope\"><div id=\"parsetree\"></div></div>\n");
 	output.push("</div>");
 	output.push("<h3>Parse as: EXE</h3>");
 	output.push("<div id=\"editor\"></div>");
+	output.push("<h3>Strings</h3>");
+	output.push("<div id=\"strings\"></div>");
 	output.push("</div>");
 
 	// Right-click menu
@@ -456,6 +512,35 @@ function createTemplate(fileName, fileSize) {
 
 
 	});
+
+	// Goto input
+	$('#gotoInput').keypress(function(e)
+    {
+        var code= (e.keyCode ? e.keyCode : e.which);
+
+        // Remove the error styling on any typing
+        $('#gotoInput').removeClass("InputError");
+
+        if (code == 13) {
+        	try {
+	        	var input = $('#gotoInput').val();
+
+	        	// Convert to javascript
+	        	input = input.replace(/([0-9a-zA-Z]+)h/g, "0x$1");
+	        	input = "gotoLocation="+input;
+
+	        	// Eval it
+	        	var gotoFunc = new Function(input);
+				gotoFunc();
+
+	        	$('#byte_content').scrollTo(gotoLocation);
+	        	SetValueElement(gotoLocation);
+	        	e.preventDefault();
+        	} catch (e) {
+				$('#gotoInput').addClass("InputError");
+			}
+        }
+    });
 
 	
 	$('#byte_content').scrollTo(0);  // Start at top
@@ -810,6 +895,7 @@ if ($_GET('test')) {
 		createTemplate(filename, length);
 		displayHexDump(0);
 		SetParseTree();
+		SetStrings();
 	});
 	
 }
