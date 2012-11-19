@@ -15,7 +15,6 @@ var filesOnly = false;
 function handleFinishedRead(evt, i) {
 	if(evt.target.readyState == FileReader.DONE) {
 		var length = evt.target.result.byteLength;
-		//var readBlock =  new Uint8Array(evt.target.result, 0, length);
 
 		fileData[i].hash = sha256_digest(evt.target.result);
 
@@ -43,7 +42,7 @@ function displayResults() {
 	output.push("</table>");
 
 	output.push("<hr>Confirm match:<br>");
-	output.push("<input id=\"hashSearch\" placeholder=\"Enter known hash here to confirm match\" style=\"width:400px\"> <b id='matchFound'></b>");
+	output.push("<input id=\"hashSearch\" placeholder=\"Enter expected hash string here to confirm match\" style=\"width:400px\"><br><b id='matchFound'></b>");
 
 	$('#analysis').html(output.join(""));
 
@@ -62,12 +61,13 @@ function displayResults() {
         $('#hashSearch').removeClass("hash_no_match_found");
         $('#matchFound').html("");
 
-        hashInput = $('#hashSearch').val();
+        hashInput = $('#hashSearch').val().replace(/\s+/g, '');
+
+        if (hashInput.length != 64) return;
+
         var matchFound = false;
         for (var i = 0; i < fileData.length; i++) {
-        	console.log(fileData[i].hash.toLowerCase());
         	if (hashInput.toLowerCase() == fileData[i].hash.toLowerCase()) {
-        		console.log("Match found!");
         		$('#file_'+i).addClass("hash_match_found");
         		$('#hashSearch').addClass("hash_match_found");
         		$('#matchFound').html("Match found!");
