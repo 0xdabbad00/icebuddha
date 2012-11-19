@@ -240,3 +240,11 @@ textarea:focus, input:focus, textarea:hover, input:hover {
   font-style: normal;
   font-size: 12px;
 }
+
+.hash_match_found {
+	background: #58FA58;
+}
+
+.hash_no_match_found {
+	background: #FA5858;	
+}

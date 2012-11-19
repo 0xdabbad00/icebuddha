@@ -37,15 +37,51 @@ function displayResults() {
 
 	for (var i = 0; i < fileData.length; i++) {
 		file = fileData[i];
-		output.push("<tr><td>"+escape(file.name).replace(/%20/g, " ") + "<td align=center class='hash' id='#file_"+i+"'>"+file.hash+"\n");
+		output.push("<tr><td>"+escape(file.name).replace(/%20/g, " ") + "<td align=center class='hash' id='file_"+i+"'>"+file.hash+"\n");
 	}
 
 	output.push("</table>");
 
 	output.push("<hr>Confirm match:<br>");
-	output.push("<input id=\"hashSearch\" placeholder=\"Enter known hash here to confirm match\" style=\"width:400px\">");
+	output.push("<input id=\"hashSearch\" placeholder=\"Enter known hash here to confirm match\" style=\"width:400px\"> <b id='matchFound'></b>");
 
 	$('#analysis').html(output.join(""));
+
+
+	// Goto input
+	$('#hashSearch').bind('input', function(e)
+    {
+        var code= (e.keyCode ? e.keyCode : e.which);
+
+        // Remove any pre-existing styling
+        for (var i = 0; i < fileData.length; i++) {
+        	$('#file_'+i).removeClass("hash_match_found");
+        }
+
+        $('#hashSearch').removeClass("hash_match_found");
+        $('#hashSearch').removeClass("hash_no_match_found");
+        $('#matchFound').html("");
+
+        hashInput = $('#hashSearch').val();
+        var matchFound = false;
+        for (var i = 0; i < fileData.length; i++) {
+        	console.log(fileData[i].hash.toLowerCase());
+        	if (hashInput.toLowerCase() == fileData[i].hash.toLowerCase()) {
+        		console.log("Match found!");
+        		$('#file_'+i).addClass("hash_match_found");
+        		$('#hashSearch').addClass("hash_match_found");
+        		$('#matchFound').html("Match found!");
+        		matchFound = true;
+        	}
+        }
+
+        if (!matchFound) {
+        	$('#hashSearch').addClass("hash_no_match_found");
+        	$('#matchFound').html("No match found!");
+        }
+        
+
+    });
 
 
 }
