@@ -43,7 +43,7 @@ function displayResults() {
 	if (executables.length>1) {
 		output.push(""+
 			"<table border=0 cellpadding=0 cellspacing=0>"+
-			"<tr><th width=100>Executable name<th width=100>DEP<br>protection<th width=100>ALSR<br>protection</tr>" 
+			"<tr><th width=100>Executable name<th width=100>DEP<br>protection<th width=100>ASLR<br>protection</tr>" 
 			+ executables.join("")
 			+"</table>");
 	} else {
@@ -163,12 +163,16 @@ function handleFileSelect(evt) {
 	evt.preventDefault();
 
 	items = evt.dataTransfer.items;
-	if (!items || !items[0] || !items[0].webkitGetAsEntry)
+	if ($.browser.webkit && (!items || !items[0] || !items[0].webkitGetAsEntry))
 	{
 		alert("You should really upgrade your browser.  This site needs at least Google Chrome 21 to handle dropped folders.  You can still drop files though.");
 		items = evt.dataTransfer.files;
 		filesOnly = true;
+	} else if ($.browser.mozilla) {
+		items = evt.dataTransfer.files;
+		filesOnly = true;
 	}
+
 	numFilesRead = 0;
 	numFiles = 0;
 	fileData = [];
@@ -219,6 +223,10 @@ function handleDragOver(evt) {
 ///////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////
+
+if ($.browser.webkit) {
+	$('#drop_zone').html('Drop files and folders here');
+}
 
 //Setup the dnd listeners.
 var dropZone = document.getElementById('container');
