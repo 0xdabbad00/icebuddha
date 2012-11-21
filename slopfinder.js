@@ -56,9 +56,6 @@ function displayResults() {
 	if (unknownFiles.length>1) {
 		output.push("<br><b>Nonexecutables</b><br>" + unknownFiles.join(""));
 	}
-	output.push("<br><br><hr><h2>Protections</h2>");
-	output.push("<h3>DEP</h3><a href=\"http://en.wikipedia.org/wiki/Data_Execution_Prevention\">Data Execution Prevention</a> can be turned on by compiling with Visual Studio > 2005 and ensure NXCOMPAT is on (default).");
-	output.push("<p><h3>ASLR</h3><a href=\"http://en.wikipedia.org/wiki/Address_space_layout_randomization\">Address Space Layout Randomization</a> can be turned on by compiling with Visual Studio > 2005 and ensure DYNAMICBASE in on (default)");
 	$('#analysis').html(output.join(""));
 }
 

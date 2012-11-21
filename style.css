@@ -103,6 +103,8 @@ div#subheader {
 
 div#drop_zone {
  border: 2px dashed #909090;
+ -moz-border-radius: 15px;
+ border-radius: 15px;
  width: 80%;
 
  margin: 10px;
@@ -114,7 +116,7 @@ div#drop_zone {
  
  text-align: center;
  
- font-size: 600%;
+ font-size: 400%;
  color: #909090;
  
  background: #e0e0e0;
@@ -132,10 +134,16 @@ div#footer {
 	position:absolute;
 	width:100%;
 	bottom:0; /* stick to bottom */
-	height: 20px;
+	height: 16px;
 	color: #eee;
 	background:#666;
+
+	font-size: 12px;
+	color: #B2B2B2;
 }
+
+#footer a:link, #footer a:active, #footer a:visited {color: #C9C9C9; text-decoration: underline; }
+a:hover {color: #aaa; text-decoration: underline; }
 	
 #byte_content {
  border: 1px solid #A0A0A0;
