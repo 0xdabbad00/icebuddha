@@ -77,7 +77,8 @@ function doRead(readBlock, length, i) {
 		  (readBlock[offset+0]);
 		var offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
 		var sizeof_IMAGE_FILE_HEADER = 24;
-		offset = e_lfanew + sizeof_IMAGE_FILE_HEADER + offset_in_IMAGE_OPTIONAL_HEADER;
+		var sizeof_magic = 4;
+		offset = e_lfanew + sizeof_magic + sizeof_IMAGE_FILE_HEADER + offset_in_IMAGE_OPTIONAL_HEADER;
 		DllCharacteristics = ((readBlock[offset+1]<<8)>>>0) +
 		  (readBlock[offset+0]);
 		  
