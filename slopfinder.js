@@ -32,7 +32,11 @@ function displayResults() {
 	for (var i = 0; i < fileData.length; i++) {
 		file = fileData[i];
 		if (file.type == 'exe') {
-			executables.push("<tr><td>"+escape(file.name).replace(/%20/g, " ") + "<td align=center>"+file.dep+"<td align=center>"+file.aslr+"\n");
+			style = "";
+			if (file.dep != "yes" || file.aslr != "yes") {
+				style = "style=\"background: #FF5C5C\"";
+			}
+			executables.push("<tr><td "+style+">"+escape(file.name).replace(/%20/g, " ") + "<td align=center "+style+">"+file.dep+"<td align=center "+style+">"+file.aslr+"\n");
 		} else {
 			unknownFiles.push(escape(file.name).replace(/%20/g, " ") + "<br>\n");
 		}
@@ -66,8 +70,8 @@ function doRead(readBlock, length, i) {
 	if (readBlock[0] == 'M'.charCodeAt(0) && readBlock[1] == 'Z'.charCodeAt(0))
 	{
 		fileData[i].type = 'exe';
-		fileData[i].dep = '<font color="red"><b>NO</b></font>';
-		fileData[i].aslr = '<font color="red"><b>NO</b></font>';
+		fileData[i].dep = '<b>NO</b>';
+		fileData[i].aslr = '<b>NO</b>';
 
 		// Get to DllCharacteristics data
 		offset = 0x3c;
@@ -89,8 +93,8 @@ function doRead(readBlock, length, i) {
 			offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
 		} else {
 			fileData[i].error = "Unknown file type";
-			fileData[i].dep = '<font color="red"><b>ERROR</b></font>';
-			fileData[i].aslr = '<font color="red"><b>ERROR</b></font>';
+			fileData[i].dep = '<b>ERROR</b>';
+			fileData[i].aslr = '<b>ERROR</b>';
 		}
 		
 		offset = e_lfanew + sizeof_magic + sizeof_IMAGE_FILE_HEADER + offset_in_IMAGE_OPTIONAL_HEADER;
