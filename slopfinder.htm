@@ -34,7 +34,7 @@
   
   <div id="container">
     <div id="header">
-      <b><a href="./index.htm">IceBuddha</a></b> - <a href="./about.htm">About</a> - <a href="./slopfinder.htm">SlopFinder</a> - <a href="./hasher.htm">Hasher</a>
+      <b><a href="./index.htm">IceBuddha</a></b> - <a href="./slopfinder.htm">SlopFinder</a> - <a href="./hasher.htm">Hasher</a> - <a href="./about.htm">About</a>
     </div>
     
     <div id="subheader"> 
@@ -51,15 +51,24 @@
       
       <div id="about">
       <h1>SlopFinder</h1>
-      <p>Statically analyzes Windows executable files to look for indicators of bad software development practices, focusing on those which pose security risks.   Heavily leverages HTML5 and javascript so no files are uploaded to the server (all analysis is done client-side in the browser).  Created 2012.11.06 by <a href="http://0xdabbad00.com">0xdabbad00</a>.  Part of the IceBuddha project.
+      <p>Statically analyzes Windows executable files to look for use of DEP and ASLR.  The lack of either indicates possible bad software development practices which pose security risks.
+
+      <p>These are free protections provided by Microsoft.  Not taking advantage of them is foolish.
 
       <div id="analysis">
+      </div>
 
+      <div id="protections" style="font-size:90%">
+        <br><br><hr><h2>For developers</h2>
+        <a href=\"http://en.wikipedia.org/wiki/Data_Execution_Prevention\">Data Execution Prevention</a> (DEP) can be turned on by compiling with any Visual Studio version since 2005 and ensure NXCOMPAT is on (default).
+
+        <p><a href=\"http://en.wikipedia.org/wiki/Address_space_layout_randomization\">Address Space Layout Randomization</a> (ASLR) can be turned on by compiling with any Visual Studio version since 2005 and ensure DYNAMICBASE in on (default).
       </div>
       
     </div>
     
     <div id="footer">
+      Code on <a href="https://github.com/0xdabbad00/icebuddha">github</a>.
     </div>
   </div>
   <script type='text/javascript' src="./jquery-ui.js"></script>
