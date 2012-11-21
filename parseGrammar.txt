@@ -33,6 +33,7 @@ item
  	if (type == "BYTE") itemData.size = 1;
  	if (type == "WORD") itemData.size = 2;
  	if (type == "DWORD") itemData.size = 4;
+ 	if (type == "ULONGLONG") itemData.size = 8;
  	
  	if (array != "") {
  	  var arrayInt = array.substring(1, array.length-1);
