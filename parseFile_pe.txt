@@ -65,7 +65,51 @@ typedef struct IMAGE_OPTIONAL_HEADER {
 } IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
 
+typedef struct IMAGE_OPTIONAL_HEADER64 {
+ WORD        Magic;
+ BYTE        MajorLinkerVersion;
+ BYTE        MinorLinkerVersion;
+ DWORD       SizeOfCode;
+ DWORD       SizeOfInitializedData;
+ DWORD       SizeOfUninitializedData;
+ DWORD       AddressOfEntryPoint;
+ DWORD       BaseOfCode;
+ ULONGLONG   ImageBase;
+ DWORD       SectionAlignment;
+ DWORD       FileAlignment;
+ WORD        MajorOperatingSystemVersion;
+ WORD        MinorOperatingSystemVersion;
+ WORD        MajorImageVersion;
+ WORD        MinorImageVersion;
+ WORD        MajorSubsystemVersion;
+ WORD        MinorSubsystemVersion;
+ DWORD       Win32VersionValue;
+ DWORD       SizeOfImage;
+ DWORD       SizeOfHeaders;
+ DWORD       CheckSum;
+ WORD        Subsystem;
+ WORD        DllCharacteristics;
+ ULONGLONG   SizeOfStackReserve;
+ ULONGLONG   SizeOfStackCommit;
+ ULONGLONG   SizeOfHeapReserve;
+ ULONGLONG   SizeOfHeapCommit;
+ DWORD       LoaderFlags;
+ DWORD       NumberOfRvaAndSizes;
+ IMAGE_DATA_DIRECTORY DataDirectory[16];
+} IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
+
+
 var imageDosHeader = parseStruct(0, IMAGE_DOS_HEADER);
+
 var e_lfanew = getStructValue(imageDosHeader, "e_lfanew");
-var imageFileHeader = parseStruct(e_lfanew+4, IMAGE_FILE_HEADER);
-parseStruct(after(imageFileHeader), IMAGE_OPTIONAL_HEADER);
+var sizeof_magic = 4;
+var imageFileHeader = parseStruct(e_lfanew + sizeof_magic, IMAGE_FILE_HEADER);
+
+var machine = getStructValue(imageFileHeader, "Machine");
+if (machine == 0x014c) {
+	parseStruct(after(imageFileHeader), IMAGE_OPTIONAL_HEADER);
+} else if (machine == 0x8664) {
+	parseStruct(after(imageFileHeader), IMAGE_OPTIONAL_HEADER64);
+} else {
+	console.log("ERROR: machine type unknown:"+machine);
+}

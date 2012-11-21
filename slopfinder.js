@@ -75,11 +75,25 @@ function doRead(readBlock, length, i) {
 		  ((readBlock[offset+2]<<16)>>>0) +
 		  ((readBlock[offset+1]<<8)>>>0) +
 		  (readBlock[offset+0]);
-		var offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
+		sizeof_magic = 4;
+		offset = e_lfanew + sizeof_magic;
+		machine = 
+		  ((readBlock[offset+1]<<8)>>>0) +
+		   (readBlock[offset+0]);
+
 		var sizeof_IMAGE_FILE_HEADER = 20;
-		var sizeof_magic = 4;
+		var offset_in_IMAGE_OPTIONAL_HEADER;
+		if (machine == 0x014c) {
+			offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
+		} else if (machine == 0x8664) {
+			offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
+		} else {
+			fileData[i].error = "Unknown file type";
+			fileData[i].dep = '<font color="red"><b>ERROR</b></font>';
+			fileData[i].aslr = '<font color="red"><b>ERROR</b></font>';
+		}
+		
 		offset = e_lfanew + sizeof_magic + sizeof_IMAGE_FILE_HEADER + offset_in_IMAGE_OPTIONAL_HEADER;
-		console.log("Offset:"+offset);
 		DllCharacteristics = ((readBlock[offset+1]<<8)>>>0) +
 		  (readBlock[offset+0]);
 		  
@@ -100,6 +114,8 @@ function handleFile(file, path)
 	fileData[fileNum] = {};
 	fileData[fileNum].name = path;
 	fileData[fileNum].type = '';
+	fileData[fileNum].error = '';
+
 	reader = new FileReader();
 	fileData[fileNum].reader = reader;
 	reader.onloadend = function(evt) { handleFinishedRead(evt, fileNum); }
