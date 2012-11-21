@@ -76,9 +76,10 @@ function doRead(readBlock, length, i) {
 		  ((readBlock[offset+1]<<8)>>>0) +
 		  (readBlock[offset+0]);
 		var offset_in_IMAGE_OPTIONAL_HEADER = 0x46;
-		var sizeof_IMAGE_FILE_HEADER = 24;
+		var sizeof_IMAGE_FILE_HEADER = 20;
 		var sizeof_magic = 4;
 		offset = e_lfanew + sizeof_magic + sizeof_IMAGE_FILE_HEADER + offset_in_IMAGE_OPTIONAL_HEADER;
+		console.log("Offset:"+offset);
 		DllCharacteristics = ((readBlock[offset+1]<<8)>>>0) +
 		  (readBlock[offset+0]);
 		  
