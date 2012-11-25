@@ -38,6 +38,7 @@ var expectedOffset = 0; // for parse tree
 var lastHexDumpPosition = 0;
 
 var gotoLocation = 0;
+var scrollNeeded = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
@@ -460,6 +461,8 @@ function snapSelectionToWord() {
 
 function getByteContentHTML(address, hex, ascii, start) {
 	output = [];
+	if (!data) return;
+
 	// Calculate size of the scroll view and any filling that should be added before the hexdump
 	// for smoother looking auto-scrolling
 	tableHeight = data.length/BYTES_PER_LINE * FONT_HEIGHT;
