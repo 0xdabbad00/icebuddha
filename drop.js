@@ -6,7 +6,11 @@ var file;
 var reader;
 
 var MAX_FILE_SIZE = 10*1024*1024; // 10MB
-var NUM_BYTES_PER_DISPLAY = 16*100;
+
+var LINES_TO_DISPLAY = 100;
+var FONT_HEIGHT = 15;
+var BYTES_PER_LINE = 16;
+var NUM_BYTES_PER_DISPLAY = BYTES_PER_LINE * LINES_TO_DISPLAY;
 
 var isValueElementSet = false;
 
@@ -166,7 +170,6 @@ function SetStrings() {
 
 	$('.stringFound').click(function(e) {
 		e.preventDefault();
-		console.log("String clicked");
 		$("#accordion").accordion("activate", 0 );
 		gotoLocation = this.href.split('#')[1].replace('h', '');
 		gotoLocation = hexToInt(gotoLocation);
@@ -191,8 +194,6 @@ function handleFileSelect(evt) {
 		showError("File is too large.<br>IceBuddha currently only accepts files under 10MB.");
 		return;
 	}
-
-	console.log((new Date().getTime()) + " " + "Loading: "+escape(file.name));
 
 	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
 	data = new Uint8Array(file.size);
@@ -310,6 +311,8 @@ function displayHexDump(position) {
 	      }
 	});
 
+	$('#byte_content').unbind('scroll', outOfRangeScrollHandler);
+
 	// On refresh, scroll to the correct place
 	$('#byte_content').scrollTo($("#h"+position), 1, {onAfter:function(){
 		//
@@ -328,6 +331,7 @@ function displayHexDump(position) {
 			
 			$scrollPointUp.waypoint(function(event, direction) {
 				if (direction === 'up') {
+					if (mouseIsDown) return;
 					// Upwards scroll event triggered
 					$scrollPointUp.waypoint('destroy');
 					$scrollPointUp.detach();
@@ -350,6 +354,7 @@ function displayHexDump(position) {
 			
 			$scrollPointDown.waypoint(function(event, direction) {
 				if (direction === 'down') {
+					if (mouseIsDown) return;
 					// Downward scroll event triggered
 					$scrollPointDown.waypoint('destroy');
 					$scrollPointDown.detach();
@@ -358,6 +363,9 @@ function displayHexDump(position) {
 				}
 			}, opts);
 		}
+
+		// If the user grabs the scroll bar, make sure refresh the screen
+	    $('#byte_content').bind('scroll', outOfRangeScrollHandler);
 	}});
 	
 	$("#asciiCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
@@ -371,6 +379,36 @@ function displayHexDump(position) {
 
 	reHighlite();
 }
+
+var outOfRangeScrollHandler = function() {
+	scrollPos = $('#byte_content').scrollTop();
+	topOfContent = $('#byteFillerAbove').height();
+	contentHeight = FONT_HEIGHT * LINES_TO_DISPLAY;
+
+	if ((scrollPos < topOfContent - (FONT_HEIGHT * 1)) || 
+		(scrollPos > (topOfContent+contentHeight) + (FONT_HEIGHT * 1))) {
+		scrollLocation = (scrollPos / FONT_HEIGHT) * BYTES_PER_LINE;
+
+		if (mouseIsDown) {
+			// Wait for the scroll to finish
+			scrollNeeded = true;
+			return;
+		}
+		scrollToByte(scrollLocation);
+	}
+};
+
+var mouseIsDown = false;
+$(document).mousedown(function() { mouseIsDown = true; });
+$(document).mouseup(function() { 
+	mouseIsDown = false; 
+	if (scrollNeeded) {
+		outOfRangeScrollHandler();
+	}
+});
+
+
+
 
 function snapSelectionToWord() {
 	// Copied from http://jsfiddle.net/rrvw4/23/
@@ -424,15 +462,14 @@ function getByteContentHTML(address, hex, ascii, start) {
 	output = [];
 	// Calculate size of the scroll view and any filling that should be added before the hexdump
 	// for smoother looking auto-scrolling
-	fontHeight = 15;
-	tableHeight = data.length/16*fontHeight;
-	preHeight = start/16*fontHeight;
+	tableHeight = data.length/BYTES_PER_LINE * FONT_HEIGHT;
+	preHeight = start/BYTES_PER_LINE * FONT_HEIGHT;
 
 	tableHeightStyle = "style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px; border-spacing: 0px;\"";
 	preHeightStyle = "style=\"min-height:"+preHeight+"px; height:"+preHeight+"px;\"";
 	
-	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+">");
-	output.push("<tr "+preHeightStyle+"><td "+preHeightStyle+"><td><td></tr>");
+	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+" id=\"byteScrollableArea\">");
+	output.push("<tr "+preHeightStyle+"><td "+preHeightStyle+" id=\"byteFillerAbove\"><td><td></tr>");
 	output.push("<tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
 	output.push(address);
@@ -549,7 +586,6 @@ function createTemplate(fileName, fileSize) {
 			}
         }
     });
-
 	
 	$('#byte_content').scrollTo(0);  // Start at top
 	
@@ -863,10 +899,15 @@ function colorize(node) {
 }
 
 function scrollToByte(start) {
+	scrollNeeded = false;
 	if (hexDumpStart > start || hexDumpEnd < start) {
-		displayHexDump(start - start%16);
+		displayHexDump(start - start % BYTES_PER_LINE);
 	} else {
 		var location = $("#h"+start);
+		if (location.length <= 0) {
+			// Location does not actually exist: race condition seen sometimes, so just return
+			return;
+		}
 		$('#byte_content').scrollTo(location, 800);
 	}
 }
