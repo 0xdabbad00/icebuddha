@@ -579,7 +579,7 @@ function createTemplate(fileName, fileSize) {
 
 	        	scrollToByte(gotoLocation);
 	        	SetValueElement(gotoLocation);
-	        	$('#h'+gotoLocation).selText();
+	        	selectText($('#h'+gotoLocation));
 	        	e.preventDefault();
         	} catch (e) {
 				$('#gotoInput').addClass("InputError");
@@ -826,23 +826,22 @@ function SetParseTree() {
 	return;	
 }
 
-jQuery.fn.selText = function() {
-    var obj = this[0];
-    if ($.browser.msie) {
-        var range = obj.offsetParent.createTextRange();
-        range.moveToElementText(obj);
+function selectText(element) {
+    var doc = document
+        , text = doc.getElementById(element)
+        , range, selection
+    ;    
+    if (doc.body.createTextRange) { //ms
+        range = doc.body.createTextRange();
+        range.moveToElementText(text);
         range.select();
-    } else if ($.browser.mozilla || $.browser.opera) {
-        var selection = obj.ownerDocument.defaultView.getSelection();
-        var range = obj.ownerDocument.createRange();
-        range.selectNodeContents(obj);
+    } else if (window.getSelection) { //all others
+        selection = window.getSelection();        
+        range = doc.createRange();
+        range.selectNodeContents(text);
         selection.removeAllRanges();
         selection.addRange(range);
-    } else if ($.browser.safari) {
-        var selection = obj.ownerDocument.defaultView.getSelection();
-        selection.setBaseAndExtent(obj, 0, obj, 1);
     }
-    return this;
 }
 
 function pickHighliteColor() {
