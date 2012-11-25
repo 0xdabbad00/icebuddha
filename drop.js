@@ -195,9 +195,6 @@ function handleFileSelect(evt) {
 		showError("File is too large.<br>IceBuddha currently only accepts files under 10MB.");
 		return;
 	}
-
-	// Create array to hold all data in the file.  The file data will be read in as chunks as needed.
-	data = new Uint8Array(file.size);
 	
 	createTemplate(file.name, file.size);
 
