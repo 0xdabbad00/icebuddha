@@ -135,7 +135,6 @@ div#footer {
 	width:100%;
 	bottom:0; /* stick to bottom */
 	height: 16px;
-	color: #eee;
 	background:#666;
 
 	font-size: 12px;
@@ -164,11 +163,12 @@ a:hover {color: #aaa; text-decoration: underline; }
  font-size: 13px;
 }
 
-.address {
-  color: #808080;
+.address, .ascii {
+  color: #888;
 }
-.ascii {
-  color: #808080;
+.alt_row {
+  /* background:#CFCFCF; */
+  background:#d8d8d8;
 }
 
 #value {
@@ -230,7 +230,7 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 }
 
 .hex:hover, .ascii:hover, .hovered {
-  background: #c0c0c0; 
+  background: #a0a0a0 !important; 
 }
 
 #editor {

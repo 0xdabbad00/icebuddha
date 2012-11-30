@@ -261,7 +261,11 @@ function displayHexDump(position) {
 		// Show value
 		hex.push("<i id=\"h");
 		hex.push(i);
-		hex.push("\" class=\"hex\">");
+		hex.push("\" class=\"hex");
+		if (((i >> 4 ) % 2) == 1) {
+			hex.push(" alt_row");
+		}
+		hex.push("\">");
 	
 		hex.push(hexArray[(data[i]&0xf0)>>4]);
 		hex.push(hexArray[(data[i]&0x0f)]);
@@ -274,7 +278,11 @@ function displayHexDump(position) {
 		// Show ascii
 		ascii.push("<i id=\"a");
 		ascii.push(i);
-		ascii.push("\" class=\"ascii\">");
+		ascii.push("\" class=\"ascii");
+		if (((i >> 4 ) % 2) == 1) {
+			ascii.push(" alt_row");
+		}
+		ascii.push("\">");
 		ascii.push(dispAscii(data[i]));
 		ascii.push("</i>");
 		
@@ -471,7 +479,7 @@ function getByteContentHTML(address, hex, ascii, start) {
 	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+" id=\"byteScrollableArea\">");
 	output.push("<tr "+preHeightStyle+"><td "+preHeightStyle+" id=\"byteFillerAbove\"><td><td></tr>");
 	output.push("<tr>");
-	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\">");
+	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\" class=\"address\">");
 	output.push(address);
 	output.push("</td><td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");	
 	output.push(hex);
