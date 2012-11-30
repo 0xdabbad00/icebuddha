@@ -47,8 +47,6 @@ h3 { font-size: 100%;}
 .ui-helper-reset { line-height: 1;}
 
 div#parsetree {
-  margin: 5px;
-  
   border: 1px solid #A0A0A0;
  
   padding: 3px;
@@ -61,6 +59,11 @@ div#parsetree {
   
   max-height: 300px;
   min-height: 300px;
+
+  font-size: 12px;
+  color: #505050;
+  font-family: monospace, monospace;
+  font-style: normal;
 }
 
 div#about {
@@ -123,7 +126,6 @@ div#drop_zone {
  
  box-shadow: rgba(0, 0, 0, 0.5) 0 0 6px 0
 }
-
 
 div#content {
  height: auto;
