@@ -715,24 +715,25 @@ function node(label, size, name, comment, offset) {
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString};
 }
 
-function getStructSize(children) {
-	var size = 0;
-	for(i in children) {
-	  	size += children[i].size;
-	}
-	return size;
-}
-
-function sizeof(struct) { return struct.size; }
-
-function after(struct) { return struct.offset + sizeof(struct); }
-
 function parseStruct(offset, structText) {
 	expectedOffset = offset;
 	var parseData = parser.parse(structText);
 	
 	var struct = parseData;
-	var treeDataStruct = { label: struct.label, offset: offset, size: getStructSize(struct.children), children:[]};
+	var treeDataStruct = new function() {
+		// Data
+		this.label = struct.label;
+		this.offset = offset;
+		
+		this.children = [];
+
+		this.size = getStructSize(struct.children);
+
+		// Functions
+		this.getValue = getStructValue;
+		this.end = function() { return this.offset + this.size; }
+
+	}
 	for (i in struct.children) {
 		var child = struct.children[i];
 		treeDataStruct.children.push(node(child.text, child.size, child.varName, child.description));
@@ -743,14 +744,22 @@ function parseStruct(offset, structText) {
 	return treeDataStruct;
 }
 
-function getStructValue(struct, varName) {
-	for (i in struct.children) {
-		var child = struct.children[i];
+function getStructValue(varName) {
+	for (i in this.children) {
+		var child = this.children[i];
 		if (child.varName == varName) {
 			return child.data;
 		}
 	}
   return 0;
+}
+
+function getStructSize(children) {
+	var size = 0;
+	for(i in children) {
+	  	size += children[i].size;
+	}
+	return size;
 }
 
 function ParseInstructions(parseInstructions) {
