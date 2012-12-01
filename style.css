@@ -205,7 +205,6 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 
 .parseTreeData {
   font-size: 12px;
-  margin-left: 10px;
   color: #505050;
   font-family: monospace, monospace;
   font-style: normal;
