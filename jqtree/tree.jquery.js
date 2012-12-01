@@ -202,7 +202,11 @@ limitations under the License.
       _results = [];
       for (_i = 0, _len = data.length; _i < _len; _i++) {
         o = data[_i];
-        node = new Node(o.label);
+        mylabel = o.label;
+        if (o.description != "") {
+          mylabel += " ("+o.description+")";
+        }
+        node = new Node(mylabel);
         $.each(o, function(key, value) {
           if (key !== 'label') node[key] = value;
           return true;

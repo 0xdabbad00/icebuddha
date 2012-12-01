@@ -30,6 +30,11 @@ typedef struct IMAGE_FILE_HEADER {
   WORD  Characteristics;
 } IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
 
+typedef struct IMAGE_DATA_DIRECTORY {
+  DWORD VirtualAddress;
+  DWORD Size;
+} IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
+
 typedef struct IMAGE_OPTIONAL_HEADER {
 	WORD  Magic;
 	BYTE  MajorLinkerVersion;
@@ -96,20 +101,33 @@ typedef struct IMAGE_OPTIONAL_HEADER64 {
  DWORD       NumberOfRvaAndSizes;
 } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
 
+typedef struct IMAGE_NT_HEADERS {
+  DWORD                 Signature;
+} IMAGE_NT_HEADERS, *PIMAGE_NT_HEADERS;
+
 
 var imageDosHeader = parseStruct(0, IMAGE_DOS_HEADER);
+treedata.push(imageDosHeader);
 
 var e_lfanew = imageDosHeader.getValue("e_lfanew");
+var imageNtHeader = parseStruct(e_lfanew, IMAGE_NT_HEADERS);
+treedata.push(imageNtHeader);
+
 var sizeof_magic = 4;
 var imageFileHeader = parseStruct(e_lfanew + sizeof_magic, IMAGE_FILE_HEADER);
 
 var machine = imageFileHeader.getValue("Machine");
 var imageOptionalHeader;
 if (machine == 0x014c) {
-	console.log("Parsing 32 at:"+imageFileHeader.end());
 	imageOptionalHeader = parseStruct(imageFileHeader.end(), IMAGE_OPTIONAL_HEADER);
 } else if (machine == 0x8664) {
 	imageOptionalHeader = parseStruct(imageFileHeader.end(), IMAGE_OPTIONAL_HEADER64);
 } else {
 	console.log("ERROR: machine type unknown:"+machine);
 }
+
+imageOptionalHeader.append(parseStruct(imageOptionalHeader.end(), IMAGE_DATA_DIRECTORY, "export table"));
+imageOptionalHeader.append(parseStruct(imageOptionalHeader.end(), IMAGE_DATA_DIRECTORY, "import table"));
+
+imageNtHeader.append(imageFileHeader);
+imageNtHeader.append(imageOptionalHeader);
