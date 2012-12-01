@@ -708,7 +708,7 @@ function node(label, size, name, comment, offset) {
 	
 	commentString = "";
 	if (comment) {
-		commentString = "&nbsp;&nbsp;; "+comment;
+		commentString = " "+comment;
 	}
 	
 	
@@ -771,6 +771,8 @@ function getStructSize(children) {
 
 function ParseInstructions(parseInstructions) {
 	treedata = [];
+	// Remove comments
+	parseInstructions = parseInstructions.replace(/\/\/.*(\r\n|\n|\r)/gm,"");
 
 	// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
 	parseInstructions = parseInstructions.replace(/(\r\n|\n|\r)/gm," ");

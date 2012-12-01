@@ -4,7 +4,7 @@ start
    "struct" ws 
    structName:Variable ws 
    "{" ws 
-   items:item*
+   	items:item*
    "}" [^;]* ";" ws*
  { 
  	var structData = {};
@@ -26,7 +26,10 @@ item
  	comment:Comment?
  { 
  	var itemData = {};
- 	itemData.text = type + s1 + name + array + ";" + s2 + comment;
+ 	if (comment != "") {
+ 		comment = "<i class=\"comment\">/* " + comment + " */</i>";
+ 	}
+ 	itemData.text = type + s1 + name + array + comment;
  	itemData.varName = name;
  	itemData.description = comment;
  	itemData.size = 0;
@@ -47,7 +50,7 @@ ArrayData
  = "[" digits:[0-9]+ "]" { return "[" + digits.join("") + "]"; } 
  
 Comment
- = "/*" text:[A-Za-z_0-9' '\t\r\n')''('';'':']+ "*/" ws {return text.join("");}
+ = "/*" text:[A-Za-z_0-9' '\t\r\n')''(''\[''\]'';'':']+ "*/" ws {return text.join("");}
  
 Variable
  = characters:[A-Za-z_0-9]* 

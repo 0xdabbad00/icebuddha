@@ -211,6 +211,15 @@ textarea:focus, input:focus, textarea:hover, input:hover {
   font-style: normal;
 }
 
+.comment {
+  font-size: 10px;
+  color: #505050;
+  font-family: monospace, monospace;
+  font-style: normal;
+}
+
+
+
 #strings {
   font-size: 12px;
   color: #505050;
