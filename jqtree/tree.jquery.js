@@ -204,7 +204,7 @@ limitations under the License.
         o = data[_i];
         mylabel = o.label;
         if (o.description != "") {
-          mylabel += " ("+o.description+")";
+          mylabel += " <i class=\"comment\">/* "+o.description+" */</i>";
         }
         node = new Node(mylabel);
         $.each(o, function(key, value) {

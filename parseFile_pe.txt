@@ -21,18 +21,18 @@ typedef struct IMAGE_DOS_HEADER {
 } IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
 
 typedef struct IMAGE_FILE_HEADER {
-  WORD  Machine;
-  WORD  NumberOfSections;
-  DWORD TimeDateStamp;
-  DWORD PointerToSymbolTable;
-  DWORD NumberOfSymbols;
-  WORD  SizeOfOptionalHeader;
-  WORD  Characteristics;
+	WORD  Machine;
+	WORD  NumberOfSections;
+	DWORD TimeDateStamp;
+	DWORD PointerToSymbolTable;
+	DWORD NumberOfSymbols;
+	WORD  SizeOfOptionalHeader;
+	WORD  Characteristics;
 } IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
 
 typedef struct IMAGE_DATA_DIRECTORY {
-  DWORD VirtualAddress;
-  DWORD Size;
+	DWORD VirtualAddress;
+	DWORD Size;
 } IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
 
 typedef struct IMAGE_OPTIONAL_HEADER {
@@ -66,39 +66,41 @@ typedef struct IMAGE_OPTIONAL_HEADER {
 	DWORD SizeOfHeapCommit;
 	DWORD LoaderFlags;
 	DWORD NumberOfRvaAndSizes;
+	// IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 } IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
 
 typedef struct IMAGE_OPTIONAL_HEADER64 {
- WORD        Magic;
- BYTE        MajorLinkerVersion;
- BYTE        MinorLinkerVersion;
- DWORD       SizeOfCode;
- DWORD       SizeOfInitializedData;
- DWORD       SizeOfUninitializedData;
- DWORD       AddressOfEntryPoint;
- DWORD       BaseOfCode;
- ULONGLONG   ImageBase;
- DWORD       SectionAlignment;
- DWORD       FileAlignment;
- WORD        MajorOperatingSystemVersion;
- WORD        MinorOperatingSystemVersion;
- WORD        MajorImageVersion;
- WORD        MinorImageVersion;
- WORD        MajorSubsystemVersion;
- WORD        MinorSubsystemVersion;
- DWORD       Win32VersionValue;
- DWORD       SizeOfImage;
- DWORD       SizeOfHeaders;
- DWORD       CheckSum;
- WORD        Subsystem;
- WORD        DllCharacteristics;
- ULONGLONG   SizeOfStackReserve;
- ULONGLONG   SizeOfStackCommit;
- ULONGLONG   SizeOfHeapReserve;
- ULONGLONG   SizeOfHeapCommit;
- DWORD       LoaderFlags;
- DWORD       NumberOfRvaAndSizes;
+	WORD        Magic;
+	BYTE        MajorLinkerVersion;
+	BYTE        MinorLinkerVersion;
+	DWORD       SizeOfCode;
+	DWORD       SizeOfInitializedData;
+	DWORD       SizeOfUninitializedData;
+	DWORD       AddressOfEntryPoint;
+	DWORD       BaseOfCode;
+	ULONGLONG   ImageBase;
+	DWORD       SectionAlignment;
+	DWORD       FileAlignment;
+	WORD        MajorOperatingSystemVersion;
+	WORD        MinorOperatingSystemVersion;
+	WORD        MajorImageVersion;
+	WORD        MinorImageVersion;
+	WORD        MajorSubsystemVersion;
+	WORD        MinorSubsystemVersion;
+	DWORD       Win32VersionValue;
+	DWORD       SizeOfImage;
+	DWORD       SizeOfHeaders;
+	DWORD       CheckSum;
+	WORD        Subsystem;
+	WORD        DllCharacteristics;
+	ULONGLONG   SizeOfStackReserve;
+	ULONGLONG   SizeOfStackCommit;
+	ULONGLONG   SizeOfHeapReserve;
+	ULONGLONG   SizeOfHeapCommit;
+	DWORD       LoaderFlags;
+	DWORD       NumberOfRvaAndSizes;
+	// IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
 
 typedef struct IMAGE_NT_HEADERS {
@@ -126,8 +128,8 @@ if (machine == 0x014c) {
 	console.log("ERROR: machine type unknown:"+machine);
 }
 
-imageOptionalHeader.append(parseStruct(imageOptionalHeader.end(), IMAGE_DATA_DIRECTORY, "export table"));
-imageOptionalHeader.append(parseStruct(imageOptionalHeader.end(), IMAGE_DATA_DIRECTORY, "import table"));
-
 imageNtHeader.append(imageFileHeader);
 imageNtHeader.append(imageOptionalHeader);
+
+imageOptionalHeader.append(parseStruct(imageOptionalHeader.end(), IMAGE_DATA_DIRECTORY, "export table"));
+imageOptionalHeader.append(parseStruct(imageOptionalHeader.end(), IMAGE_DATA_DIRECTORY, "import table"));
