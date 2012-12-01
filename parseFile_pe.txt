@@ -61,7 +61,6 @@ typedef struct IMAGE_OPTIONAL_HEADER {
 	DWORD SizeOfHeapCommit;
 	DWORD LoaderFlags;
 	DWORD NumberOfRvaAndSizes;
-	IMAGE_DATA_DIRECTORY DataDirectory[16]; /* 0x60 */
 } IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
 
 
@@ -95,21 +94,22 @@ typedef struct IMAGE_OPTIONAL_HEADER64 {
  ULONGLONG   SizeOfHeapCommit;
  DWORD       LoaderFlags;
  DWORD       NumberOfRvaAndSizes;
- IMAGE_DATA_DIRECTORY DataDirectory[16];
 } IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
 
 
 var imageDosHeader = parseStruct(0, IMAGE_DOS_HEADER);
 
-var e_lfanew = getStructValue(imageDosHeader, "e_lfanew");
+var e_lfanew = imageDosHeader.getValue("e_lfanew");
 var sizeof_magic = 4;
 var imageFileHeader = parseStruct(e_lfanew + sizeof_magic, IMAGE_FILE_HEADER);
 
-var machine = getStructValue(imageFileHeader, "Machine");
+var machine = imageFileHeader.getValue("Machine");
+var imageOptionalHeader;
 if (machine == 0x014c) {
-	parseStruct(after(imageFileHeader), IMAGE_OPTIONAL_HEADER);
+	console.log("Parsing 32 at:"+imageFileHeader.end());
+	imageOptionalHeader = parseStruct(imageFileHeader.end(), IMAGE_OPTIONAL_HEADER);
 } else if (machine == 0x8664) {
-	parseStruct(after(imageFileHeader), IMAGE_OPTIONAL_HEADER64);
+	imageOptionalHeader = parseStruct(imageFileHeader.end(), IMAGE_OPTIONAL_HEADER64);
 } else {
 	console.log("ERROR: machine type unknown:"+machine);
 }
