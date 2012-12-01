@@ -717,8 +717,9 @@ function node(label, size, name, comment, offset) {
 		commentString = " "+comment;
 	}
 	
+	interpretation = "";
 	
-	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString};
+	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation};
 }
 
 function parseStruct(offset, structText, description) {
@@ -744,6 +745,7 @@ function parseStruct(offset, structText, description) {
 		this.getValue = getStructValue;
 		this.end = function() { return this.offset + this.size; }
 		this.append = appendToStruct;
+		this.interpret = interpretStructValue;
 
 	}
 	for (i in struct.children) {
@@ -756,6 +758,15 @@ function parseStruct(offset, structText, description) {
 function appendToStruct(node) {
 	this.size = this.size + node.size;
 	this.children.push(node);
+}
+
+function interpretStructValue(varName, interpretValue) {
+	for (i in this.children) {
+		var child = this.children[i];
+		if (child.varName == varName) {
+			child.interpretation = interpretValue(child.data);
+		}
+	}
 }
 
 function getStructValue(varName) {

@@ -560,7 +560,11 @@ limitations under the License.
     	  // 
     	  // Node data display
     	  //
-        return $("<li><div><span class=\"parseTreeData\">" + convertToHexWord(node.offset) +" "+node.hexData+node.varName + node.comment +"</span></div></li>");
+        var interpretation = "";
+        if (node.interpretation != "") {
+          interpretation = "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+node.interpretation;
+        }
+        return $("<li><div><span class=\"parseTreeData\">" + convertToHexWord(node.offset) +" "+node.hexData+node.varName + node.comment +interpretation+"</span></div></li>");
         		
       };
       createFolderLi = function(node) {
