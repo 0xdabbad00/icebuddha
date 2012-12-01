@@ -715,7 +715,9 @@ function node(label, size, name, comment, offset) {
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString};
 }
 
-function parseStruct(offset, structText) {
+function parseStruct(offset, structText, description) {
+	description = (typeof description === "undefined") ? "" : description;
+
 	expectedOffset = offset;
 	var parseData = parser.parse(structText);
 	
@@ -729,19 +731,24 @@ function parseStruct(offset, structText) {
 
 		this.size = getStructSize(struct.children);
 
+		this.description = description;
+
 		// Functions
 		this.getValue = getStructValue;
 		this.end = function() { return this.offset + this.size; }
+		this.append = appendToStruct;
 
 	}
 	for (i in struct.children) {
 		var child = struct.children[i];
 		treeDataStruct.children.push(node(child.text, child.size, child.varName, child.description));
 	}
-	
-	treedata.push(treeDataStruct);
-
 	return treeDataStruct;
+}
+
+function appendToStruct(node) {
+	this.size = this.size + node.size;
+	this.children.push(node);
 }
 
 function getStructValue(varName) {
@@ -780,7 +787,7 @@ function ParseInstructions(parseInstructions) {
 					
 		$('#parsetree').tree({
 			data: treedata,
-			autoOpen: false
+			autoOpen: true
 		});
 		
 		$('#parsetree').bind(
