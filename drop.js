@@ -76,16 +76,22 @@ function convertToHexWord(dec)
     return (decToHex);
 }
 
+
 function addHexIdentifier(value) {
 	return value+"h";
 }
 
-function intToHex(val) {
+function intToHex(val, addIdentifier) {
+	addIdentifier = (typeof addIdentifier === "undefined") ? true : addIdentifier;
 	// Convert value to hex
 	var str = ''+val.toString(16);
 	// Pad with 0's
 	while(str.length < 8) str = '0'+str;
-	return addHexIdentifier(str);
+	if (addIdentifier) {
+		return addHexIdentifier(str);
+	} else {
+		return str;
+	}
 }
 
 function hexToInt(str) {
@@ -724,7 +730,8 @@ function parseStruct(offset, structText, description) {
 	var struct = parseData;
 	var treeDataStruct = new function() {
 		// Data
-		this.label = struct.label;
+		var ws = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+		this.label = intToHex(offset, false) + ws + struct.label;
 		this.offset = offset;
 		
 		this.children = [];
