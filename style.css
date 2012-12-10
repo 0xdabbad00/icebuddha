@@ -266,3 +266,32 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 .hash_no_match_found {
 	background: #FA5858;	
 }
+
+.ui-dialog-titlebar .ui-widget-header .ui-corner-all .ui-helper-clearfix {
+  padding-top: 0px;
+  margin: 0px;
+}
+
+.ui-dialog .ui-dialog-content {
+  font-family: arial, Verdana;
+  padding-top: 0px;
+  padding-left: 3px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  margin: 0px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+  font-family: arial, Verdana;
+  padding: 0px 0px 0px 3px;
+  margin: 0px;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+  margin: 0px;
+}
+
+.ui-button-text-only .ui-button-text {
+  margin: 0px 0px 0px 0px;
+  padding: 0px 5px 0px 5px;
+}

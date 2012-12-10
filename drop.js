@@ -123,23 +123,22 @@ function str2ArrayBuffer(str) {
 }
 
 function showError(str) {
-	$(function() {
-		$( "#dialog-message" ).html("<span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin: 0 7px 50px 0;\"></span>"+str);
-		
-        $( "#dialog-message" ).dialog({
-        	title: "Error",
-            modal: true,
-            disabled: false,
+	$( "#dialog-message" ).html("<span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin: 0 7px 50px 0;\"></span>"+str);
+	
+    $( "#dialog-message" ).dialog({
+    	title: "Error",
+        modal: true,
+        disabled: false,
 
-            buttons: {
-                Ok: function() {
-                    $( this ).dialog( "close" );
-                }
+        buttons: {
+            Ok: function() {
+                $( this ).dialog( "close" );
             }
-        });
-
-        $( "#dialog-message" ).dialog( "enable" );
+        }
     });
+
+    $( "#dialog-message" ).dialog( "enable" );
+    $( "#dialog-message" ).dialog( "open" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -319,7 +318,7 @@ function displayHexDump(position) {
 	      menu : 'hexContextMenu',
 	      onSelect: function(e) {
 	      	hexId = e.target.closest('#hexCell i.hex').attr('id');
-	      	alert("The item's action is: " + e.action + "\nTarget:"+hexId);
+	      	showError("The item's action is: " + e.action + "\nTarget:"+hexId);
 	      }
 	});
 
@@ -531,12 +530,13 @@ function createTemplate(fileName, fileSize) {
 	output.push(
 			"<div id=\"hexContextMenu\" style=\"display: none;\">\n" + 
 			"<ul>" +
-			"<li id=\"Hash\"><a href=\"#Hash\">Hash</a></li>" +
 			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
 			"<li id=\"Copy\"><a href=\"#Copy\">Copy</a>" +
 			"<ul>" +
 			"  <li id=\"Copy_bytes\"><a href=\"#Copy_bytes\">Copy bytes</a></li>" +
 			"  <li id=\"Copy_hex\"><a href=\"#Copy_hex\">Copy hex</a></li>" +
+			"  <li id=\"Copy_hexdump\"><a href=\"#Copy_hexdump\">Copy hex dump</a></li>" +
+			"  <li id=\"Copy_ascii\"><a href=\"#Copy_ascii\">Copy ascii</a></li>" +
 			"</ul></li>" +
 			"</ul>" +
 			"</div>");
@@ -987,9 +987,10 @@ function $_GET(q,s) {
 // Main
 ///////////////////////////////////////////////////////////////////////////////
 
-// Handler for when the page has loaded
-$( "#dialog-message" ).dialog({ autoOpen: false });
-$( "#dialog-message" ).dialog( "option", "disabled", true );
+$(function() {
+  	// Handler for when the page has loaded
+	$( "#dialog-message" ).dialog({ autoOpen: false });
+});
 
 //Setup the dnd listeners.
 var dropZone = document.getElementById('container');
