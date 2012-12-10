@@ -1,0 +1,91 @@
+<html>
+<head>
+	<title>Ice Buddha</title>
+	<link rel="stylesheet" type="text/css" href="./style.css" />
+	<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+
+	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+</head>
+<body>
+	<div id="container">
+		<div id="header">
+			<b><a href="./index.htm">IceBuddha</a></b> - <a href="./Projects.htm">Projects</a> - <a href="./about.htm">About</a>
+		</div>
+		
+		<div id="content">
+			<h3>EMET Import Helper</h3>
+			Converts output of <code>wmic process get executablepath</code> into a format that can be imported by EMET.
+			<p>
+			<textarea class="boxsizingBorder" style="height:100px" id="input" onfocus="if (this.value == 'Copy output here') {this.value = '';}">Copy output here</textarea>
+			<br><button id="convert">Convert</button>
+			<br><textarea class="boxsizingBorder" style="height:100px; background-color:#F8F8F8" id="output" readonly>
+<EMET_Apps Version="3.5.0.0">
+</EMET_Apps>
+			</textarea>
+		</div>
+		
+		<div id="footer">
+			Code on <a href="https://github.com/0xdabbad00/icebuddha">github</a>.
+		</div>
+	</div>
+</body>
+
+
+<script type="text/javascript">
+// http://www.shamasis.net/2009/09/fast-algorithm-to-find-unique-items-in-javascript-array/
+Array.prototype.unique = function() {
+	var o = {}, i, l = this.length, r = [];
+	for(i=0; i<l;i+=1) o[this[i]] = this[i];
+	for(i in o) r.push(o[i]);
+		return r;
+};
+
+
+
+$('#convert').click(function() {
+	input = $('#input').val();
+	input = input.split("\n");
+	input = input.sort();
+	input = input.unique();
+
+	output = [];
+	output.push("<EMET_Apps Version=\"3.5.0.0\">");
+
+	for (var i = 0; i < input.length; i++) {
+		// Trim
+		str = input[i].replace(/^\s+|\s+$/g, '');
+  		if (str == '') continue; // Ignore whitespace
+  		if (str == 'ExecutablePath') continue; // Ignore header
+
+  		// Sanity check
+  		if (!str.match(/\\/)) {
+  			$('#output').val("ERROR: Sanity check failure: Line does not have backslash\n"+str);
+  			return;
+  		}
+
+  		path = str.substring(0, str.lastIndexOf('\\'));
+  		executable = str.substring(str.lastIndexOf('\\')+1);
+
+  		output.push("  <AppConfig Path=\""+path+"\" Executable=\""+executable+"\">");
+  		output.push("    <Mitigation Name=\"DEP\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"SEHOP\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"NullPage\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"HeapSpray\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"EAF\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"MandatoryASLR\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"BottomUpASLR\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"LoadLib\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"MemProt\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"Caller\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"SimExecFlow\" Enabled=\"true\" />");
+    	output.push("    <Mitigation Name=\"StackPivot\" Enabled=\"true\" />");
+  		output.push("  </AppConfig>");
+	}
+	output.push("</EMET_Apps>");
+
+	$('#output').val(output.join("\n"));
+});
+
+</script>
+
+</html>
