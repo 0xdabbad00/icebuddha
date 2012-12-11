@@ -300,6 +300,24 @@ function displayHexDump(position) {
 		}
 	}
 
+	// Add some formatting for data < 16 bytes
+	if (hexDumpEnd - hexDumpStart < 16) {
+		for (var i = hexDumpEnd; i < 16; i++) {
+			// Show value
+			hex.push("<i class=\"hex");
+			if (((i >> 4 ) % 2) == 1) {
+				hex.push(" alt_row");
+			}
+			hex.push("\">");
+			hex.push("&nbsp;&nbsp;");
+			
+			if (i % 15 == 0 || i % 8 == 0) {
+			  hex.push("&nbsp;");
+			}
+			hex.push(" </i>");
+		}
+	}
+
 	// Set html
 	addressString = address.join("");
 	hexString = hex.join("");
