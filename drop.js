@@ -122,6 +122,38 @@ function str2ArrayBuffer(str) {
   return bufView;
 }
 
+function showDialog(str, title, okBtn) {
+	$( "#dialog-message" ).html(str);
+	
+	if (okBtn) {
+	    $( "#dialog-message" ).dialog({
+	    	title: title,
+	        modal: true,
+	        disabled: false,
+
+	        buttons: {
+	            Ok: function() {
+	                $( this ).dialog( "close" );
+	            }
+	        }
+	    });
+	} else {
+		$( "#dialog-message" ).dialog({
+	    	title: title,
+	        modal: true,
+	        disabled: false
+	    });
+	}
+
+    $( "#dialog-message" ).dialog( "enable" );
+    $( "#dialog-message" ).dialog( "open" );
+}
+
+function removeDialog() {
+	$( "#dialog-message" ).dialog( "close" );
+}
+
+
 function showError(str) {
 	$( "#dialog-message" ).html("<span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin: 0 7px 50px 0;\"></span>"+str);
 	
@@ -139,6 +171,72 @@ function showError(str) {
 
     $( "#dialog-message" ).dialog( "enable" );
     $( "#dialog-message" ).dialog( "open" );
+}
+
+function snapSelectionToWord() {
+	// Copied from http://jsfiddle.net/rrvw4/23/
+    var sel;
+
+    // Check for existence of window.getSelection() and that it has a
+    // modify() method. IE 9 has both selection APIs but no modify() method.
+    if (window.getSelection && (sel = window.getSelection()).modify) {
+        sel = window.getSelection();
+        if (!sel.isCollapsed) {
+
+            // Detect if selection is backwards
+            var range = document.createRange();
+            range.setStart(sel.anchorNode, sel.anchorOffset);
+            range.setEnd(sel.focusNode, sel.focusOffset);
+            var backwards = range.collapsed;
+            range.detach();
+
+            // modify() works on the focus of the selection
+            var endNode = sel.focusNode, endOffset = sel.focusOffset;
+            sel.collapse(sel.anchorNode, sel.anchorOffset);
+            
+            var direction = [];
+            if (backwards) {
+                direction = ['backward', 'forward'];
+            } else {
+                direction = ['forward', 'backward'];
+            }
+
+            sel.modify("move", direction[0], "character");
+            sel.modify("move", direction[1], "word");
+            sel.extend(endNode, endOffset);
+            sel.modify("extend", direction[1], "character");
+            sel.modify("extend", direction[0], "word");
+        }
+    } else if ( (sel = document.selection) && sel.type != "Control") {
+        var textRange = sel.createRange();
+        if (textRange.text) {
+            textRange.expand("word");
+            // Move the end back to not include the word's trailing space(s),
+            // if necessary
+            while (/\s$/.test(textRange.text)) {
+                textRange.moveEnd("character", -1);
+            }
+            textRange.select();
+        }
+    }
+}
+
+function selectText(element) {
+    var doc = document
+        , text = doc.getElementById(element)
+        , range, selection
+    ;    
+    if (doc.body.createTextRange) { //ms
+        range = doc.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+    } else if (window.getSelection) { //all others
+        selection = window.getSelection();        
+        range = doc.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,6 +298,8 @@ function handleFileSelect(evt) {
 		showError("File is too large.<br>IceBuddha currently only accepts files under 10MB.");
 		return;
 	}
+
+	showDialog("Loading "+file.name+" ("+file.size+" bytes)", "Loading...", false);
 	
 	createTemplate(file.name, file.size);
 
@@ -235,6 +335,7 @@ function handleFinishedRead(evt) {
 		displayHexDump(0);
 		SetParseTree();
 		SetStrings();
+		removeDialog();
 	}
 }
 
@@ -336,7 +437,7 @@ function displayHexDump(position) {
 	      menu : 'hexContextMenu',
 	      onSelect: function(e) {
 	      	hexId = e.target.closest('#hexCell i.hex').attr('id');
-	      	showError("The item's action is: " + e.action + "\nTarget:"+hexId);
+	      	showDialog("The item's action is: " + e.action + "\nTarget:"+hexId, "Click detected", true);
 	      }
 	});
 
@@ -435,57 +536,6 @@ $(document).mouseup(function() {
 		outOfRangeScrollHandler();
 	}
 });
-
-
-
-
-function snapSelectionToWord() {
-	// Copied from http://jsfiddle.net/rrvw4/23/
-    var sel;
-
-    // Check for existence of window.getSelection() and that it has a
-    // modify() method. IE 9 has both selection APIs but no modify() method.
-    if (window.getSelection && (sel = window.getSelection()).modify) {
-        sel = window.getSelection();
-        if (!sel.isCollapsed) {
-
-            // Detect if selection is backwards
-            var range = document.createRange();
-            range.setStart(sel.anchorNode, sel.anchorOffset);
-            range.setEnd(sel.focusNode, sel.focusOffset);
-            var backwards = range.collapsed;
-            range.detach();
-
-            // modify() works on the focus of the selection
-            var endNode = sel.focusNode, endOffset = sel.focusOffset;
-            sel.collapse(sel.anchorNode, sel.anchorOffset);
-            
-            var direction = [];
-            if (backwards) {
-                direction = ['backward', 'forward'];
-            } else {
-                direction = ['forward', 'backward'];
-            }
-
-            sel.modify("move", direction[0], "character");
-            sel.modify("move", direction[1], "word");
-            sel.extend(endNode, endOffset);
-            sel.modify("extend", direction[1], "character");
-            sel.modify("extend", direction[0], "word");
-        }
-    } else if ( (sel = document.selection) && sel.type != "Control") {
-        var textRange = sel.createRange();
-        if (textRange.text) {
-            textRange.expand("word");
-            // Move the end back to not include the word's trailing space(s),
-            // if necessary
-            while (/\s$/.test(textRange.text)) {
-                textRange.moveEnd("character", -1);
-            }
-            textRange.select();
-        }
-    }
-}
 
 function getByteContentHTML(address, hex, ascii, start) {
 	output = [];
@@ -894,24 +944,6 @@ function SetParseTree() {
 	});
 	
 	return;	
-}
-
-function selectText(element) {
-    var doc = document
-        , text = doc.getElementById(element)
-        , range, selection
-    ;    
-    if (doc.body.createTextRange) { //ms
-        range = doc.body.createTextRange();
-        range.moveToElementText(text);
-        range.select();
-    } else if (window.getSelection) { //all others
-        selection = window.getSelection();        
-        range = doc.createRange();
-        range.selectNodeContents(text);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
 }
 
 function pickHighliteColor() {
