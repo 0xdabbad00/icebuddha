@@ -620,7 +620,15 @@ function createTemplate(fileName, fileSize) {
     });
 	
 	$('#byte_content').scrollTo(0);  // Start at top
-	
+
+	// hack for chrome to force scrolling
+	$('#byte_content').scroll(function() { 
+		mouseIsDown = false;
+		if (scrollNeeded) {
+			outOfRangeScrollHandler();
+		}
+	});
+
 	$addressCell = $('#addressCell');
 	$hexCell = $('#hexCell');
 	$asciiCell = $('#asciiCell')
