@@ -222,17 +222,17 @@ function snapSelectionToWord() {
 }
 
 function selectText(element) {
-    var doc = document
+	var doc = document
         , text = doc.getElementById(element)
         , range, selection
-    ;    
-    if (doc.body.createTextRange) { //ms
-        range = doc.body.createTextRange();
+    ;
+    if (doc.body.createTextRange) {
+        range = document.body.createTextRange();
         range.moveToElementText(text);
         range.select();
-    } else if (window.getSelection) { //all others
-        selection = window.getSelection();        
-        range = doc.createRange();
+    } else if (window.getSelection) {
+        selection = window.getSelection();
+        range = document.createRange();
         range.selectNodeContents(text);
         selection.removeAllRanges();
         selection.addRange(range);
@@ -661,7 +661,7 @@ function createTemplate(fileName, fileSize) {
 
 	        	scrollToByte(gotoLocation);
 	        	SetValueElement(gotoLocation);
-	        	selectText($('#h'+gotoLocation));
+	        	selectText('h'+gotoLocation);
 	        	e.preventDefault();
         	} catch (e) {
 				$('#gotoInput').addClass("InputError");
