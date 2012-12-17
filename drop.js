@@ -119,7 +119,7 @@ function str2ArrayBuffer(str) {
   for (var i=0, strLen=str.length; i<strLen; i++) {
     bufView[i] = str.charCodeAt(i);
   }
-  var tmp = buf.byteLength;
+  var tmp = arrayBuffer.byteLength;
   return bufView;
 }
 
