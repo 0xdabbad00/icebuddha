@@ -319,7 +319,9 @@ function readFileSlice(start, end) {
 	if (file == null) return;
 	
 	// Determine how much to read
-	if(file.webkitSlice) {
+	if(file.slice) {
+		var blob = file.slice(start, end);
+	} else if(file.webkitSlice) {
 		var blob = file.webkitSlice(start, end);
 	} else if(file.mozSlice) {
 		var blob = file.mozSlice(start, end);
