@@ -4,6 +4,7 @@
 var data;
 var file;
 var reader;
+var arrayBuffer;
 
 var MAX_FILE_SIZE = 10*1024*1024; // 10MB
 
@@ -113,8 +114,8 @@ function isDisplayable(val) {
 
 
 function str2ArrayBuffer(str) {
-  var buf = new ArrayBuffer(str.length); 
-  var bufView = new Uint8Array(buf);
+  arrayBuffer = new ArrayBuffer(str.length);
+  var bufView = new Uint8Array(arrayBuffer);
   for (var i=0, strLen=str.length; i<strLen; i++) {
     bufView[i] = str.charCodeAt(i);
   }
@@ -333,7 +334,8 @@ function readFileSlice(start, end) {
 function handleFinishedRead(evt) {
 	if(evt.target.readyState == FileReader.DONE) {
 		var length = evt.target.result.byteLength;
-		data =  new Uint8Array(evt.target.result, 0, length);
+		arrayBuffer = evt.target.result;
+		data =  new Uint8Array(arrayBuffer, 0, length);
 		displayHexDump(0);
 		SetParseTree();
 		SetStrings();
@@ -439,7 +441,15 @@ function displayHexDump(position) {
 	      menu : 'hexContextMenu',
 	      onSelect: function(e) {
 	      	hexId = e.target.closest('#hexCell i.hex').attr('id');
-	      	showDialog("The item's action is: " + e.action + "\nTarget:"+hexId, "Click detected", true);
+	      	if (e.action == "Download") {
+		      	// Download file
+		      	var bb = new BlobBuilder();
+				bb.append(arrayBuffer);
+				var blob = bb.getBlob("application/octet-stream");
+				saveAs(blob, file.name);
+			} else {
+				showDialog("The item's action is: " + e.action + "\nTarget:"+hexId, "Click detected", true);
+			}
 	      }
 	});
 
@@ -600,6 +610,7 @@ function createTemplate(fileName, fileSize) {
 	output.push(
 			"<div id=\"hexContextMenu\" style=\"display: none;\">\n" + 
 			"<ul>" +
+			"<li id=\"Download\"><a href=\"#Download\">Download</a></li>" +
 			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
 			"<li id=\"Copy\"><a href=\"#Copy\">Copy</a>" +
 			"<ul>" +
