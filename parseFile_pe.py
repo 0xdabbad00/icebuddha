@@ -1,16 +1,27 @@
+def intToHex(value):
+    return "%0.8X" % value
+
 class Node:
-    def __init__(self, label, offset, size, name, comment):
+    def __init__(self, label="", offset=0, size=0, name="", comment=""):
         self.offset = offset
         self.size = size
-        self.label = label
+        print "##%s"%label
+
+        if (size == 0):
+            ws = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+            self.label = intToHex(offset) + ws + label
+            self.size = 0
+        else:
+            self.label = label
+
         self.name = name
         self.comment = comment
         self.children = []
 
-    def getReturnData(self):
+    def get(self):
         childData = []
         for c in self.children:
-            childData.append(c.getReturnData())
+            childData.append(c.get())
 
         return [self.label, self.size, self.name, self.comment, self.offset, childData]
 
@@ -18,22 +29,25 @@ class Node:
         self.children.append(child)
 
 class Parse:
+    def append(self, node):
+        self.parser.append(node.get())
+
     def run(self, data):
         self.parser = []
     
         child = Node("child_label", 0, 2, "e_magic", "/* MZ header sig */")
         child2 = Node("child_label2", 2, 2, "e_cblp", "/* bytes on last page */")
-        imgDosHeader = Node("Label", 0, 2,  "IMAGE_DOS_HEADER", "/* comment */")
+        imgDosHeader = Node("IMAGE_DOS_HEADER", 0)
         imgDosHeader.addChild(child)
         imgDosHeader.addChild(child2)
         
-        self.parser.append(imgDosHeader.getReturnData())
+        self.append(imgDosHeader)
 
-        imgNtHeader = Node("Label", 0x100, 2,  "IMAGE_NT_HEADER", "/* comment */")
+        imgNtHeader = Node("IMAGE_NT_HEADER", 0x100)
         child = Node("child_label", 0x100, 2, "Signature", "/* PE */")
         imgNtHeader.addChild(child)
-        self.parser.append(imgNtHeader.getReturnData())
-
+        self.append(imgNtHeader)
+        
         return self.parser
 
 parser = Parse()

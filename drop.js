@@ -931,32 +931,25 @@ function ParseInstructions(parseInstructions) {
 }
 
 function SetParseTree() {
-	var parseGrammar = "";
 	var parseInput = "";
 	
 	cacheBreaker = "?"+new Date().getTime();
 	
-	$.get("parseGrammar.txt"+cacheBreaker, function(response) {
-		parseGrammar = response;
-		parser = PEG.buildParser(parseGrammar, options={trackLineAndColumn:true});
-		
-		$.get("parseFile_pe.txt"+cacheBreaker, function(response) {
-			parseInput = response;
+	$.get("parseFile_pe.py"+cacheBreaker, function(response) {
+		parseInput = response;
 
-			// Set up ace editor
-			$("#editor").html(parseInput);
-		    editor = ace.edit("editor");
-    		editor.getSession().setMode("ace/mode/python");
-		    editor.setTheme("ace/theme/chrome");
-		    editor.session.setUseWorker(false);
-		    editor.setShowFoldWidgets(false);
+		// Set up ace editor
+		$("#editor").html(parseInput);
+	    editor = ace.edit("editor");
+		editor.getSession().setMode("ace/mode/python");
+	    editor.setTheme("ace/theme/chrome");
+	    editor.session.setUseWorker(false);
+	    editor.setShowFoldWidgets(false);
 
-		    // Create parse tree
-		    ParseInstructions(parseInput);
-		});
-		
+	    // Create parse tree
+	    ParseInstructions(parseInput);
 	});
-	
+		
 	return;	
 }
 
