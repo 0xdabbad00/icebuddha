@@ -1,21 +1,39 @@
+class Node:
+    def __init__(self, label, offset, size, name, comment):
+        self.offset = offset
+        self.size = size
+        self.label = label
+        self.name = name
+        self.comment = comment
+        self.children = []
+
+    def getReturnData(self):
+        childData = []
+        for c in self.children:
+            childData.append(c.getReturnData())
+
+        return [self.label, self.size, self.name, self.comment, self.offset, childData]
+
+    def addChild(self, child):
+        self.children.append(child)
+
 class Parse:
     def run(self, data):
         self.parser = []
-        #for i in data:
-        #    self.parser.append(i+1)
-
-        child = self.node("child_label", "MZ_SIGNATURE", "/* sig */", 0, 2)
-        imgDosHeader = self.node("Label", "IMAGE_DOS_HEADER", "comment", 0, 2)
-        self.addChild(imgDosHeader, child)
+    
+        child = Node("child_label", 0, 2, "e_magic", "/* MZ header sig */")
+        child2 = Node("child_label2", 2, 2, "e_cblp", "/* bytes on last page */")
+        imgDosHeader = Node("Label", 0, 2,  "IMAGE_DOS_HEADER", "/* comment */")
+        imgDosHeader.addChild(child)
+        imgDosHeader.addChild(child2)
         
-        self.parser.append(imgDosHeader)
+        self.parser.append(imgDosHeader.getReturnData())
+
+        imgNtHeader = Node("Label", 0x100, 2,  "IMAGE_NT_HEADER", "/* comment */")
+        child = Node("child_label", 0x100, 2, "Signature", "/* PE */")
+        imgNtHeader.addChild(child)
+        self.parser.append(imgNtHeader.getReturnData())
+
         return self.parser
-
-    def node(self, label, name, comment, offset, size):
-        return [label, size, name, comment, offset, []]
-
-    def addChild(self, parent, child):
-        parent[5].append(child)
-        return parent
 
 parser = Parse()

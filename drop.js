@@ -848,7 +848,6 @@ function outf(text)
 }
 
 function getNode(array) {
-	console.log("Getting node");
 	var label = array[0].v;
 	var size = array[1];
 	var name = array[2].v;
