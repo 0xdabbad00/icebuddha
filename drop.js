@@ -808,7 +808,7 @@ function node(label, size, name, comment, offset) {
 	
 	interpretation = "";
 	
-	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation};
+	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation, children: []};
 }
 
 function parseStruct(offset, structText, description) {
@@ -844,55 +844,62 @@ function parseStruct(offset, structText, description) {
 	return treeDataStruct;
 }
 
-function appendToStruct(node) {
-	this.size = this.size + node.size;
-	this.children.push(node);
+function outf(text)
+{
+    text = text.replace(/</g, '&lt;');
+    console.log(text);
 }
 
-function interpretStructValue(varName, interpretValue) {
-	for (i in this.children) {
-		var child = this.children[i];
-		if (child.varName == varName) {
-			child.interpretation = interpretValue(child.data);
-		}
-	}
-}
+function getNode(array) {
+	console.log("Getting node");
+	var label = array[0].v;
+	var size = array[1];
+	var name = array[2].v;
+	var comment = array[3].v;
+	var offset = array[4];
+	var children = array[5].v;
 
-function getStructValue(varName) {
-	for (i in this.children) {
-		var child = this.children[i];
-		if (child.varName == varName) {
-			return child.data;
-		}
-	}
-  return 0;
-}
+	console.log("Label:"+label);
+	console.log("size:"+size);
+	console.log("Name:"+name);
+	console.log("Comment:"+comment);
+	console.log("Offset:"+offset);
 
-function getStructSize(children) {
-	var size = 0;
-	for(i in children) {
-	  	size += children[i].size;
-	}
-	return size;
+	var n = node(label, size, name, comment, offset);
+	for (var i=0; i<children.length; i++) {
+		console.log("Adding child");
+		n.children.push(getNode(children[i].v));
+	} 
+
+	return n;
 }
 
 function ParseInstructions(parseInstructions) {
 	treedata = [];
-	// Remove comments
-	parseInstructions = parseInstructions.replace(/\/\/.*(\r\n|\n|\r)/gm,"");
-
-	// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
-	parseInstructions = parseInstructions.replace(/(\r\n|\n|\r)/gm," ");
-	// Also, I need to make all the "typedef struct"'s into string's 
-	parseInstructions = parseInstructions.replace(/typedef struct ([A-Za-z0-9_]+) {/g,  "var $1 =  \"typedef struct $1 {");
-	parseInstructions = parseInstructions.replace(/(} [A-Za-z0-9_]+, \*P[A-Za-z0-9_]+;)/g,  "$1\";");
 	
 	try {
 		$('#parsetree').remove(); // Remove old parse tree
 		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
-		
-		var parseFunc = new Function(parseInstructions);
-		parseFunc();
+
+		console.log("Start skulpt"); // TODO REMOVE
+
+		Sk.configure({output:outf});
+
+		var module = Sk.importMainWithBody("<stdin>", false, parseInstructions);
+        var obj = module.tp$getattr('parser');
+        var runMethod = obj.tp$getattr('run');
+
+        // TODO Create the array for skulpt in a smarter way
+        var arrayForSkulpt = new Array();
+        for (var i=0; i<data.length; i++) {
+        	arrayForSkulpt[i] = data[i];
+        }
+        var ret = Sk.misceval.callsim(runMethod, Sk.builtin.list(arrayForSkulpt));
+        var nodes = ret.v;
+
+        for (var i=0; i<nodes.length; i++) {
+        	treedata.push(getNode(nodes[i].v));
+        }
 					
 		$('#parsetree').tree({
 			data: treedata,
