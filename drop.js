@@ -761,12 +761,6 @@ function SetValueElement(offset) {
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
 function node(label, size, name, comment, offset) {
-<<<<<<< HEAD
-=======
-	offset = offset || expectedOffset;
-	expectedOffset = offset + size;
-	
->>>>>>> 3a08130335a50fb1da213a374fce36b8fe9cb9ae
 	var dataValue = "";
 	
 	if (size==4) {
@@ -811,11 +805,7 @@ function node(label, size, name, comment, offset) {
 	
 	interpretation = "";
 	
-<<<<<<< HEAD
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation, children: []};
-=======
-	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation};
->>>>>>> 3a08130335a50fb1da213a374fce36b8fe9cb9ae
 }
 
 function parseStruct(offset, structText, description) {
@@ -851,7 +841,6 @@ function parseStruct(offset, structText, description) {
 	return treeDataStruct;
 }
 
-<<<<<<< HEAD
 function outf(text)
 {
     text = text.replace(/</g, '&lt;');
@@ -880,58 +869,14 @@ function getNode(array) {
 	} 
 
 	return n;
-=======
-function appendToStruct(node) {
-	this.size = this.size + node.size;
-	this.children.push(node);
-}
-
-function interpretStructValue(varName, interpretValue) {
-	for (i in this.children) {
-		var child = this.children[i];
-		if (child.varName == varName) {
-			child.interpretation = interpretValue(child.data);
-		}
-	}
-}
-
-function getStructValue(varName) {
-	for (i in this.children) {
-		var child = this.children[i];
-		if (child.varName == varName) {
-			return child.data;
-		}
-	}
-  return 0;
-}
-
-function getStructSize(children) {
-	var size = 0;
-	for(i in children) {
-	  	size += children[i].size;
-	}
-	return size;
->>>>>>> 3a08130335a50fb1da213a374fce36b8fe9cb9ae
 }
 
 function ParseInstructions(parseInstructions) {
 	treedata = [];
-<<<<<<< HEAD
-=======
-	// Remove comments
-	parseInstructions = parseInstructions.replace(/\/\/.*(\r\n|\n|\r)/gm,"");
-
-	// Javascript does not allow multi-line strings, so to allow this, I turn my entire javascript parse files into single lines.  Hack, but better than ugly js.
-	parseInstructions = parseInstructions.replace(/(\r\n|\n|\r)/gm," ");
-	// Also, I need to make all the "typedef struct"'s into string's 
-	parseInstructions = parseInstructions.replace(/typedef struct ([A-Za-z0-9_]+) {/g,  "var $1 =  \"typedef struct $1 {");
-	parseInstructions = parseInstructions.replace(/(} [A-Za-z0-9_]+, \*P[A-Za-z0-9_]+;)/g,  "$1\";");
->>>>>>> 3a08130335a50fb1da213a374fce36b8fe9cb9ae
 	
 	try {
 		$('#parsetree').remove(); // Remove old parse tree
 		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
-<<<<<<< HEAD
 
 		Sk.configure({output:outf});
 
@@ -950,11 +895,6 @@ function ParseInstructions(parseInstructions) {
         for (var i=0; i<nodes.length; i++) {
         	treedata.push(getNode(nodes[i].v));
         }
-=======
-		
-		var parseFunc = new Function(parseInstructions);
-		parseFunc();
->>>>>>> 3a08130335a50fb1da213a374fce36b8fe9cb9ae
 					
 		$('#parsetree').tree({
 			data: treedata,
