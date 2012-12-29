@@ -946,7 +946,7 @@ function SetParseTree() {
 			// Set up ace editor
 			$("#editor").html(parseInput);
 		    editor = ace.edit("editor");
-    		editor.getSession().setMode("ace/mode/javascript");
+    		editor.getSession().setMode("ace/mode/python");
 		    editor.setTheme("ace/theme/chrome");
 		    editor.session.setUseWorker(false);
 		    editor.setShowFoldWidgets(false);
