@@ -761,9 +761,6 @@ function SetValueElement(offset) {
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
 function node(label, size, name, comment, offset) {
-	offset = offset || expectedOffset;
-	expectedOffset = offset + size;
-	
 	var dataValue = "";
 	
 	if (size==4) {
@@ -880,8 +877,6 @@ function ParseInstructions(parseInstructions) {
 	try {
 		$('#parsetree').remove(); // Remove old parse tree
 		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
-
-		console.log("Start skulpt"); // TODO REMOVE
 
 		Sk.configure({output:outf});
 
