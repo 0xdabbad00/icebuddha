@@ -808,39 +808,6 @@ function node(label, size, name, comment, offset) {
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation, children: []};
 }
 
-function parseStruct(offset, structText, description) {
-	description = (typeof description === "undefined") ? "" : description;
-
-	expectedOffset = offset;
-	var parseData = parser.parse(structText);
-	
-	var struct = parseData;
-	var treeDataStruct = new function() {
-		// Data
-		var ws = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		this.label = intToHex(offset, false) + ws + struct.label;
-		this.offset = offset;
-		
-		this.children = [];
-
-		this.size = getStructSize(struct.children);
-
-		this.description = description;
-
-		// Functions
-		this.getValue = getStructValue;
-		this.end = function() { return this.offset + this.size; }
-		this.append = appendToStruct;
-		this.interpret = interpretStructValue;
-
-	}
-	for (i in struct.children) {
-		var child = struct.children[i];
-		treeDataStruct.children.push(node(child.text, child.size, child.varName, child.description));
-	}
-	return treeDataStruct;
-}
-
 function outf(text)
 {
     text = text.replace(/</g, '&lt;');

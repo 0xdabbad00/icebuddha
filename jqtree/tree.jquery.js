@@ -203,8 +203,8 @@ limitations under the License.
       for (_i = 0, _len = data.length; _i < _len; _i++) {
         o = data[_i];
         mylabel = o.label;
-        if (o.description != "") {
-          mylabel += " <i class=\"comment\">/* "+o.description+" */</i>";
+        if (o.comment != "") {
+          mylabel += " <i class=\"comment\">/* "+o.comment+" */</i>";
         }
         node = new Node(mylabel);
         $.each(o, function(key, value) {
