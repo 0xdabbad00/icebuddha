@@ -1,13 +1,16 @@
 def intToHex(value):
     return "%0.8X" % value
 
+def nbsp():
+    return "%snbsp;" % chr(0x26)
+
 class Node:
     def __init__(self, label="", offset=0, size=0, name="", comment=""):
         self.offset = offset
         self.size = size
 
         if (size == 0):
-            ws = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+            ws = "%s%s%s%s%s%s%s%s%s%s%s%s%s%s" % (nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(), nbsp(),nbsp(), nbsp())
             self.label = intToHex(offset) + ws + label
             self.size = 0
         else:
