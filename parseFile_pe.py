@@ -1,3 +1,5 @@
+filedata = []
+
 def intToHex(value):
     return "%0.8X" % value
 
@@ -27,7 +29,23 @@ class Node:
 
         return [self.label, self.size, self.name, self.comment, self.offset, childData]
 
-    def addChild(self, child):
+    def getValue(self, valueName):
+        for c in self.children:
+            if c.name == valueName:
+                if c.size == 1:
+                    return filedata[c.offset]
+                elif c.size == 2:
+                    return filedata[c.offset] + (filedata[c.offset + 1] << 8)
+                elif c.size == 4:
+                    return filedata[c.offset] + (filedata[c.offset + 1] << 8) + (filedata[c.offset + 2] << 16) + (filedata[c.offset + 3] << 24)
+                else:
+                    print "TODO: Can not get data for values over 4 bytes"
+                    return 0
+
+    def end(self):
+        return self.offset + self.size
+
+    def append(self, child):
         self.children.append(child)
         self.size += child.size
 
@@ -61,10 +79,12 @@ class Parse:
                 size *= arraySize
             n = Node(name, offset, size, name, comment)
             offset += size
-            struct.addChild(n)
+            struct.append(n)
         return struct
 
     def run(self, data):
+        global filedata
+        filedata = data
         self.parser = []
 
         imageDosHeader = self.parse(0, "IMAGE_DOS_HEADER", """
@@ -90,15 +110,98 @@ class Parse:
             """)    
         self.append(imageDosHeader)
 
-        imgNtHeader = Node("IMAGE_NT_HEADER", 0x100)
-        child = Node("child_label", 0x100, 2, "Signature", "/* PE */")
-        imgNtHeader.addChild(child)
-        imgFileHeader = Node("IMAGE_FILE_HEADER", 0x102)
-        child = Node("child_label", 0x102, 2, "Machine")
-        imgFileHeader.addChild(child)
-        imgNtHeader.addChild(imgFileHeader)
-        self.append(imgNtHeader)
-        
+        e_lfanew = imageDosHeader.getValue("e_lfanew")
+        imageNtHeader = self.parse(e_lfanew, "IMAGE_NT_HEADER", """
+            DWORD                 Signature;
+            """)
+
+        imageFileHeader = self.parse(imageNtHeader.end(), "IMAGE_FILE_HEADER", """
+            WORD  Machine;
+            WORD  NumberOfSections;
+            DWORD TimeDateStamp;
+            DWORD PointerToSymbolTable;
+            DWORD NumberOfSymbols;
+            WORD  SizeOfOptionalHeader;
+            WORD  Characteristics;
+            """)
+        imageNtHeader.append(imageFileHeader)
+
+        print "IMAGE_OPTIONAL_HEADER"
+        # IMAGE_OPTIONAL_HEADER
+        machine = imageFileHeader.getValue("Machine")
+        imageOptionalHeader = []
+        if (machine == 0x014c):
+            imageOptionalHeader = self.parse(imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER", """
+                WORD  Magic;
+                BYTE  MajorLinkerVersion;
+                BYTE  MinorLinkerVersion;
+                DWORD SizeOfCode;
+                DWORD SizeOfInitializedData;
+                DWORD SizeOfUninitializedData;
+                DWORD AddressOfEntryPoint;            
+                DWORD BaseOfCode;
+                DWORD BaseOfData;
+                DWORD ImageBase;
+                DWORD SectionAlignment;               
+                DWORD FileAlignment;
+                WORD  MajorOperatingSystemVersion;
+                WORD  MinorOperatingSystemVersion;
+                WORD  MajorImageVersion;
+                WORD  MinorImageVersion;
+                WORD  MajorSubsystemVersion;
+                WORD  MinorSubsystemVersion;
+                DWORD Win32VersionValue;
+                DWORD SizeOfImage;
+                DWORD SizeOfHeaders;
+                DWORD CheckSum;   
+                WORD  Subsystem;
+                WORD  DllCharacteristics;
+                DWORD SizeOfStackReserve;
+                DWORD SizeOfStackCommit;
+                DWORD SizeOfHeapReserve;
+                DWORD SizeOfHeapCommit;
+                DWORD LoaderFlags;
+                DWORD NumberOfRvaAndSizes;
+                """)
+        elif (machine == 0x8664):
+            imageOptionalHeader = self.parse(imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER64", """
+                WORD        Magic;
+                BYTE        MajorLinkerVersion;
+                BYTE        MinorLinkerVersion;
+                DWORD       SizeOfCode;
+                DWORD       SizeOfInitializedData;
+                DWORD       SizeOfUninitializedData;
+                DWORD       AddressOfEntryPoint;
+                DWORD       BaseOfCode;
+                ULONGLONG   ImageBase;
+                DWORD       SectionAlignment;
+                DWORD       FileAlignment;
+                WORD        MajorOperatingSystemVersion;
+                WORD        MinorOperatingSystemVersion;
+                WORD        MajorImageVersion;
+                WORD        MinorImageVersion;
+                WORD        MajorSubsystemVersion;
+                WORD        MinorSubsystemVersion;
+                DWORD       Win32VersionValue;
+                DWORD       SizeOfImage;
+                DWORD       SizeOfHeaders;
+                DWORD       CheckSum;
+                WORD        Subsystem;
+                WORD        DllCharacteristics;
+                ULONGLONG   SizeOfStackReserve;
+                ULONGLONG   SizeOfStackCommit;
+                ULONGLONG   SizeOfHeapReserve;
+                ULONGLONG   SizeOfHeapCommit;
+                DWORD       LoaderFlags;
+                DWORD       NumberOfRvaAndSizes;
+                """)
+        else:
+            print("ERROR: machine type unknown: %d" % machine)
+
+        print "Final append"
+        imageNtHeader.append(imageOptionalHeader)
+        self.append(imageNtHeader)
+
         return self.parser
 
 parser = Parse()

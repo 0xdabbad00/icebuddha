@@ -855,15 +855,8 @@ function getNode(array) {
 	var offset = array[4];
 	var children = array[5].v;
 
-	console.log("Label:"+label);
-	console.log("size:"+size);
-	console.log("Name:"+name);
-	console.log("Comment:"+comment);
-	console.log("Offset:"+offset);
-
 	var n = node(label, size, name, comment, offset);
 	for (var i=0; i<children.length; i++) {
-		console.log("Adding child");
 		n.children.push(getNode(children[i].v));
 	} 
 
