@@ -41,6 +41,8 @@ var lastHexDumpPosition = 0;
 var gotoLocation = 0;
 var scrollNeeded = false;
 
+var parseBase = "";
+
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
 ///////////////////////////////////////////////////////////////////////////////
@@ -839,7 +841,7 @@ function ParseInstructions(parseInstructions) {
 
 		Sk.configure({output:outf});
 
-		var module = Sk.importMainWithBody("<stdin>", false, parseInstructions);
+		var module = Sk.importMainWithBody("<stdin>", false, parseBase + parseInstructions);
         var obj = module.tp$getattr('parser');
         var runMethod = obj.tp$getattr('run');
 
@@ -894,20 +896,23 @@ function SetParseTree() {
 	var parseInput = "";
 	
 	cacheBreaker = "?"+new Date().getTime();
-	
-	$.get("parseFile_pe.py"+cacheBreaker, function(response) {
-		parseInput = response;
+	$.get("parseFile_base.py"+cacheBreaker, function(response) {
+		parseBase = response;
 
-		// Set up ace editor
-		$("#editor").html(parseInput);
-	    editor = ace.edit("editor");
-		editor.getSession().setMode("ace/mode/python");
-	    editor.setTheme("ace/theme/chrome");
-	    editor.session.setUseWorker(false);
-	    editor.setShowFoldWidgets(false);
+		$.get("parseFile_pe.py"+cacheBreaker, function(response) {
+			parseInput = response;
 
-	    // Create parse tree
-	    ParseInstructions(parseInput);
+			// Set up ace editor
+			$("#editor").html(parseInput);
+		    editor = ace.edit("editor");
+			editor.getSession().setMode("ace/mode/python");
+		    editor.setTheme("ace/theme/chrome");
+		    editor.session.setUseWorker(false);
+		    editor.setShowFoldWidgets(false);
+
+		    // Create parse tree
+		    ParseInstructions(parseInput);
+		});
 	});
 		
 	return;	
