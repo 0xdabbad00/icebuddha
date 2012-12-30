@@ -22,6 +22,9 @@ class Node:
         self.comment = comment
         self.children = []
 
+    def setComment(self, comment):
+        self.comment = comment
+
     def get(self):
         childData = []
         for c in self.children:
@@ -53,8 +56,9 @@ class Parse:
     def append(self, node):
         self.parser.append(node.get())
 
-    def parse(self, offset, structName, input):
+    def parse(self, offset, structName, input, comment=""):
         struct = Node(structName, offset)
+        struct.setComment(comment)
         for l in input.split('\n'):
             parts = l.split(';')
             if (len(parts) < 2):
@@ -126,7 +130,6 @@ class Parse:
             """)
         imageNtHeader.append(imageFileHeader)
 
-        print "IMAGE_OPTIONAL_HEADER"
         # IMAGE_OPTIONAL_HEADER
         machine = imageFileHeader.getValue("Machine")
         imageOptionalHeader = []
@@ -198,7 +201,13 @@ class Parse:
         else:
             print("ERROR: machine type unknown: %d" % machine)
 
-        print "Final append"
+        IMAGE_DATA_DIRECTORY = """
+            DWORD VirtualAddress;
+            DWORD Size;
+            """
+        imageOptionalHeader.append(self.parse(imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "export table"))
+        imageOptionalHeader.append(self.parse(imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "import table"))
+
         imageNtHeader.append(imageOptionalHeader)
         self.append(imageNtHeader)
 
