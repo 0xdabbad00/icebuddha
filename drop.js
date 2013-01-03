@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 var data;
 var file;
+var filename;
 var reader;
 var arrayBuffer;
 
@@ -135,11 +136,7 @@ function strToArray(str) {
 
 function startsWith(haystack, needle) {
 	if (haystack.length < needle.length) return false;
-	console.log("Start check with needle length:"+needle.length);
-
 	for (var i=0; i<needle.length; i++) {
-		console.log("needle["+i+"]="+convertToHex(needle[i]));
-		console.log("haystack["+i+"]="+convertToHex(haystack[i]));
 		if (haystack[i] != needle[i]) return false;
 	}
 	return true;
@@ -469,10 +466,6 @@ function displayHexDump(position) {
 				bb.append(arrayBuffer);
 				var blob = bb.getBlob("application/octet-stream");
 
-				var filename = "file";
-				if (file) {
-					filename = file.name;
-				}
 				saveAs(blob, filename);
 			} else {
 				showDialog("The item's action is: " + e.action + "\nTarget:"+hexId, "Click detected", true);
@@ -603,6 +596,7 @@ function getByteContentHTML(address, hex, ascii, start) {
 }
 
 function createTemplate(fileName, fileSize) {
+	filename = filename;
 	var output = [];
 	
 	// Set defaults for new file read
@@ -903,6 +897,8 @@ function ParseInstructions(parseInstructions) {
 		 		}
 		 		if (e.action == 'Colorize') {
 		 			colorize(clickedNode);
+		 		} else if (e.action == 'DownloadParse') {
+		 			downloadParse();
 		 		}
 		 	}
 		});
@@ -944,9 +940,9 @@ function SetParseTree() {
 
 function downloadParse() {
  	var bb = new BlobBuilder();
-	bb.append($('#parsetree').tree('toJson'));
+	bb.append(JSON.stringify(treedata));
 	var blob = bb.getBlob("application/octet-stream");
-	saveAs(blob, file.name);
+	saveAs(blob, filename+".json");
 }
 
 function pickHighliteColor() {
