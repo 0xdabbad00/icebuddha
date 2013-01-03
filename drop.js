@@ -125,6 +125,26 @@ function str2ArrayBuffer(str) {
   return bufView;
 }
 
+function strToArray(str) {
+	a = [];
+	for (var i=0; i<str.length; i++) {
+		a.push(str.charCodeAt(i));
+	}
+	return a;
+}
+
+function startsWith(haystack, needle) {
+	if (haystack.length < needle.length) return false;
+	console.log("Start check with needle length:"+needle.length);
+
+	for (var i=0; i<needle.length; i++) {
+		console.log("needle["+i+"]="+convertToHex(needle[i]));
+		console.log("haystack["+i+"]="+convertToHex(haystack[i]));
+		if (haystack[i] != needle[i]) return false;
+	}
+	return true;
+}
+
 function showDialog(str, title, okBtn) {
 	$( "#dialog-message" ).html(str);
 	
@@ -448,7 +468,12 @@ function displayHexDump(position) {
 		      	var bb = new BlobBuilder();
 				bb.append(arrayBuffer);
 				var blob = bb.getBlob("application/octet-stream");
-				saveAs(blob, file.name);
+
+				var filename = "file";
+				if (file) {
+					filename = file.name;
+				}
+				saveAs(blob, filename);
 			} else {
 				showDialog("The item's action is: " + e.action + "\nTarget:"+hexId, "Click detected", true);
 			}
@@ -614,13 +639,6 @@ function createTemplate(fileName, fileSize) {
 			"<ul>" +
 			"<li id=\"Download\"><a href=\"#Download\">Download</a></li>" +
 			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
-			"<li id=\"Copy\"><a href=\"#Copy\">Copy</a>" +
-			"<ul>" +
-			"  <li id=\"Copy_bytes\"><a href=\"#Copy_bytes\">Copy bytes</a></li>" +
-			"  <li id=\"Copy_hex\"><a href=\"#Copy_hex\">Copy hex</a></li>" +
-			"  <li id=\"Copy_hexdump\"><a href=\"#Copy_hexdump\">Copy hex dump</a></li>" +
-			"  <li id=\"Copy_ascii\"><a href=\"#Copy_ascii\">Copy ascii</a></li>" +
-			"</ul></li>" +
 			"</ul>" +
 			"</div>");
 	
@@ -628,6 +646,7 @@ function createTemplate(fileName, fileSize) {
 			"<div id=\"parseTreeContextMenu\" style=\"display: none;\">\n" + 
 			"<ul>" +
 			"<li id=\"Colorize\"><a href=\"#Colorize\">Colorize</a></li>" +
+			"<li id=\"DownloadParse\"><a href=\"#DownloadParse\">Download parsed data</a></li>" +
 			"</ul>" +
 			"</div>");
 	
@@ -896,10 +915,15 @@ function SetParseTree() {
 	var parseInput = "";
 	
 	cacheBreaker = "?"+new Date().getTime();
-	$.get("parseFile_base.py"+cacheBreaker, function(response) {
+	$.get("./parse_scripts/base.py"+cacheBreaker, function(response) {
 		parseBase = response;
 
-		$.get("parseFile_pe.py"+cacheBreaker, function(response) {
+		var parseScript = "unknown.py";
+		if (startsWith(data, strToArray("MZ"))) {
+			parseScript = "pe.py";
+		}
+
+		$.get("./parse_scripts/"+parseScript+cacheBreaker, function(response) {
 			parseInput = response;
 
 			// Set up ace editor
@@ -916,6 +940,13 @@ function SetParseTree() {
 	});
 		
 	return;	
+}
+
+function downloadParse() {
+ 	var bb = new BlobBuilder();
+	bb.append($('#parsetree').tree('toJson'));
+	var blob = bb.getBlob("application/octet-stream");
+	saveAs(blob, file.name);
 }
 
 function pickHighliteColor() {
