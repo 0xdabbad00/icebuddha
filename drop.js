@@ -917,6 +917,8 @@ function SetParseTree() {
 		var parseScript = "unknown.py";
 		if (startsWith(data, strToArray("MZ"))) {
 			parseScript = "pe.py";
+		} else if (startsWith(data, strToArray("GIF"))) {
+			parseScript = "gif.py";
 		}
 
 		$.get("./parse_scripts/"+parseScript+cacheBreaker, function(response) {
