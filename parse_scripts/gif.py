@@ -7,10 +7,9 @@ class Parse:
         filedata = data
         self.parser = []
 
-        
         gifHeader = parse(0, "GIFHEADER", """
-            BYTE    Signature[3];
-            BYTE    Version[3];
+            CHAR    Signature[3];
+            CHAR    Version[3];
         """)
         self.append(gifHeader)
 
@@ -23,8 +22,6 @@ class Parse:
         """)
 
         self.append(lsd)
-
-
 
         return self.parser
 

@@ -775,7 +775,7 @@ function SetValueElement(offset) {
 ///////////////////////////////////////////////////////////////////////////////
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
-function node(label, size, name, comment, offset) {
+function node(label, size, name, comment, offset, interpretation) {
 	var dataValue = "";
 	
 	if (size==4) {
@@ -818,8 +818,6 @@ function node(label, size, name, comment, offset) {
 		commentString = " "+comment;
 	}
 	
-	interpretation = "";
-	
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation, children: []};
 }
 
@@ -836,8 +834,9 @@ function getNode(array) {
 	var comment = array[3].v;
 	var offset = array[4];
 	var children = array[5].v;
+	var interpretation = array[6].v;
 
-	var n = node(label, size, name, comment, offset);
+	var n = node(label, size, name, comment, offset, interpretation);
 	for (var i=0; i<children.length; i++) {
 		n.children.push(getNode(children[i].v));
 	} 
@@ -1059,7 +1058,7 @@ dropZone.addEventListener('drop', handleFileSelect, false);
 
 if ($_GET('test')) {
 	var filename = $_GET('test');
-	filename = "putty.exe";
+	if (filename != "putty.exe" && filename != "icebuddha.gif") { filename = "putty.exe"; }
 	
 	$.get(filename, function(response) {
 		data =  str2ArrayBuffer(response);
