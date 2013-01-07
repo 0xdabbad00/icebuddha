@@ -30,7 +30,7 @@ class Parse:
             """)    
         self.append(imageDosHeader)
 
-        e_lfanew = imageDosHeader.getValue("e_lfanew")
+        e_lfanew = imageDosHeader.getInt("e_lfanew")
         imageNtHeader = parse(e_lfanew, "IMAGE_NT_HEADER", """
             DWORD                 Signature;
             """)
@@ -47,7 +47,7 @@ class Parse:
         imageNtHeader.append(imageFileHeader)
 
         # IMAGE_OPTIONAL_HEADER
-        machine = imageFileHeader.getValue("Machine")
+        machine = imageFileHeader.getInt("Machine")
         imageOptionalHeader = []
         if (machine == 0x014c):
             imageOptionalHeader = parse(imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER", """

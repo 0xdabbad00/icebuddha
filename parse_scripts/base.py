@@ -1,12 +1,31 @@
 filedata = []
 
 
-def intToHex(value):
-    return "%0.8X" % value
+def intToHex(value, fill=8):
+    if fill == 8:
+        return "%0.8X" % value
+    else:
+        format = "%s0.%dX" % ("%", fill)
+        #return "%0.8X" % value
+        return format % value
+        
 
 
-def nbsp():
-    return "%snbsp;" % chr(0x26)
+def getBinary(value):
+    str = ""
+    for i in range(8):
+        if (value & (1 << i)) != 0:
+            str += "1"
+        else:
+            str += "0"
+    return str
+
+
+def nbsp(count):
+    str = ""
+    for i in range(count):
+        str += ("%snbsp;" % chr(0x26))
+    return str
 
 displayableAscii = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
@@ -74,10 +93,7 @@ class Node:
         self.size = size
 
         if (size == 0):
-            ws = "%s%s%s%s%s%s%s%s%s%s%s%s%s%s" % (nbsp(), nbsp(),
-                nbsp(), nbsp(), nbsp(), nbsp(), nbsp(),
-                nbsp(), nbsp(), nbsp(), nbsp(), nbsp(),
-                nbsp(), nbsp())
+            ws = "%s" % nbsp(14)
             self.label = intToHex(offset) + ws + label
             self.size = 0
         else:
@@ -90,6 +106,12 @@ class Node:
 
     def setComment(self, comment):
         self.comment = comment
+
+    def setValue(self, value):
+        self.value = value
+
+    def getData(self):
+        return filedata[self.offset]
 
     def get(self):
         childData = []
@@ -106,7 +128,7 @@ class Node:
         print "Child %s not found" % childName
         return None
 
-    def getValue(self, valueName):
+    def getInt(self, valueName):
         c = self.findChild(valueName)
         if c is None:
             return 0
@@ -125,9 +147,47 @@ class Node:
             print "TODO: Can not get data for values over 4 bytes"
             return 0
 
+    def start(self):
+        return self.offset
+
     def end(self):
         return self.offset + self.size
 
     def append(self, child):
         self.children.append(child)
         self.size += child.size
+
+    def parseBitField(self, input):
+        bitCount = 0
+        self.value = "%s%s" % (nbsp(2), getBinary(self.getData()))
+        for l in input.split('\n'):
+            parts = l.split(';')
+            if (len(parts) < 2):
+                continue
+            comment = parts[1]
+            parts = parts[0].split(":")
+            if (len(parts) < 2):
+                continue
+            size = int(parts[1])
+            if bitCount + size > self.size * 8:
+                print "Bit field too large for %s" % self.name
+
+            parts = parts[0].split()
+            # ignore type
+            name = parts[1]
+
+            bitmask = 0
+            for i in range(bitCount, bitCount+size):
+                bitmask |= (1 << i)
+
+            data = (bitmask & self.getData()) >> bitCount
+
+            value = "<br>%s%s %s %s : %d %s" % (nbsp(11),
+                getBinary(bitmask & self.getData()),
+                intToHex(data, 2),
+                name,
+                size,
+                comment)
+            self.value += value
+            bitCount += size
+

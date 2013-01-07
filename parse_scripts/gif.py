@@ -16,10 +16,18 @@ class Parse:
         lsd = parse(gifHeader.end(), "LOGICAL_SCREEN_DESCRIPTOR", """
             WORD  Width;
             WORD  Height;
-            BYTE  GlobalColorTable; /* GlobalColorTableFlag : 1; ColorResolution : 3; SortFlag : 1; SizeOfGlobalColorTable : 3; */
+            BYTE  GlobalColorTable;
             BYTE  BackgroundColorIndex;
             BYTE  PixelAspectRatio;
         """)
+        gct = lsd.findChild("GlobalColorTable")
+        gct.parseBitField("""
+            BYTE   GlobalColorTableFlag : 1;
+            BYTE   ColorResolution : 3;
+            BYTE   SortFlag : 1;
+            BYTE   SizeOfGlobalColorTable : 3;
+            """)
+
 
         self.append(lsd)
 
