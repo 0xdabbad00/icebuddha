@@ -11,6 +11,60 @@ var numFiles = 0;
 var filesOnly = false;
 
 ///////////////////////////////////////////////////////////////////////////////
+// Dialog message
+///////////////////////////////////////////////////////////////////////////////
+function showDialog(str, title, okBtn) {
+	$( "#dialog-message" ).html(str);
+	
+	if (okBtn) {
+	    $( "#dialog-message" ).dialog({
+	    	title: title,
+	        modal: true,
+	        disabled: false,
+
+	        buttons: {
+	            Ok: function() {
+	                $( this ).dialog( "close" );
+	            }
+	        }
+	    });
+	} else {
+		$( "#dialog-message" ).dialog({
+	    	title: title,
+	        modal: true,
+	        disabled: false
+	    });
+	}
+
+    $( "#dialog-message" ).dialog( "enable" );
+    $( "#dialog-message" ).dialog( "open" );
+}
+
+function removeDialog() {
+	$( "#dialog-message" ).dialog( "close" );
+}
+
+
+function showError(str) {
+	$( "#dialog-message" ).html("<span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin: 0 7px 50px 0;\"></span>"+str);
+	
+    $( "#dialog-message" ).dialog({
+    	title: "Error",
+        modal: true,
+        disabled: false,
+
+        buttons: {
+            Ok: function() {
+                $( this ).dialog( "close" );
+            }
+        }
+    });
+
+    $( "#dialog-message" ).dialog( "enable" );
+    $( "#dialog-message" ).dialog( "open" );
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // File reading
 ///////////////////////////////////////////////////////////////////////////////
 function handleFinishedRead(evt, i) {
@@ -217,16 +271,20 @@ function handleFileSelect(evt) {
 			}
 		}
 	}
-	
 }
 
 function readFile(reader, file) {
 	end = MAX_FILE_SIZE;
 	var blob;
-	if(file.webkitSlice) {
+	if (file.slice) {
+		blob = file.slice(0, end);
+	} else if(file.webkitSlice) {
 		blob = file.webkitSlice(0, end);
 	} else if(file.mozSlice) {
 		blob = file.mozSlice(0, end);
+	} else {
+		console.log("No file slicing possible in this browser");
+		return;
 	}
 
 	reader.readAsArrayBuffer(blob);
@@ -246,6 +304,11 @@ function handleDragOver(evt) {
 if ($.browser.webkit) {
 	$('#drop_zone').html('Drop files and folders here');
 }
+
+$(function() {
+  	// Handler for when the page has loaded
+	$( "#dialog-message" ).dialog({ autoOpen: false });
+});
 
 //Setup the dnd listeners.
 var dropZone = document.getElementById('container');
