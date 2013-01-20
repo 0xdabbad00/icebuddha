@@ -111,6 +111,7 @@ function displayResults() {
 		output.push("<br><b>Nonexecutables</b><br>" + unknownFiles.join(""));
 	}
 	$('#analysis').html(output.join(""));
+	removeDialog();
 }
 
 
@@ -232,6 +233,7 @@ function toArray(list) {
 
 
 function handleFileSelect(evt) {
+	showDialog("Loading files", "Loading");
 	evt.stopPropagation();
 	evt.preventDefault();
 
@@ -270,6 +272,10 @@ function handleFileSelect(evt) {
 				alert("Error, unkown type given");
 			}
 		}
+	}
+
+	if (numFiles == 0) {
+		$( "#dialog-message" ).html("No files found");
 	}
 }
 
