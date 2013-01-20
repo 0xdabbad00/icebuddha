@@ -14,7 +14,7 @@ def intToHex(value, fill=8):
 def getBinary(value):
     str = ""
     for i in range(8):
-        if (value & (1 << i)) != 0:
+        if (value & (1 << (7-i))) != 0:
             str += "1"
         else:
             str += "0"
@@ -110,6 +110,9 @@ class Node:
     def setValue(self, value):
         self.value = value
 
+    def getValue(self):
+        return self.value
+
     def getData(self):
         return filedata[self.offset]
 
@@ -123,7 +126,9 @@ class Node:
 
     def findChild(self, childName):
         for c in self.children:
-            if c.name == childName:
+            name = c.name.split('[')
+            name = name[0]
+            if name == childName:
                 return c
         print "Child %s not found" % childName
         return None
@@ -178,9 +183,10 @@ class Node:
 
             bitmask = 0
             for i in range(bitCount, bitCount+size):
-                bitmask |= (1 << i)
+                bitmask |= (1 << (7-i))
 
-            data = (bitmask & self.getData()) >> bitCount
+            data = (bitmask & self.getData())
+            data = data >> (8-(bitCount+size))
 
             value = "<br>%s%s %s %s : %d %s" % (nbsp(11),
                 getBinary(bitmask & self.getData()),

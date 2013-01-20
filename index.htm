@@ -17,7 +17,7 @@
 
 <body>  
   <script>
-    if ($.browser.msie) {
+    if (!$.browser.webkit && !$.browser.mozilla) {
       alert("You must use firefox or chrome for this site to work");
     }
   </script>

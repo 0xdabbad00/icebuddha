@@ -1055,19 +1055,36 @@ var dropZone = document.getElementById('container');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileSelect, false);
 
+function load_binary_resource(url) {
+	var req = new XMLHttpRequest();
+	req.open('GET', url, false);
+
+	// The following line says we want to receive data as Binary and not as Unicode
+	if (!('overrideMimeType' in req)) {
+		alert('Your browser does not support binary encoding, aborting ...');
+		throw new Error();
+	}
+
+	req.overrideMimeType('text/plain; charset=x-user-defined');
+	req.send(null);
+	if (req.status != 200) {
+		console.log("Reading "+url+" returned "+req.status);
+		return '';
+	}
+	return req.responseText;
+}
+
 
 if ($_GET('test')) {
 	var filename = $_GET('test');
-	if (filename != "putty.exe" && filename != "icebuddha.gif") { filename = "putty.exe"; }
 	
-	$.get(filename, function(response) {
-		data =  str2ArrayBuffer(response);
-		var length = data.byteLength;
-		createTemplate(filename, length);
-		displayHexDump(0);
-		SetParseTree();
-		SetStrings();
-	});
+	response = load_binary_resource("./test_data/"+filename);
 	
+	data =  str2ArrayBuffer(response);
+	var length = data.byteLength;
+	createTemplate(filename, length);
+	displayHexDump(0);
+	SetParseTree();
+	SetStrings();
 }
 
