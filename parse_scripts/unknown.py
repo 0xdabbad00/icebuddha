@@ -1,4 +1,9 @@
+""" Unknown file type parse script for IceBuddha.com
+"""
 import icebuddha
+
+__author__ = "0xdabbad00"
+__license__ = "Apache"
 
 filedata = []
 

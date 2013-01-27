@@ -354,10 +354,22 @@ function handleFinishedRead(evt) {
 		arrayBuffer = evt.target.result;
 		data =  new Uint8Array(arrayBuffer, 0, length);
 		displayHexDump(0);
-		SetParseTree();
+		SetParseTree(ChooseParseScript());
 		SetStrings();
 		removeDialog();
 	}
+}
+
+function ChooseParseScript() {
+	parseScript = "unknown.py";
+	if (startsWith(data, strToArray("MZ"))) {
+		parseScript = "pe.py";
+	} else if (startsWith(data, strToArray("GIF"))) {
+		parseScript = "gif.py";
+	}
+	var filetype = parseScript.split('.')[0];
+	$('#parseScriptSelection').text(filetype);;
+	return parseScript;
 }
 
 function onOddRow(offset) {
@@ -627,7 +639,9 @@ function createTemplate(fileName, fileSize) {
 	output.push("</table></table>\n");
 	output.push("<div id=\"parseTreeEnvelope\"><div id=\"parsetree\"></div></div>\n");
 	output.push("</div>");
-	output.push("<h3>Parse as: EXE</h3>");
+	
+	output.push("<h3>Parse as: <i id=\"parseScriptSelection\">unknown</i></h3>");
+
 	output.push("<div id=\"editor\"></div>");
 	output.push("<h3>Strings</h3>");
 	output.push("<div id=\"strings\"></div>");
@@ -920,16 +934,9 @@ function ParseInstructions(parseInstructions) {
 	}    
 }
 
-function SetParseTree() {
+function SetParseTree(parseScript) {
 	var parseInput = "";
 	
-	var parseScript = "unknown.py";
-	if (startsWith(data, strToArray("MZ"))) {
-		parseScript = "pe.py";
-	} else if (startsWith(data, strToArray("GIF"))) {
-		parseScript = "gif.py";
-	}
-
 	cacheBreaker = "?"+new Date().getTime();
 
 	$.get("./parse_scripts/"+parseScript+cacheBreaker, function(response) {
@@ -1095,7 +1102,7 @@ if ($_GET('test')) {
 	var length = data.byteLength;
 	createTemplate(filename, length);
 	displayHexDump(0);
-	SetParseTree();
+	SetParseTree(ChooseParseScript());
 	SetStrings();
 }
 
