@@ -127,7 +127,7 @@ class Node:
         print "Child %s not found" % childName
         return None
 
-    def getInt(self, valueName, filedata):
+    def getInt(self, filedata, valueName):
         c = self.findChild(valueName)
         if c is None:
             return 0
