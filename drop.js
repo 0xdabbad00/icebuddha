@@ -362,6 +362,10 @@ function handleFinishedRead(evt) {
 	}
 }
 
+function onOddRow(offset) {
+	return ((offset >> 4 ) % 2) == 1;
+}
+
 
 function displayHexDump(position) {
 	lastHexDumpPosition = position;
@@ -384,14 +388,18 @@ function displayHexDump(position) {
 	for (var i = hexDumpStart; i < hexDumpEnd; i++) {
 		// Show address
 		if (column == 0) {
-			address.push(intToHex(i));
-			address.push("<br>\n");
+			address.push("<i class=\"");
+			if (onOddRow(i)) {
+				address.push("alt_row");
+			}
+			address.push("\">"+intToHex(i));
+			address.push("&nbsp;&nbsp;</i><br>\n");
 		}
 		// Show value
 		hex.push("<i id=\"h");
 		hex.push(i);
 		hex.push("\" class=\"hex");
-		if (((i >> 4 ) % 2) == 1) {
+		if (onOddRow(i)) {
 			hex.push(" alt_row");
 		}
 		hex.push("\">");
@@ -399,7 +407,7 @@ function displayHexDump(position) {
 		hex.push(hexArray[(data[i]&0xf0)>>4]);
 		hex.push(hexArray[(data[i]&0x0f)]);
 		
-		if (column % 16 != 0 && column % 8 == 0) {
+		if (column % 16 != 0 && (column % 8 == 0 || column % 15 == 0)) {
 		  hex.push("&nbsp;");
 		}
 		hex.push(" </i>");
@@ -408,7 +416,7 @@ function displayHexDump(position) {
 		ascii.push("<i id=\"a");
 		ascii.push(i);
 		ascii.push("\" class=\"ascii");
-		if (((i >> 4 ) % 2) == 1) {
+		if (onOddRow(i)) {
 			ascii.push(" alt_row");
 		}
 		ascii.push("\">");
@@ -584,9 +592,9 @@ function getByteContentHTML(address, hex, ascii, start) {
 	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+" id=\"byteScrollableArea\">");
 	output.push("<tr "+preHeightStyle+"><td "+preHeightStyle+" id=\"byteFillerAbove\"><td><td></tr>");
 	output.push("<tr>");
-	output.push("<td id=\"addressCell\" style=\"padding: 0 10px 0 0;\" class=\"address\">");
+	output.push("<td id=\"addressCell\" style=\"padding: 0 0 0 0;\" class=\"address\">");
 	output.push(address);
-	output.push("</td><td id=\"hexCell\" style=\"padding: 0 10px 0 0;\">");	
+	output.push("</td><td id=\"hexCell\" style=\"padding: 0 0 0 0;\">");	
 	output.push(hex);
 	output.push("</td><td id=\"asciiCell\">");
 	output.push(ascii);

@@ -7,18 +7,27 @@ body {
 
 body, th, td, .buttonstyle, textarea, input, ul, li {
   font-family: arial, Verdana;
-  color: #444444;
+  color: #303030;
   vertical-align: top;
+}
+
+#accordion th, #accordion td, #accordion .buttonstyle, #accordion textarea, #accordion input, #accordion  ul, #accordion li {
+  color: #444444;
 }
 
 body, th, td, .buttonstyle, textarea, input {
  font-size: 80%;
 }
 
-a:link,a:active, a:visited {color: #eee; text-decoration: none; }
-a:hover {color: #aaa; text-decoration: underline; }
+a:link, a:active, a:visited {color: #eee; text-decoration: none; }
+a:hover {color: #222; text-decoration: underline; }
 
-#content a:link, #content a:active, #content a:visited {color: #888; text-decoration: none; }
+#content a:link, #content a:active, #content a:visited {color: #404040; text-decoration: underline; }
+#content a:hover {color: #000; text-decoration: underline; }
+
+#content .uctxMenu a:link, #content .uctxMenu a:active, #content .uctxMenu a:visited {
+  color: #404040; text-decoration: none;
+}
 
 ul {
   margin:0px;
@@ -165,9 +174,13 @@ a:hover {color: #aaa; text-decoration: underline; }
  font-size: 13px;
 }
 
-.address, .ascii {
+#accordion .address, #accordion .ascii {
   color: #888;
 }
+i {
+font-style:normal;
+}
+
 .alt_row {
   /* background:#CFCFCF; */
   background:#d8d8d8;
