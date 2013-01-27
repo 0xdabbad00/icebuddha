@@ -42,8 +42,6 @@ var lastHexDumpPosition = 0;
 var gotoLocation = 0;
 var scrollNeeded = false;
 
-var parseBase = "";
-
 ///////////////////////////////////////////////////////////////////////////////
 // Utility functions
 ///////////////////////////////////////////////////////////////////////////////
@@ -852,6 +850,13 @@ function getNode(array) {
 	return n;
 }
 
+function builtinRead(x)
+{
+    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+        throw "File not found: '" + x + "'";
+    return Sk.builtinFiles["files"][x];
+}
+
 function ParseInstructions(parseInstructions) {
 	treedata = [];
 	
@@ -859,9 +864,10 @@ function ParseInstructions(parseInstructions) {
 		$('#parsetree').remove(); // Remove old parse tree
 		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
 
-		Sk.configure({output:outf});
+		Sk.configure({output:outf,
+			read: builtinRead});
 
-		var module = Sk.importMainWithBody("<stdin>", false, parseBase + parseInstructions);
+		var module = Sk.importMainWithBody("<stdin>", false, parseInstructions);
         var obj = module.tp$getattr('parser');
         var runMethod = obj.tp$getattr('run');
 
@@ -917,31 +923,28 @@ function ParseInstructions(parseInstructions) {
 function SetParseTree() {
 	var parseInput = "";
 	
+	var parseScript = "unknown.py";
+	if (startsWith(data, strToArray("MZ"))) {
+		parseScript = "pe.py";
+	} else if (startsWith(data, strToArray("GIF"))) {
+		parseScript = "gif.py";
+	}
+
 	cacheBreaker = "?"+new Date().getTime();
-	$.get("./parse_scripts/base.py"+cacheBreaker, function(response) {
-		parseBase = response;
 
-		var parseScript = "unknown.py";
-		if (startsWith(data, strToArray("MZ"))) {
-			parseScript = "pe.py";
-		} else if (startsWith(data, strToArray("GIF"))) {
-			parseScript = "gif.py";
-		}
+	$.get("./parse_scripts/"+parseScript+cacheBreaker, function(response) {
+		parseInput = response;
 
-		$.get("./parse_scripts/"+parseScript+cacheBreaker, function(response) {
-			parseInput = response;
+		// Set up ace editor
+		$("#editor").html(parseInput);
+	    editor = ace.edit("editor");
+		editor.getSession().setMode("ace/mode/python");
+	    editor.setTheme("ace/theme/chrome");
+	    editor.session.setUseWorker(false);
+	    editor.setShowFoldWidgets(false);
 
-			// Set up ace editor
-			$("#editor").html(parseInput);
-		    editor = ace.edit("editor");
-			editor.getSession().setMode("ace/mode/python");
-		    editor.setTheme("ace/theme/chrome");
-		    editor.session.setUseWorker(false);
-		    editor.setShowFoldWidgets(false);
-
-		    // Create parse tree
-		    ParseInstructions(parseInput);
-		});
+	    // Create parse tree
+	    ParseInstructions(parseInput);
 	});
 		
 	return;	

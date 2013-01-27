@@ -1,20 +1,15 @@
-filedata = []
-
-
 def intToHex(value, fill=8):
     if fill == 8:
         return "%0.8X" % value
     else:
         format = "%s0.%dX" % ("%", fill)
-        #return "%0.8X" % value
         return format % value
-        
 
 
 def getBinary(value):
     str = ""
     for i in range(8):
-        if (value & (1 << (7-i))) != 0:
+        if (value & (1 << (7 - i))) != 0:
             str += "1"
         else:
             str += "0"
@@ -27,7 +22,9 @@ def nbsp(count):
         str += ("%snbsp;" % chr(0x26))
     return str
 
-displayableAscii = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+
+def getString(filedata, offset, length):
+    displayableAscii = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
         " ", "!", "", "#", "$", "%", "", "", "(", ")", "*", "+", ",", "-", "", "",
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "", "=", "", "?",
@@ -35,9 +32,6 @@ displayableAscii = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
         "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "", "]", "^", "_",
         "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
         "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ""]
-
-
-def getString(offset, length):
     str = ""
     for i in range(length):
         val = filedata[offset + i]
@@ -47,7 +41,7 @@ def getString(offset, length):
     return str
 
 
-def parse(offset, structName, input, comment=""):
+def parse(filedata, offset, structName, input, comment=""):
     struct = Node(structName, offset)
     struct.setComment(comment)
     for l in input.split('\n'):
@@ -80,7 +74,7 @@ def parse(offset, structName, input, comment=""):
             arraySize = int((arrayParts[1].split(']'))[0])
             size *= arraySize
             if ascii:
-                value = getString(offset, size)
+                value = getString(filedata, offset, size)
         n = Node(name, offset, size, name, comment, value)
         offset += size
         struct.append(n)
@@ -113,7 +107,7 @@ class Node:
     def getValue(self):
         return self.value
 
-    def getData(self):
+    def getData(self, filedata):
         return filedata[self.offset]
 
     def get(self):
@@ -133,7 +127,7 @@ class Node:
         print "Child %s not found" % childName
         return None
 
-    def getInt(self, valueName):
+    def getInt(self, valueName, filedata):
         c = self.findChild(valueName)
         if c is None:
             return 0
@@ -162,9 +156,9 @@ class Node:
         self.children.append(child)
         self.size += child.size
 
-    def parseBitField(self, input):
+    def parseBitField(self, filedata, input):
         bitCount = 0
-        self.value = "%s%s" % (nbsp(2), getBinary(self.getData()))
+        self.value = "%s%s" % (nbsp(2), getBinary(self.getData(filedata)))
         for l in input.split('\n'):
             parts = l.split(';')
             if (len(parts) < 2):
@@ -182,18 +176,17 @@ class Node:
             name = parts[1]
 
             bitmask = 0
-            for i in range(bitCount, bitCount+size):
-                bitmask |= (1 << (7-i))
+            for i in range(bitCount, bitCount + size):
+                bitmask |= (1 << (7 - i))
 
-            data = (bitmask & self.getData())
-            data = data >> (8-(bitCount+size))
+            data = (bitmask & self.getData(filedata))
+            data = data >> (8 - (bitCount + size))
 
             value = "<br>%s%s %s %s : %d %s" % (nbsp(11),
-                getBinary(bitmask & self.getData()),
+                getBinary(bitmask & self.getData(filedata)),
                 intToHex(data, 2),
                 name,
                 size,
                 comment)
             self.value += value
             bitCount += size
-
