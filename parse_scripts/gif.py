@@ -7,28 +7,25 @@ __license__ = "Apache"
 
 
 class Parser:
-    def append(self, node):
-        self.parser.append(node.get())
-
     def run(self, data):
         filedata = data
-        self.parser = []
+        ib = icebuddha.IceBuddha()
 
         RGB = """
-            UBYTE   R;
-            UBYTE   G;
-            UBYTE   B;
+            BYTE   R;
+            BYTE   G;
+            BYTE   B;
         """
 
-        gifHeader = icebuddha.parse(filedata, 0, "GIFHEADER", """
+        gifHeader = ib.parse(filedata, 0, "GIFHEADER", """
             CHAR    Signature[3];
             CHAR    Version[3];
         """)
         if (gifHeader.findChild("Signature").getValue() != "GIF"):
             return []
-        self.append(gifHeader)
+        ib.append(gifHeader)
 
-        lsd = icebuddha.parse(filedata, gifHeader.end(), "LOGICAL_SCREEN_DESCRIPTOR", """
+        lsd = ib.parse(filedata, gifHeader.end(), "LOGICAL_SCREEN_DESCRIPTOR", """
             WORD  Width;
             WORD  Height;
             BYTE  GlobalColorTable;
@@ -47,18 +44,18 @@ class Parser:
         if (GlobalColorTableFlag == 1):
             SizeOfGlobalColorTable = (gct.getData(filedata) & 7)
             SizeOfGlobalColorTable = 1 << (SizeOfGlobalColorTable + 1)
-            ColorTable = icebuddha.parse(filedata, lsd.end(), "ColorTable RGB[%d]" % SizeOfGlobalColorTable, "")
+            ColorTable = ib.parse(filedata, lsd.end(), "ColorTable RGB[%d]" % SizeOfGlobalColorTable, "")
             for i in range(SizeOfGlobalColorTable):
-                color = icebuddha.parse(filedata, ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
+                color = ib.parse(filedata, ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
                 ColorTable.append(color)
             lsd.append(ColorTable)
-        self.append(lsd)
+        ib.append(lsd)
 
         offset = lsd.end()
-        Data = icebuddha.parse(filedata, offset, "Data", "")
-        while (filedata[offset] != 0x3B):
-            if (icebuddha.isEqual(filedata, offset, [0x2C])):
-                imgDescriptor = icebuddha.parse(filedata, offset, "IMAGE_DESCRIPTOR", """
+        Data = ib.parse(filedata, offset, "Data", "")
+        while (filedata[offset] != 0x3B and offset < len(filedata)):
+            if (filedata[offset] == 0x2C):
+                imgDescriptor = ib.parse(filedata, offset, "IMAGE_DESCRIPTOR", """
                     BYTE  ImageSeperator;
                     WORD  Left;
                     WORD  Top;
@@ -77,22 +74,20 @@ class Parser:
                 Data.append(imgDescriptor)
 
                 LocalColorTableFlag = imgDescriptorPackedField.getData(filedata) & 1
-
                 if (LocalColorTableFlag == 1):
                     SizeOfLocalColorTable = (imgDescriptorPackedField.getData(filedata) & 7)
                     SizeOfLocalColorTable = 1 << (SizeOfLocalColorTable + 1)
-                    ColorTable = icebuddha.parse(filedata, imgDescriptor.end(), "ColorTable RGB[%d]" % SizeOfLocalColorTable, "")
+                    ColorTable = ib.parse(filedata, imgDescriptor.end(), "ColorTable RGB[%d]" % SizeOfLocalColorTable, "")
                     for i in range(SizeOfLocalColorTable):
-                        color = icebuddha.parse(filedata, ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
+                        color = ib.parse(filedata, ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
                         ColorTable.append(color)
                     Data.append(ColorTable)
-
-                imgData = icebuddha.parse(filedata, Data.end(), "IMAGE_DATA", "BYTE LZWMinimumCodeSize;")
-                self.getDataSubBlocks(filedata, imgData)
+                imgData = ib.parse(filedata, Data.end(), "IMAGE_DATA", "BYTE LZWMinimumCodeSize;")
+                self.getDataSubBlocks(filedata, ib, imgData)
                 Data.append(imgData)
 
-            elif (icebuddha.isEqual(filedata, offset, [0x21, 0xF9])):
-                Data.append(icebuddha.parse(filedata, offset, "GraphicsControlExtension", """
+            elif (ib.isEqual(filedata, offset, [0x21, 0xF9])):
+                Data.append(ib.parse(filedata, offset, "GraphicsControlExtension", """
                     BYTE Introducer;   /* Extension Introducer (always 21h) */
                     BYTE Label;        /* Graphic Control Label (always F9h) */
                     BYTE BlockSize;    /* Size of remaining fields (always 04h) */
@@ -103,16 +98,16 @@ class Parser:
                 """))
                 # TODO Handle Packed field
 
-            elif (icebuddha.isEqual(filedata, offset, [0x21, 0xFE])):
-                commentExtension = icebuddha.parse(filedata, offset, "CommentExtension", """
+            elif (ib.isEqual(filedata, offset, [0x21, 0xFE])):
+                commentExtension = ib.parse(filedata, offset, "CommentExtension", """
                     BYTE ExtensionIntroducer;
                     BYTE CommentLabel;
                 """)
                 self.getDataSubBlocks(commentExtension)
                 Data.append(commentExtension)
 
-            elif (icebuddha.isEqual(filedata, offset, [0x21, 0x01])):
-                plainTextExtension = icebuddha.parse(filedata, offset, "PlainTextExtension", """
+            elif (ib.isEqual(filedata, offset, [0x21, 0x01])):
+                plainTextExtension = ib.parse(filedata, offset, "PlainTextExtension", """
                     BYTE Introducer;         /* Extension Introducer (always 21h) */
                     BYTE Label;              /* Extension Label (always 01h) */
                     BYTE BlockSize;          /* Size of Extension Block (always 0Ch) */
@@ -130,8 +125,8 @@ class Parser:
                 # TODO Handle PlainTextData
                 Data.append(plainTextExtension)
 
-            elif (icebuddha.isEqual(filedata, offset, [0xFF])):
-                applicationExtension = icebuddha.parse(filedata, offset, "ApplicationExtension", """
+            elif (ib.isEqual(filedata, offset, [0xFF])):
+                applicationExtension = ib.parse(filedata, offset, "ApplicationExtension", """
                     BYTE  BlockSize;
                     BYTE  ApplicationIdentifier[8];
                     BYTE  ApplicationAuthenticationCode[3];
@@ -139,18 +134,19 @@ class Parser:
                 Data.append(applicationExtension)
             else:
                 print "Undefined data at %d" % offset
+                break
 
             offset = Data.end()
 
-        self.append(Data)
-        self.append(icebuddha.parse(filedata, Data.end(), "TRAILER", "BYTE GIFTrailer;"))
-        return self.parser
+        ib.append(Data)
+        ib.append(ib.parse(filedata, Data.end(), "TRAILER", "BYTE GIFTrailer;"))
+        return ib.getParseTree()
 
-    def getDataSubBlocks(self, filedata, struct):
+    def getDataSubBlocks(self, filedata, ib, struct):
         size = 1
         while (size != 0):
             size = filedata[struct.end()]
-            subBlock = icebuddha.parse(filedata, struct.end(), "SUBBLOCK", """
+            subBlock = ib.parse(filedata, struct.end(), "SUBBLOCK", """
                 BYTE Size;
                 BYTE Data[%d];
             """ % size)

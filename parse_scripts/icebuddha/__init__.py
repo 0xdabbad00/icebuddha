@@ -23,15 +23,6 @@ def nbsp(count):
     return str
 
 
-def isEqual(filedata, offset, arrayToCheck):
-    counter = 0
-    for value in arrayToCheck:
-        if (filedata[offset + counter] != value):
-            return False
-        counter += 1
-    return True
-
-
 def getString(filedata, offset, length):
     displayableAscii = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
@@ -50,44 +41,61 @@ def getString(filedata, offset, length):
     return str
 
 
-def parse(filedata, offset, structName, input, comment=""):
-    struct = Node(structName, offset)
-    struct.setComment(comment)
-    for l in input.split('\n'):
-        parts = l.split(';')
-        if (len(parts) < 2):
-            continue
-        comment = parts[1]
-        parts = parts[0].split()
-        type = parts[0]
-        ascii = False
-        if (type == "BYTE"):
-            size = 1
-        if (type == "CHAR"):
-            size = 1
-            ascii = True
-        elif (type == "WORD"):
-            size = 2
-        elif (type == "DWORD"):
-            size = 4
-        elif (type == "ULONGLONG"):
-            size = 8
-        else:
-            size = 1
+class IceBuddha:
+    def __init__(self, filedata):
+        self.parseTree = []
+        self.filedata = filedata
 
-        name = parts[1]
-        value = ""
+    def getParseTree(self):
+        return self.parseTree
 
-        arrayParts = name.split('[')
-        if len(arrayParts) > 1:
-            arraySize = int((arrayParts[1].split(']'))[0])
-            size *= arraySize
-            if ascii:
-                value = getString(filedata, offset, size)
-        n = Node(name, offset, size, name, comment, value)
-        offset += size
-        struct.append(n)
-    return struct
+    def append(self, node):
+        self.parseTree.append(node.get())
+
+    def isEqual(self, filedata, offset, arrayToCheck):
+        for i in range(len(arrayToCheck)):
+            if (filedata[offset + i] != arrayToCheck[i]):
+                return False
+        return True
+
+    def parse(self, filedata, offset, structName, input, comment=""):
+        struct = Node(structName, offset)
+        struct.setComment(comment)
+        for l in input.split('\n'):
+            parts = l.split(';')
+            if (len(parts) < 2):
+                continue
+            comment = parts[1]
+            parts = parts[0].split()
+            type = parts[0]
+            ascii = False
+            if (type == "BYTE"):
+                size = 1
+            if (type == "CHAR"):
+                size = 1
+                ascii = True
+            elif (type == "WORD"):
+                size = 2
+            elif (type == "DWORD"):
+                size = 4
+            elif (type == "ULONGLONG"):
+                size = 8
+            else:
+                size = 1
+
+            name = parts[1]
+            value = ""
+
+            arrayParts = name.split('[')
+            if len(arrayParts) > 1:
+                arraySize = int((arrayParts[1].split(']'))[0])
+                size *= arraySize
+                if ascii:
+                    value = getString(filedata, offset, size)
+            n = Node(name, offset, size, name, comment, value)
+            offset += size
+            struct.append(n)
+        return struct
 
 
 class Node:

@@ -864,6 +864,7 @@ function getNode(array) {
 	return n;
 }
 
+// Used by skulpt for imports
 function builtinRead(x)
 {
     if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
@@ -875,9 +876,11 @@ function ParseInstructions(parseInstructions) {
 	treedata = [];
 	
 	try {
-		$('#parsetree').remove(); // Remove old parse tree
+		// Remove old parse tree
+		$('#parsetree').remove();
 		$('#parseTreeEnvelope').html('<div id=\"parsetree\"></div>');
 
+		// Set up skulpt
 		Sk.configure({output:outf,
 			read: builtinRead});
 
@@ -885,18 +888,24 @@ function ParseInstructions(parseInstructions) {
         var obj = module.tp$getattr('parser');
         var runMethod = obj.tp$getattr('run');
 
+        // Pass file data to skulpt
         // TODO Create the array for skulpt in a smarter way
         var arrayForSkulpt = new Array();
         for (var i=0; i<data.length; i++) {
         	arrayForSkulpt[i] = data[i];
         }
-        var ret = Sk.misceval.callsim(runMethod, Sk.builtin.list(arrayForSkulpt));
-        var nodes = ret.v;
 
+        // Run parse script
+        var ret = Sk.misceval.callsim(runMethod, Sk.builtin.list(arrayForSkulpt));
+
+        // Retrieve response data
+        var nodes = ret.v;
         for (var i=0; i<nodes.length; i++) {
         	treedata.push(getNode(nodes[i].v));
         }
-					
+
+
+        // Set up parse tree
 		$('#parsetree').tree({
 			data: treedata,
 			autoOpen: true
@@ -915,7 +924,7 @@ function ParseInstructions(parseInstructions) {
 		    }
 		);
 
-		 $("#parsetree").contextMenu({
+		$("#parsetree").contextMenu({
 		 	menu : 'parseTreeContextMenu',
 		 	onSelect: function(e) {
 		 		if (clickedNode.children.length == 0) {
