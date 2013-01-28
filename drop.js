@@ -417,7 +417,7 @@ function displayHexDump(position) {
 		hex.push(hexArray[(data[i]&0xf0)>>4]);
 		hex.push(hexArray[(data[i]&0x0f)]);
 		
-		if (column % 16 != 0 && (column % 8 == 0 || column % 15 == 0)) {
+		if (column == 7 || column == 15) {
 		  hex.push("&nbsp;");
 		}
 		hex.push(" </i>");
