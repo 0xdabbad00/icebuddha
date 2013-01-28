@@ -23,6 +23,15 @@ def nbsp(count):
     return str
 
 
+def isEqual(filedata, offset, arrayToCheck):
+    counter = 0
+    for value in arrayToCheck:
+        if (filedata[offset + counter] != value):
+            return False
+        counter += 1
+    return True
+
+
 def getString(filedata, offset, length):
     displayableAscii = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",

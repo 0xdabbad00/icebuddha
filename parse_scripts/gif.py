@@ -5,15 +5,12 @@ import icebuddha
 __author__ = "0xdabbad00"
 __license__ = "Apache"
 
-filedata = []
 
-
-class Parse:
+class Parser:
     def append(self, node):
         self.parser.append(node.get())
 
     def run(self, data):
-        global filedata
         filedata = data
         self.parser = []
 
@@ -60,7 +57,7 @@ class Parse:
         offset = lsd.end()
         Data = icebuddha.parse(filedata, offset, "Data", "")
         while (filedata[offset] != 0x3B):
-            if (filedata[offset] == 0x2C):
+            if (icebuddha.isEqual(filedata, offset, [0x2C])):
                 imgDescriptor = icebuddha.parse(filedata, offset, "IMAGE_DESCRIPTOR", """
                     BYTE  ImageSeperator;
                     WORD  Left;
@@ -91,10 +88,10 @@ class Parse:
                     Data.append(ColorTable)
 
                 imgData = icebuddha.parse(filedata, Data.end(), "IMAGE_DATA", "BYTE LZWMinimumCodeSize;")
-                self.getDataSubBlocks(imgData)
+                self.getDataSubBlocks(filedata, imgData)
                 Data.append(imgData)
 
-            elif (filedata[offset] == 0x21 and filedata[offset + 1] == 0xF9):
+            elif (icebuddha.isEqual(filedata, offset, [0x21, 0xF9])):
                 Data.append(icebuddha.parse(filedata, offset, "GraphicsControlExtension", """
                     BYTE Introducer;   /* Extension Introducer (always 21h) */
                     BYTE Label;        /* Graphic Control Label (always F9h) */
@@ -106,7 +103,7 @@ class Parse:
                 """))
                 # TODO Handle Packed field
 
-            elif (filedata[offset] == 0x21 and filedata[offset + 1] == 0xFE):
+            elif (icebuddha.isEqual(filedata, offset, [0x21, 0xFE])):
                 commentExtension = icebuddha.parse(filedata, offset, "CommentExtension", """
                     BYTE ExtensionIntroducer;
                     BYTE CommentLabel;
@@ -114,7 +111,7 @@ class Parse:
                 self.getDataSubBlocks(commentExtension)
                 Data.append(commentExtension)
 
-            elif (filedata[offset] == 0x21 and filedata[offset + 1] == 0x01):
+            elif (icebuddha.isEqual(filedata, offset, [0x21, 0x01])):
                 plainTextExtension = icebuddha.parse(filedata, offset, "PlainTextExtension", """
                     BYTE Introducer;         /* Extension Introducer (always 21h) */
                     BYTE Label;              /* Extension Label (always 01h) */
@@ -133,7 +130,7 @@ class Parse:
                 # TODO Handle PlainTextData
                 Data.append(plainTextExtension)
 
-            elif (filedata[offset] == 0xFF):
+            elif (icebuddha.isEqual(filedata, offset, [0xFF])):
                 applicationExtension = icebuddha.parse(filedata, offset, "ApplicationExtension", """
                     BYTE  BlockSize;
                     BYTE  ApplicationIdentifier[8];
@@ -149,9 +146,7 @@ class Parse:
         self.append(icebuddha.parse(filedata, Data.end(), "TRAILER", "BYTE GIFTrailer;"))
         return self.parser
 
-    def getDataSubBlocks(self, struct):
-        global filedata
-
+    def getDataSubBlocks(self, filedata, struct):
         size = 1
         while (size != 0):
             size = filedata[struct.end()]
@@ -161,4 +156,4 @@ class Parse:
             """ % size)
             struct.append(subBlock)
 
-parser = Parse()
+parser = Parser()
