@@ -5,19 +5,13 @@ import icebuddha
 __author__ = "0xdabbad00"
 __license__ = "Apache"
 
-filedata = []
-
 
 class Parse:
-    def append(self, node):
-        self.parser.append(node.get())
-
     def run(self, data):
-        global filedata
         filedata = data
-        self.parser = []
+        ib = icebuddha.IceBuddha(filedata, "PE")
 
-        imageDosHeader = icebuddha.parse(filedata, 0, "IMAGE_DOS_HEADER", """
+        imageDosHeader = ib.parse(filedata, 0, "IMAGE_DOS_HEADER", """
             WORD  e_magic;      /* MZ Header signature */
             WORD  e_cblp;       /* Bytes on last page of file */
             WORD  e_cp;         /* Pages in file */
@@ -38,14 +32,14 @@ class Parse:
             WORD  e_res2[10];   /* Reserved words */
             DWORD e_lfanew;     /* Offset to extended header */
             """)
-        self.append(imageDosHeader)
+        ib.append(imageDosHeader)
 
         e_lfanew = imageDosHeader.getInt(filedata, "e_lfanew")
-        imageNtHeader = icebuddha.parse(filedata, e_lfanew, "IMAGE_NT_HEADER", """
+        imageNtHeader = ib.parse(filedata, e_lfanew, "IMAGE_NT_HEADER", """
             DWORD                 Signature;
             """)
 
-        imageFileHeader = icebuddha.parse(filedata, imageNtHeader.end(), "IMAGE_FILE_HEADER", """
+        imageFileHeader = ib.parse(filedata, imageNtHeader.end(), "IMAGE_FILE_HEADER", """
             WORD  Machine;
             WORD  NumberOfSections;
             DWORD TimeDateStamp;
@@ -60,7 +54,7 @@ class Parse:
         machine = imageFileHeader.getInt(filedata, "Machine")
         imageOptionalHeader = []
         if (machine == 0x014c):
-            imageOptionalHeader = icebuddha.parse(filedata, imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER", """
+            imageOptionalHeader = ib.parse(filedata, imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER", """
                 WORD  Magic;
                 BYTE  MajorLinkerVersion;
                 BYTE  MinorLinkerVersion;
@@ -93,7 +87,7 @@ class Parse:
                 DWORD NumberOfRvaAndSizes;
                 """)
         elif (machine == 0x8664):
-            imageOptionalHeader = icebuddha.parse(filedata, imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER64", """
+            imageOptionalHeader = ib.parse(filedata, imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER64", """
                 WORD        Magic;
                 BYTE        MajorLinkerVersion;
                 BYTE        MinorLinkerVersion;
@@ -131,12 +125,12 @@ class Parse:
             DWORD VirtualAddress;
             DWORD Size;
             """
-        imageOptionalHeader.append(icebuddha.parse(filedata, imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "export table"))
-        imageOptionalHeader.append(icebuddha.parse(filedata, imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "import table"))
+        imageOptionalHeader.append(ib.parse(filedata, imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "export table"))
+        imageOptionalHeader.append(ib.parse(filedata, imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "import table"))
 
         imageNtHeader.append(imageOptionalHeader)
-        self.append(imageNtHeader)
+        ib.append(imageNtHeader)
 
-        return self.parser
+        return ib.getParseTree()
 
 parser = Parse()
