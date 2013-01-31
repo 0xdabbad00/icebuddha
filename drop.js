@@ -1106,6 +1106,7 @@ function load_binary_resource(url) {
 if ($_GET('test')) {
 	var filename = $_GET('test');
 	
+	if (filename == "1") filename = "putty.exe";
 	response = load_binary_resource("./test_data/"+filename);
 	
 	data =  str2ArrayBuffer(response);
