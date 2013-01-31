@@ -9,7 +9,7 @@ __license__ = "Apache"
 class Parser:
     def run(self, data):
         filedata = data
-        ib = icebuddha.IceBuddha()
+        ib = icebuddha.IceBuddha(filedata, "GIF")
 
         RGB = """
             BYTE   R;

@@ -42,15 +42,15 @@ def getString(filedata, offset, length):
 
 
 class IceBuddha:
-    def __init__(self, filedata):
-        self.parseTree = []
+    def __init__(self, filedata, root):
         self.filedata = filedata
+        self.root = Node(root, 0, 0, root)
 
     def getParseTree(self):
-        return self.parseTree
+        return [self.root.get()]
 
     def append(self, node):
-        self.parseTree.append(node.get())
+        self.root.append(node)
 
     def isEqual(self, filedata, offset, arrayToCheck):
         for i in range(len(arrayToCheck)):
