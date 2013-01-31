@@ -841,12 +841,7 @@ function node(label, size, name, comment, offset, interpretation) {
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation, children: []};
 }
 
-function outf(text)
-{
-    text = text.replace(/</g, '&lt;');
-    console.log(text);
-}
-
+// Interpret data returned from skulpt into node for parse tree
 function getNode(array) {
 	var label = array[0].v;
 	var size = array[1];
@@ -862,6 +857,13 @@ function getNode(array) {
 	} 
 
 	return n;
+}
+
+// Used by skulpt for print calls
+function outf(text)
+{
+    text = text.replace(/</g, '&lt;');
+    console.log(text);
 }
 
 // Used by skulpt for imports
@@ -903,7 +905,6 @@ function ParseInstructions(parseInstructions) {
         for (var i=0; i<nodes.length; i++) {
         	treedata.push(getNode(nodes[i].v));
         }
-
 
         // Set up parse tree
 		$('#parsetree').tree({
