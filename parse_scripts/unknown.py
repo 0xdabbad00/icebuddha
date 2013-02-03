@@ -10,7 +10,8 @@ class Parse:
 
         print("Unknown file type")
         # Try using something like the following
-        # startStruct = ib.parse(filedata, 0, "START_STRUCT", """
+        # ib = icebuddha.IceBuddha(filedata, "myfile_type")
+        # startStruct = ib.parse(0, "START_STRUCT", """
         #    WORD magic; /* Magic signature */
         #    DWORD length;
         # """)

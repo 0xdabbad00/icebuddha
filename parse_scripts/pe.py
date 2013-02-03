@@ -11,7 +11,7 @@ class Parse:
         filedata = data
         ib = icebuddha.IceBuddha(filedata, "PE")
 
-        imageDosHeader = ib.parse(filedata, 0, "IMAGE_DOS_HEADER", """
+        imageDosHeader = ib.parse(0, "IMAGE_DOS_HEADER", """
             WORD  e_magic;      /* MZ Header signature */
             WORD  e_cblp;       /* Bytes on last page of file */
             WORD  e_cp;         /* Pages in file */
@@ -34,12 +34,12 @@ class Parse:
             """)
         ib.append(imageDosHeader)
 
-        e_lfanew = imageDosHeader.getInt(filedata, "e_lfanew")
-        imageNtHeader = ib.parse(filedata, e_lfanew, "IMAGE_NT_HEADER", """
+        e_lfanew = imageDosHeader.getInt("e_lfanew")
+        imageNtHeader = ib.parse(e_lfanew, "IMAGE_NT_HEADER", """
             DWORD                 Signature;
             """)
 
-        imageFileHeader = ib.parse(filedata, imageNtHeader.end(), "IMAGE_FILE_HEADER", """
+        imageFileHeader = ib.parse(imageNtHeader.end(), "IMAGE_FILE_HEADER", """
             WORD  Machine;
             WORD  NumberOfSections;
             DWORD TimeDateStamp;
@@ -51,10 +51,10 @@ class Parse:
         imageNtHeader.append(imageFileHeader)
 
         # IMAGE_OPTIONAL_HEADER
-        machine = imageFileHeader.getInt(filedata, "Machine")
+        machine = imageFileHeader.getInt("Machine")
         imageOptionalHeader = []
         if (machine == 0x014c):
-            imageOptionalHeader = ib.parse(filedata, imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER", """
+            imageOptionalHeader = ib.parse(imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER", """
                 WORD  Magic;
                 BYTE  MajorLinkerVersion;
                 BYTE  MinorLinkerVersion;
@@ -87,7 +87,7 @@ class Parse:
                 DWORD NumberOfRvaAndSizes;
                 """)
         elif (machine == 0x8664):
-            imageOptionalHeader = ib.parse(filedata, imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER64", """
+            imageOptionalHeader = ib.parse(imageNtHeader.end(), "IMAGE_OPTIONAL_HEADER64", """
                 WORD        Magic;
                 BYTE        MajorLinkerVersion;
                 BYTE        MinorLinkerVersion;
@@ -125,8 +125,8 @@ class Parse:
             DWORD VirtualAddress;
             DWORD Size;
             """
-        imageOptionalHeader.append(ib.parse(filedata, imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "export table"))
-        imageOptionalHeader.append(ib.parse(filedata, imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "import table"))
+        imageOptionalHeader.append(ib.parse(imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "export table"))
+        imageOptionalHeader.append(ib.parse(imageOptionalHeader.end(), "IMAGE_DATA_DIRECTORY", IMAGE_DATA_DIRECTORY, "import table"))
 
         imageNtHeader.append(imageOptionalHeader)
         ib.append(imageNtHeader)
