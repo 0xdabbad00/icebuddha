@@ -119,7 +119,7 @@ class Parser:
                     BYTE CellHeight;         /* Height of a grid cell in pixels */
                     BYTE TextFgColorIndex;   /* Text foreground color index value */
                     BYTE TextBgColorIndex;   /* Text background color index value */
-                    BYTE PlainTextData;     /* The Plain Text data */
+                    BYTE PlainTextData;      /* The Plain Text data */
                     BYTE Terminator;         /* Block Terminator (always 0) */
                 """)
                 # TODO Handle PlainTextData
