@@ -17,7 +17,7 @@ class Parser:
             BYTE   B;
         """
 
-        gifHeader = ib.parse(filedata, 0, "GIFHEADER", """
+        gifHeader = ib.parse(0, "GIFHEADER", """
             CHAR    Signature[3];
             CHAR    Version[3];
         """)
@@ -25,7 +25,7 @@ class Parser:
             return []
         ib.append(gifHeader)
 
-        lsd = ib.parse(filedata, gifHeader.end(), "LOGICAL_SCREEN_DESCRIPTOR", """
+        lsd = ib.parse(gifHeader.end(), "LOGICAL_SCREEN_DESCRIPTOR", """
             WORD  Width;
             WORD  Height;
             BYTE  GlobalColorTable;
@@ -33,29 +33,29 @@ class Parser:
             BYTE  PixelAspectRatio;
         """)
         gct = lsd.findChild("GlobalColorTable")
-        gct.parseBitField(filedata, """
+        gct.parseBitField("""
             BYTE   GlobalColorTableFlag : 1;
             BYTE   ColorResolution : 3;
             BYTE   SortFlag : 1;
             BYTE   SizeOfGlobalColorTable : 3;
             """)
-        GlobalColorTableFlag = gct.getData(filedata) & 1
+        GlobalColorTableFlag = gct.getData() & 1
 
         if (GlobalColorTableFlag == 1):
-            SizeOfGlobalColorTable = (gct.getData(filedata) & 7)
+            SizeOfGlobalColorTable = (gct.getData() & 7)
             SizeOfGlobalColorTable = 1 << (SizeOfGlobalColorTable + 1)
-            ColorTable = ib.parse(filedata, lsd.end(), "ColorTable RGB[%d]" % SizeOfGlobalColorTable, "")
+            ColorTable = ib.parse(lsd.end(), "ColorTable RGB[%d]" % SizeOfGlobalColorTable, "")
             for i in range(SizeOfGlobalColorTable):
-                color = ib.parse(filedata, ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
+                color = ib.parse(ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
                 ColorTable.append(color)
             lsd.append(ColorTable)
         ib.append(lsd)
 
         offset = lsd.end()
-        Data = ib.parse(filedata, offset, "Data", "")
-        while (filedata[offset] != 0x3B and offset < len(filedata)):
-            if (filedata[offset] == 0x2C):
-                imgDescriptor = ib.parse(filedata, offset, "IMAGE_DESCRIPTOR", """
+        Data = ib.parse(offset, "Data", "")
+        while (not ib.isEqual(offset, [0x3B]) and offset < len(filedata)):
+            if (ib.isEqual(offset, [0x2C])):
+                imgDescriptor = ib.parse(offset, "IMAGE_DESCRIPTOR", """
                     BYTE  ImageSeperator;
                     WORD  Left;
                     WORD  Top;
@@ -64,7 +64,7 @@ class Parser:
                     BYTE  PackedField;
                 """)
                 imgDescriptorPackedField = imgDescriptor.findChild("PackedField")
-                imgDescriptorPackedField.parseBitField(filedata, """
+                imgDescriptorPackedField.parseBitField("""
                     BYTE  LocalColorTableFlag : 1;
                     BYTE  InterlaceFlag : 1;
                     BYTE  SortFlag : 1;
@@ -73,21 +73,21 @@ class Parser:
                     """)
                 Data.append(imgDescriptor)
 
-                LocalColorTableFlag = imgDescriptorPackedField.getData(filedata) & 1
+                LocalColorTableFlag = imgDescriptorPackedField.getData() & 1
                 if (LocalColorTableFlag == 1):
-                    SizeOfLocalColorTable = (imgDescriptorPackedField.getData(filedata) & 7)
+                    SizeOfLocalColorTable = (imgDescriptorPackedField.getData() & 7)
                     SizeOfLocalColorTable = 1 << (SizeOfLocalColorTable + 1)
-                    ColorTable = ib.parse(filedata, imgDescriptor.end(), "ColorTable RGB[%d]" % SizeOfLocalColorTable, "")
+                    ColorTable = ib.parse(imgDescriptor.end(), "ColorTable RGB[%d]" % SizeOfLocalColorTable, "")
                     for i in range(SizeOfLocalColorTable):
-                        color = ib.parse(filedata, ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
+                        color = ib.parse(ColorTable.end(), "RGB /* " + str(i) + " */", RGB)
                         ColorTable.append(color)
                     Data.append(ColorTable)
-                imgData = ib.parse(filedata, Data.end(), "IMAGE_DATA", "BYTE LZWMinimumCodeSize;")
+                imgData = ib.parse(Data.end(), "IMAGE_DATA", "BYTE LZWMinimumCodeSize;")
                 self.getDataSubBlocks(filedata, ib, imgData)
                 Data.append(imgData)
 
-            elif (ib.isEqual(filedata, offset, [0x21, 0xF9])):
-                Data.append(ib.parse(filedata, offset, "GraphicsControlExtension", """
+            elif (ib.isEqual(offset, [0x21, 0xF9])):
+                Data.append(ib.parse(offset, "GraphicsControlExtension", """
                     BYTE Introducer;   /* Extension Introducer (always 21h) */
                     BYTE Label;        /* Graphic Control Label (always F9h) */
                     BYTE BlockSize;    /* Size of remaining fields (always 04h) */
@@ -103,7 +103,7 @@ class Parser:
                     BYTE ExtensionIntroducer;
                     BYTE CommentLabel;
                 """)
-                self.getDataSubBlocks(commentExtension)
+                self.getDataSubBlocks(filedata, ib, commentExtension)
                 Data.append(commentExtension)
 
             elif (ib.isEqual(filedata, offset, [0x21, 0x01])):
@@ -135,18 +135,17 @@ class Parser:
             else:
                 print "Undefined data at %d" % offset
                 break
-
             offset = Data.end()
 
         ib.append(Data)
-        ib.append(ib.parse(filedata, Data.end(), "TRAILER", "BYTE GIFTrailer;"))
+        ib.append(ib.parse(Data.end(), "TRAILER", "BYTE GIFTrailer;"))
         return ib.getParseTree()
 
     def getDataSubBlocks(self, filedata, ib, struct):
         size = 1
         while (size != 0):
             size = filedata[struct.end()]
-            subBlock = ib.parse(filedata, struct.end(), "SUBBLOCK", """
+            subBlock = ib.parse(struct.end(), "SUBBLOCK", """
                 BYTE Size;
                 BYTE Data[%d];
             """ % size)

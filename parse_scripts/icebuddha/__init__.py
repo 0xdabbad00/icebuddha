@@ -44,7 +44,7 @@ def getString(filedata, offset, length):
 class IceBuddha:
     def __init__(self, filedata, root):
         self.filedata = filedata
-        self.root = Node(root, 0, 0, root)
+        self.root = Node(self.filedata, root, 0, 0, root)
 
     def getParseTree(self):
         return [self.root.get()]
@@ -52,14 +52,14 @@ class IceBuddha:
     def append(self, node):
         self.root.append(node)
 
-    def isEqual(self, filedata, offset, arrayToCheck):
+    def isEqual(self, offset, arrayToCheck):
         for i in range(len(arrayToCheck)):
-            if (filedata[offset + i] != arrayToCheck[i]):
+            if (self.filedata[offset + i] != arrayToCheck[i]):
                 return False
         return True
 
-    def parse(self, filedata, offset, structName, input, comment=""):
-        struct = Node(structName, offset)
+    def parse(self, offset, structName, input, comment=""):
+        struct = Node(self.filedata, structName, offset)
         struct.setComment(comment)
         for l in input.split('\n'):
             parts = l.split(';')
@@ -91,15 +91,16 @@ class IceBuddha:
                 arraySize = int((arrayParts[1].split(']'))[0])
                 size *= arraySize
                 if ascii:
-                    value = getString(filedata, offset, size)
-            n = Node(name, offset, size, name, comment, value)
+                    value = getString(self.filedata, offset, size)
+            n = Node(self.filedata, name, offset, size, name, comment, value)
             offset += size
             struct.append(n)
         return struct
 
 
 class Node:
-    def __init__(self, label="", offset=0, size=0, name="", comment="", value=""):
+    def __init__(self, filedata, label="", offset=0, size=0, name="", comment="", value=""):
+        self.filedata = filedata
         self.offset = offset
         self.size = size
 
@@ -124,8 +125,8 @@ class Node:
     def getValue(self):
         return self.value
 
-    def getData(self, filedata):
-        return filedata[self.offset]
+    def getData(self):
+        return self.filedata[self.offset]
 
     def get(self):
         childData = []
@@ -144,21 +145,21 @@ class Node:
         print "Child %s not found" % childName
         return None
 
-    def getInt(self, filedata, valueName):
+    def getInt(self, valueName):
         c = self.findChild(valueName)
         if c is None:
             return 0
 
         if c.size == 1:
-            return filedata[c.offset]
+            return self.filedata[c.offset]
         elif c.size == 2:
-            return (filedata[c.offset] +
-                (filedata[c.offset + 1] << 8))
+            return (self.filedata[c.offset] +
+                (self.filedata[c.offset + 1] << 8))
         elif c.size == 4:
-            return (filedata[c.offset] +
-                (filedata[c.offset + 1] << 8) +
-                (filedata[c.offset + 2] << 16) +
-                (filedata[c.offset + 3] << 24))
+            return (self.filedata[c.offset] +
+                (self.filedata[c.offset + 1] << 8) +
+                (self.filedata[c.offset + 2] << 16) +
+                (self.filedata[c.offset + 3] << 24))
         else:
             print "TODO: Can not get data for values over 4 bytes"
             return 0
@@ -173,9 +174,9 @@ class Node:
         self.children.append(child)
         self.size += child.size
 
-    def parseBitField(self, filedata, input):
+    def parseBitField(self, input):
         bitCount = 0
-        self.value = "%s%s" % (nbsp(2), getBinary(self.getData(filedata)))
+        self.value = "%s%s" % (nbsp(2), getBinary(self.getData(self.filedata)))
         for l in input.split('\n'):
             parts = l.split(';')
             if (len(parts) < 2):
@@ -196,11 +197,11 @@ class Node:
             for i in range(bitCount, bitCount + size):
                 bitmask |= (1 << (7 - i))
 
-            data = (bitmask & self.getData(filedata))
+            data = (bitmask & self.getData(self.filedata))
             data = data >> (8 - (bitCount + size))
 
             value = "<br>%s%s %s %s : %d %s" % (nbsp(11),
-                getBinary(bitmask & self.getData(filedata)),
+                getBinary(bitmask & self.getData(self.filedata)),
                 intToHex(data, 2),
                 name,
                 size,
