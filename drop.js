@@ -308,7 +308,12 @@ function handleFileSelect(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 
-	var files = evt.dataTransfer.files; // FileList
+	var files; // FileList
+	if (evt.dataTransfer) {
+		files = evt.dataTransfer.files;
+	} else {
+		files = evt.target.files;
+	}
 
 	file = files[0];  // File object
 
@@ -1082,6 +1087,7 @@ $(function() {
 var dropZone = document.getElementById('container');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileSelect, false);
+document.getElementById('fileSelect').addEventListener('change', handleFileSelect, false);
 
 function load_binary_resource(url) {
 	var req = new XMLHttpRequest();
