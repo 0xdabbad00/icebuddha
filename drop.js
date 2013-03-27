@@ -946,6 +946,10 @@ function ParseInstructions(parseInstructions) {
 		 			scrollToByte(clickedNode.offset);
 		 		} else if (e.action == 'DownloadParse') {
 		 			downloadParse();
+		 		} else if (e.action == 'CompressChildren') {
+				    clickedNode.compressChildren();
+		 		} else if (e.action == 'ExpandChildren') {
+				    clickedNode.expandChildren();
 		 		} else {
 		 			showError("Not yet implemented: "+e.action);
 		 		}

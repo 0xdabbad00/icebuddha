@@ -268,6 +268,29 @@ limitations under the License.
       return $.inArray(node, this.children);
     };
 
+
+    /*
+      Compress children
+    */
+    Node.prototype.compressChildren = function() {
+      this.iterate(function(node, level) { 
+        if (node.hasChildren()) {
+          new FolderElement(node).close();
+        }
+      });
+    };
+
+    /*
+      Expand children
+    */
+    Node.prototype.expandChildren = function() {
+      this.iterate(function(node, level) { 
+        if (node.hasChildren()) {
+          new FolderElement(node).open();
+        }
+      });
+    };
+
     /*
         Does the tree have children?
     
