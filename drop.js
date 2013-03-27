@@ -665,6 +665,9 @@ function createTemplate(fileName, fileSize) {
 			"<div id=\"parseTreeContextMenu\" style=\"display: none;\">\n" + 
 			"<ul>" +
 			"<li id=\"Colorize\"><a href=\"#Colorize\">Colorize</a></li>" +
+			"<li id=\"Goto\"><a href=\"#Goto\">Goto</a></li>" +
+			"<li id=\"CompressChildren\"><a href=\"#CompressChildren\">Compress children</a></li>" +
+			"<li id=\"ExpandChildren\"><a href=\"#ExpandChildren\">Expand children</a></li>" +
 			"<li id=\"DownloadParse\"><a href=\"#DownloadParse\">Download parsed data</a></li>" +
 			"</ul>" +
 			"</div>");
@@ -939,8 +942,12 @@ function ParseInstructions(parseInstructions) {
 		 		}
 		 		if (e.action == 'Colorize') {
 		 			colorize(clickedNode);
+		 		} else if (e.action == 'Goto') {
+		 			scrollToByte(clickedNode.offset);
 		 		} else if (e.action == 'DownloadParse') {
 		 			downloadParse();
+		 		} else {
+		 			showError("Not yet implemented: "+e.action);
 		 		}
 		 	}
 		});
@@ -974,7 +981,7 @@ function SetParseTree(parseScript) {
 
 function downloadParse() {
  	var bb = new BlobBuilder();
-	bb.append(JSON.stringify(treedata));
+	bb.append(JSON.stringify(treedata, undefined, 2));
 	var blob = bb.getBlob("application/octet-stream");
 	saveAs(blob, filename+".json");
 }
