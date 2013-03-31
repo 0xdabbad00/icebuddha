@@ -44,7 +44,7 @@ def getString(filedata, offset, length):
 class IceBuddha:
     def __init__(self, filedata, root):
         self.filedata = filedata
-        self.root = Node(self.filedata, root, 0, 0, root)
+        self.root = Node(self.filedata, root, 0, 0)
 
     def getParseTree(self):
         return [self.root.get()]
@@ -92,26 +92,19 @@ class IceBuddha:
                 size *= arraySize
                 if ascii:
                     value = getString(self.filedata, offset, size)
-            n = Node(self.filedata, name, offset, size, name, comment, value)
+            n = Node(self.filedata, name, offset, size, comment, value)
             offset += size
             struct.append(n)
         return struct
 
 
 class Node:
-    def __init__(self, filedata, label="", offset=0, size=0, name="", comment="", value=""):
+    def __init__(self, filedata, label="", offset=0, size=0, comment="", value=""):
         self.filedata = filedata
         self.offset = offset
         self.size = size
 
-        if (size == 0):
-            ws = "%s" % nbsp(14)
-            self.label = intToHex(offset) + ws + label
-            self.size = 0
-        else:
-            self.label = label
-
-        self.name = name
+        self.label = label
         self.comment = comment
         self.children = []
         self.value = value
@@ -133,12 +126,12 @@ class Node:
         for c in self.children:
             childData.append(c.get())
 
-        return [self.label, self.size, self.name, self.comment, self.offset,
+        return [self.label, self.size, self.comment, self.offset,
             childData, self.value]
 
     def findChild(self, childName):
         for c in self.children:
-            name = c.name.split('[')
+            name = c.label.split('[')
             name = name[0]
             if name == childName:
                 return c
@@ -187,7 +180,7 @@ class Node:
                 continue
             size = int(parts[1])
             if bitCount + size > self.size * 8:
-                print "Bit field too large for %s" % self.name
+                print "Bit field too large for %s" % self.label
 
             parts = parts[0].split()
             # ignore type

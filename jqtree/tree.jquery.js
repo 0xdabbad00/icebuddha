@@ -203,12 +203,21 @@ limitations under the License.
       for (_i = 0, _len = data.length; _i < _len; _i++) {
         o = data[_i];
         mylabel = o.label;
+        
+        if (o.children != []) {
+          var ws = "";
+          for (var ws_i = 0; ws_i < 14; ws_i++) {
+            ws += "&nbsp;";
+          }
+          mylabel = convertToHexWord(o.offset)+ws + mylabel
+        }
+
         if (o.comment != "") {
           mylabel += " <i class=\"comment\">/* "+o.comment+" */</i>";
         }
         node = new Node(mylabel);
         $.each(o, function(key, value) {
-          if (key !== 'label') node[key] = value;
+          node[key] = value;
           return true;
         });
         this.addChild(node);
@@ -587,7 +596,25 @@ limitations under the License.
         if (node.interpretation != "") {
           interpretation = "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+node.interpretation;
         }
-        return $("<li><div><span class=\"parseTreeData\">" + convertToHexWord(node.offset) +" "+node.hexData+node.varName + node.comment +interpretation+"</span></div></li>");
+
+        // Make hexData specific length
+        var maxDataDisplaySize = 4;
+        var hexData=node.hexData;
+        var fillNeeded = maxDataDisplaySize*3+1 - hexData.length;
+        for(var i=0; i<fillNeeded; i++) {
+          hexData+="&nbsp;";
+        }
+        var comment = node.comment;
+        if (comment.length > 0) {
+          comment = " " + comment;
+        }
+        console.log(node);
+        debugger;
+        return $("<li><div><span class=\"parseTreeData\">" + convertToHexWord(node.offset) 
+          + " " + hexData
+          + node.label
+          + comment 
+          + interpretation+"</span></div></li>");
         		
       };
       createFolderLi = function(node) {

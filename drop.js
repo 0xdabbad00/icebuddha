@@ -803,7 +803,7 @@ function SetValueElement(offset) {
 ///////////////////////////////////////////////////////////////////////////////
 // Parse tree
 ///////////////////////////////////////////////////////////////////////////////
-function node(label, size, name, comment, offset, interpretation) {
+function node(label, size, comment, offset, interpretation) {
 	var dataValue = "";
 	
 	if (size==4) {
@@ -835,31 +835,21 @@ function node(label, size, name, comment, offset, interpretation) {
 		}
 	}
 	
-	// Make hexData specific length
-	var fillNeeded = maxDataDisplaySize*3+1 - hexData.length;
-	for(var i=0; i<fillNeeded; i++) {
-		hexData+="&nbsp;";
-	}
-	
-	commentString = "";
-	if (comment) {
-		commentString = " "+comment;
-	}
-	
-	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, varName: name, comment: commentString, interpretation: interpretation, children: []};
+	comment = String(comment).replace(/^\s+|\s+$/g, '');
+
+	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, comment: comment, interpretation: interpretation, children: []};
 }
 
 // Interpret data returned from skulpt into node for parse tree
 function getNode(array) {
 	var label = array[0].v;
 	var size = array[1];
-	var name = array[2].v;
-	var comment = array[3].v;
-	var offset = array[4];
-	var children = array[5].v;
-	var interpretation = array[6].v;
+	var comment = array[2].v;
+	var offset = array[3];
+	var children = array[4].v;
+	var interpretation = array[5].v;
 
-	var n = node(label, size, name, comment, offset, interpretation);
+	var n = node(label, size, comment, offset, interpretation);
 	for (var i=0; i<children.length; i++) {
 		n.children.push(getNode(children[i].v));
 	} 
