@@ -211,7 +211,7 @@ class Node:
                 bitmask |= (1 << i)
 
             data = (bitmask & self.getData())
-            data = data >> bitCount - size + 1
+            data = data >> bitCount
 
             value = "<br>%s%s (%s) %s : %d %s" % (nbsp(11),
                 getMask(bitmask & self.getData(), varSize, bitmask),
