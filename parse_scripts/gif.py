@@ -34,10 +34,10 @@ class Parser:
         """)
         gct = lsd.findChild("GlobalColorTable")
         gct.parseBitField("""
-            BYTE   GlobalColorTableFlag : 1;
-            BYTE   ColorResolution : 3;
-            BYTE   SortFlag : 1;
             BYTE   SizeOfGlobalColorTable : 3;
+            BYTE   SortFlag : 1;
+            BYTE   ColorResolution : 3;
+            BYTE   GlobalColorTableFlag : 1;
             """)
         GlobalColorTableFlag = gct.getData() & 1
 
@@ -65,11 +65,11 @@ class Parser:
                 """)
                 imgDescriptorPackedField = imgDescriptor.findChild("PackedField")
                 imgDescriptorPackedField.parseBitField("""
-                    BYTE  LocalColorTableFlag : 1;
-                    BYTE  InterlaceFlag : 1;
-                    BYTE  SortFlag : 1;
-                    BYTE  Reserved : 2;
                     BYTE  SizeOfLocalColorTable : 3;
+                    BYTE  Reserved : 2;
+                    BYTE  SortFlag : 1;
+                    BYTE  InterlaceFlag : 1;
+                    BYTE  LocalColorTableFlag : 1;
                     """)
                 Data.append(imgDescriptor)
 

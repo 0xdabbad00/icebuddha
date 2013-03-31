@@ -608,8 +608,7 @@ limitations under the License.
         if (comment.length > 0) {
           comment = " " + comment;
         }
-        console.log(node);
-        debugger;
+        
         return $("<li><div><span class=\"parseTreeData\">" + convertToHexWord(node.offset) 
           + " " + hexData
           + node.label

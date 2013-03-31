@@ -6,13 +6,26 @@ def intToHex(value, fill=8):
         return format % value
 
 
-def getBinary(value):
+def getBinary(value, varsize):
     str = ""
-    for i in range(8):
-        if (value & (1 << (7 - i))) != 0:
+    for i in range(varsize):
+        if (value & (1 << ((varsize-1) - i))) != 0:
             str += "1"
         else:
             str += "0"
+    return str
+
+
+def getMask(value, varsize, mask):
+    str = ""
+    for i in range(varsize):
+        if (mask & (1 << ((varsize-1) - i))) != 0:
+            if (value & (1 << ((varsize-1) - i))) != 0:
+                str += "1"
+            else:
+                str += "0"
+        else:
+            str += "."
     return str
 
 
@@ -119,7 +132,11 @@ class Node:
         return self.value
 
     def getData(self):
-        return self.filedata[self.offset]
+        data = 0
+        for i in range(self.size):
+            data = data << i*8
+            data |= self.filedata[self.offset+(self.size-1-i)]
+        return data
 
     def get(self):
         childData = []
@@ -169,7 +186,9 @@ class Node:
 
     def parseBitField(self, input):
         bitCount = 0
-        self.value = "%s%s" % (nbsp(2), getBinary(self.getData(self.filedata)))
+        varSize = self.size*8
+
+        self.value = "%s%s" % (nbsp(2), getBinary(self.getData(), varSize))
         for l in input.split('\n'):
             parts = l.split(';')
             if (len(parts) < 2):
@@ -183,19 +202,20 @@ class Node:
                 print "Bit field too large for %s" % self.label
 
             parts = parts[0].split()
-            # ignore type
+
+            varType = parts[0]  # Ignored
             name = parts[1]
 
             bitmask = 0
             for i in range(bitCount, bitCount + size):
-                bitmask |= (1 << (7 - i))
+                bitmask |= (1 << i)
 
-            data = (bitmask & self.getData(self.filedata))
-            data = data >> (8 - (bitCount + size))
+            data = (bitmask & self.getData())
+            data = data >> bitCount - size + 1
 
-            value = "<br>%s%s %s %s : %d %s" % (nbsp(11),
-                getBinary(bitmask & self.getData(self.filedata)),
-                intToHex(data, 2),
+            value = "<br>%s%s (%s) %s : %d %s" % (nbsp(11),
+                getMask(bitmask & self.getData(), varSize, bitmask),
+                intToHex(data, (varSize/8)*2),
                 name,
                 size,
                 comment)

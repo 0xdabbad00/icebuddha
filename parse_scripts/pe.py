@@ -121,6 +121,27 @@ class Parse:
         else:
             print("ERROR: machine type unknown: %d" % machine)
 
+        dllCharacteristics = imageOptionalHeader.findChild("DllCharacteristics")
+        dllCharacteristics.parseBitField("""
+                    WORD  Reserved : 1;
+                    WORD  Reserved : 1;
+                    WORD  Reserved : 1;
+                    WORD  Reserved : 1;
+                    WORD  Reserved : 1;
+                    WORD  Reserved : 1;
+                    WORD  DYNAMIC_BASE : 1;
+                    WORD  FORCE_INTEGRITY : 1;
+                    WORD  NX_COMPAT : 1;
+                    WORD  NO_ISOLATION : 1;
+                    WORD  NO_SEH : 1;
+                    WORD  NO_BIND : 1;
+                    WORD  Reserved : 1;
+                    WORD  WDM_DRIVER : 1;
+                    WORD  Reserved : 1;
+                    WORD  TERMINAL_SERVER_AWARE : 1;
+                    
+                    """)
+
         IMAGE_DATA_DIRECTORY = """
             DWORD VirtualAddress;
             DWORD Size;
