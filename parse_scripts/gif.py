@@ -99,7 +99,7 @@ class Parser:
                 """))
                 # TODO Handle Packed field
 
-            elif (ib.isEqual(filedata, offset, [0x21, 0xFE])):
+            elif (ib.isEqual(offset, [0x21, 0xFE])):
                 commentExtension = ib.parse(filedata, offset, "CommentExtension", """
                     BYTE ExtensionIntroducer;
                     BYTE CommentLabel;
@@ -107,7 +107,7 @@ class Parser:
                 self.getDataSubBlocks(filedata, ib, commentExtension)
                 Data.append(commentExtension)
 
-            elif (ib.isEqual(filedata, offset, [0x21, 0x01])):
+            elif (ib.isEqual(offset, [0x21, 0x01])):
                 plainTextExtension = ib.parse(filedata, offset, "PlainTextExtension", """
                     BYTE Introducer;         /* Extension Introducer (always 21h) */
                     BYTE Label;              /* Extension Label (always 01h) */
@@ -126,7 +126,7 @@ class Parser:
                 # TODO Handle PlainTextData
                 Data.append(plainTextExtension)
 
-            elif (ib.isEqual(filedata, offset, [0xFF])):
+            elif (ib.isEqual(offset, [0xFF])):
                 applicationExtension = ib.parse(filedata, offset, "ApplicationExtension", """
                     BYTE  BlockSize;
                     BYTE  ApplicationIdentifier[8];
