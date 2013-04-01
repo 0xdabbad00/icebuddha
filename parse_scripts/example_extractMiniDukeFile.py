@@ -44,11 +44,12 @@ if (extraDataSize != 0):
 	keybyte = 0
 	for i in range(extraDataSize-6):
 		bytein = ord(infile[trailerOffset + 1 + 4 + i])
-		print "%02x" % bytein
 		outfile.append(bytein ^ key[keybyte])
 		keybyte = (keybyte + 1) % 8
 	
 	with open(filename+".infected", "wb") as f:
 		f.write(bytearray(outfile))
+
+	print "Extracted file written to: %s" % (filename+".infected")
 
 	
