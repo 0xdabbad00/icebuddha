@@ -22,6 +22,7 @@ class Parser:
             CHAR    Version[3];
         """)
         if (gifHeader.findChild("Signature").getValue() != "GIF"):
+            print "File is not a gif"
             return []
         ib.append(gifHeader)
 
@@ -139,6 +140,7 @@ class Parser:
 
         ib.append(Data)
         ib.append(ib.parse(Data.end(), "TRAILER", "BYTE GIFTrailer;"))
+
         return ib.getParseTree()
 
     def getDataSubBlocks(self, filedata, ib, struct):

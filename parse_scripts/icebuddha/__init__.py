@@ -53,7 +53,6 @@ def getString(filedata, offset, length):
         str += displayableAscii[val]
     return str
 
-
 class IceBuddha:
     def __init__(self, filedata, root):
         self.filedata = filedata
