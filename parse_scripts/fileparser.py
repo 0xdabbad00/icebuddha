@@ -39,7 +39,10 @@ def parseFile(filename, filetype):
 		p = gif.Parser()
 	elif filetype == 'pe':
 		import pe
-		p = gif.Parser()
+		p = pe.Parser()
+	elif filetype == 'mach_o':
+		import mach_o
+		p = mach_o.Parser()
 	else:
 		print "Unknown file type"
 		sys.exit(-1)
@@ -52,7 +55,7 @@ def parseFile(filename, filetype):
 
 if __name__ == "__main__":
 	argparser = argparse.ArgumentParser(description='IceBuddha parsing script')
-	argparser.add_argument('-t','--type', help='File type [gif, pe]', required=True)
+	argparser.add_argument('-t','--type', help='File type [gif, pe, mach_o]', required=True)
 	argparser.add_argument('files', metavar='files', type=str, nargs='+',
 	                   help='files to parse')
 	args = vars(argparser.parse_args())

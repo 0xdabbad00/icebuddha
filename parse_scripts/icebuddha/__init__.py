@@ -56,7 +56,25 @@ def getString(filedata, offset, length):
 class IceBuddha:
     def __init__(self, filedata, root):
         self.filedata = filedata
-        self.root = Node(self.filedata, root, 0, 0)
+        self.root = Node(self, root, 0, 0)
+        self.endian = self.getConst("LITTLE_ENDIAN")
+
+    def getConst(self, name):
+        # Hack due to skulpt not knowing about static variables
+        if name == "LITTLE_ENDIAN":
+            return 0
+        elif name == "BIG_ENDIAN":
+            return 1
+        return 0
+
+    def setBigEndian(self):
+        self.endian = self.getConst("BIG_ENDIAN")
+
+    def setLittleEndian(self):
+        self.endian = self.getConst("LITTLE_ENDIAN")
+
+    def getEndian(self):
+        return self.endian
 
     def getParseTree(self):
         return [self.root.get()]
@@ -71,7 +89,7 @@ class IceBuddha:
         return True
 
     def parse(self, offset, structName, input, comment=""):
-        struct = Node(self.filedata, structName, offset)
+        struct = Node(self, structName, offset)
         struct.setComment(comment)
         for l in input.split('\n'):
             parts = l.split(';')
@@ -104,15 +122,16 @@ class IceBuddha:
                 size *= arraySize
                 if ascii:
                     value = getString(self.filedata, offset, size)
-            n = Node(self.filedata, name, offset, size, comment, value)
+            n = Node(self, name, offset, size, comment, value)
             offset += size
             struct.append(n)
         return struct
 
 
 class Node:
-    def __init__(self, filedata, label="", offset=0, size=0, comment="", value=""):
-        self.filedata = filedata
+    def __init__(self, ib, label="", offset=0, size=0, comment="", value=""):
+        self.ib = ib
+        self.filedata = ib.filedata
         self.offset = offset
         self.size = size
 
@@ -132,9 +151,24 @@ class Node:
 
     def getData(self):
         data = 0
-        for i in range(self.size):
-            data = data << i*8
-            data |= self.filedata[self.offset+(self.size-1-i)]
+        if self.ib.getEndian() == self.ib.getConst("LITTLE_ENDIAN"):
+            for i in range(self.size):
+                data = data << 8
+                data |= self.filedata[self.offset+(self.size-1-i)]
+        else:
+            for i in range(self.size):
+                data = data << 8
+                data |= self.filedata[self.offset+(i)]
+        return data
+
+    def getBytes(self):
+        data = []
+        if self.ib.getEndian() == self.ib.getConst("LITTLE_ENDIAN"):
+            for i in range(self.size):
+                data.append(self.filedata[self.offset+(self.size-1-i)])
+        else:
+            for i in range(self.size):
+                data.append(self.filedata[self.offset+(i)])
         return data
 
     def get(self):
@@ -154,24 +188,19 @@ class Node:
         print "Child %s not found" % childName
         return None
 
-    def getInt(self, valueName):
-        c = self.findChild(valueName)
-        if c is None:
-            return 0
+    def getInt(self, valueName=None):
+        size = self.size
+        offset = self.offset
+        if valueName != None:
+            c = self.findChild(valueName)
+            size = c.size
+            offset = c.offset
 
-        if c.size == 1:
-            return self.filedata[c.offset]
-        elif c.size == 2:
-            return (self.filedata[c.offset] +
-                (self.filedata[c.offset + 1] << 8))
-        elif c.size == 4:
-            return (self.filedata[c.offset] +
-                (self.filedata[c.offset + 1] << 8) +
-                (self.filedata[c.offset + 2] << 16) +
-                (self.filedata[c.offset + 3] << 24))
-        else:
-            print "TODO: Can not get data for values over 4 bytes"
-            return 0
+            if c is None:
+                return 0
+            return c.getData()
+
+        c.getData()
 
     def start(self):
         return self.offset
@@ -182,6 +211,33 @@ class Node:
     def append(self, child):
         self.children.append(child)
         self.size += child.size
+
+    # TODO Put this somewhere else
+    def isMatch(self, a1, a2):
+        if (len(a1) != len(a2)):
+            return False
+
+        for i in range(len(a1)):
+            if a1[i] != a2[i]:
+                return False
+        return True
+
+    def setMeaningFromConstants(self, input):
+        for l in input.split('\n'):
+            parts = l.split('=')
+            if (len(parts) < 2):
+                continue
+            name = parts[0].strip()
+            value = int(parts[1].strip(), 0)
+
+            # TODO Don't assume 4 bytes
+            valueBytes = [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff]
+            selfBytes = self.getBytes()
+
+            if self.isMatch(valueBytes, selfBytes):
+                self.setValue(name)
+                break
+
 
     def parseBitField(self, input):
         bitCount = 0

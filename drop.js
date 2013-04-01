@@ -371,6 +371,8 @@ function ChooseParseScript() {
 		parseScript = "pe.py";
 	} else if (startsWith(data, strToArray("GIF"))) {
 		parseScript = "gif.py";
+	} else if (startsWith(data, [0xfe, 0xed, 0xfa, 0xce]) || startsWith(data, [0xcf, 0xfa, 0xed, 0xfe])) {
+		parseScript = "mach_o.py";
 	}
 	var filetype = parseScript.split('.')[0];
 	$('#parseScriptSelection').text(filetype);;
@@ -843,9 +845,9 @@ function node(label, size, comment, offset, interpretation) {
 // Interpret data returned from skulpt into node for parse tree
 function getNode(array) {
 	var label = array[0].v;
-	var size = array[1];
+	var size = array[1].v;
 	var comment = array[2].v;
-	var offset = array[3];
+	var offset = array[3].v;
 	var children = array[4].v;
 	var interpretation = array[5].v;
 

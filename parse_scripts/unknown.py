@@ -7,6 +7,7 @@ __license__ = "Apache"
 
 class Parse:
     def run(self, data):
+        filedata = data
         ib = icebuddha.IceBuddha(filedata, "Unknown")
 
         print("Unknown file type")
