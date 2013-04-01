@@ -17,14 +17,23 @@ def getStructured(json):
         result.append(element)
     return result
 
-argparser = argparse.ArgumentParser(description='IceBuddha parsing script')
-argparser.add_argument('-t','--type', help='File type [gif, pe]', required=True)
-argparser.add_argument('files', metavar='files', type=str, nargs='+',
-                   help='files to parse')
-args = vars(argparser.parse_args())
+def findElement(struct, needle):
+	if isinstance(struct, list):
+		for e in struct:
+			result = findElement(e, needle)
+			if result != None:
+				return result
+		return None
 
-for filename in args['files']:
-	filetype = args['type'].lower()
+	if struct['label'] == needle:
+		return struct
+	for c in struct['children']:
+		result = findElement(c, needle)
+		if result != None:
+			return result
+	return None
+
+def parseFile(filename, filetype):
 	if filetype == 'gif':
 		import gif
 		p = gif.Parser()
@@ -39,5 +48,15 @@ for filename in args['files']:
 		bytes = f.read()
 
 	parsedJson = p.run(bytearray(bytes))
-	structured = getStructured(parsedJson)
-	print json.dumps(structured, indent=2)
+	return getStructured(parsedJson)
+
+if __name__ == "__main__":
+	argparser = argparse.ArgumentParser(description='IceBuddha parsing script')
+	argparser.add_argument('-t','--type', help='File type [gif, pe]', required=True)
+	argparser.add_argument('files', metavar='files', type=str, nargs='+',
+	                   help='files to parse')
+	args = vars(argparser.parse_args())
+
+	for filename in args['files']:
+		filetype = args['type'].lower()
+		print json.dumps(parseFile(filename, filetype), indent=2)
