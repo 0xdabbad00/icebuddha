@@ -371,7 +371,12 @@ function ChooseParseScript() {
 		parseScript = "pe.py";
 	} else if (startsWith(data, strToArray("GIF"))) {
 		parseScript = "gif.py";
-	} else if (startsWith(data, [0xfe, 0xed, 0xfa, 0xce]) || startsWith(data, [0xcf, 0xfa, 0xed, 0xfe])) {
+	} else if (startsWith(data, [0xfe, 0xed, 0xfa, 0xce]) 
+		|| startsWith(data, [0xce, 0xfa, 0xed, 0xfe])
+		|| startsWith(data, [0xfe, 0xed, 0xfa, 0xcf])
+		|| startsWith(data, [0xcf, 0xfa, 0xed, 0xfe])
+		|| startsWith(data, [0xca, 0xfe, 0xba, 0xbe])
+		) {
 		parseScript = "mach_o.py";
 	}
 	var filetype = parseScript.split('.')[0];

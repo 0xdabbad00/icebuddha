@@ -1,4 +1,6 @@
 def intToHex(value, fill=8):
+    if fill == 0:
+        return "%X" % value
     if fill == 8:
         return "%0.8X" % value
     else:
@@ -270,7 +272,7 @@ class Node:
 
             value = "<br>%s%s (%s) %s : %d %s" % (nbsp(11),
                 getMask(bitmask & self.getData(), varSize, bitmask),
-                intToHex(data, (varSize/8)*2),
+                intToHex(data, 0),
                 name,
                 size,
                 comment)
