@@ -46,21 +46,18 @@
       
       
       <div id="about">
-      <h3>Description</h3>
-      IceBuddha is an open-source hex viewer and generic binary file parser that runs in the browser.  Drag and drop a Windows executable file onto this page to see it in action.
-      
+      IceBuddha is an open-source hex viewer and generic binary file parser that runs in the browser.
+
+      <a href="https://github.com/0xdabbad00/icebuddha"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+        
+      <img src="./tutorial.png">
+
+      See an <a href="./index.htm?test=1">example</a>.
+
       <p>
       <h3>Why?</h3>
-      I wanted to leverage the HTML5 FileReader capability, to do something interesting, in this case to perform analysis locally (entirely client-side).  No bandwidth problems for me and no privacy concerns from you of uploading data to my server, because it doesn't happen.
-      <p>
-
-      <h3>Goals</h3>
-      <ol>
-        <li>
-        To become the goto tool for binary analysis.  Next time <a href="http://www.fireeye.com/">FireEye</a> publishes an article like "<a href="http://blog.fireeye.com/research/2012/11/more-phish.html">More Phish</a>", instead of their <a href="http://blog.fireeye.com/.a/6a00d835018afd53ef017c33637ada970b-500wi">screenshot</a> of <a href="http://www.sweetscape.com/010editor/">010 editor</a>, I want to see a screen shot of IceBuddha.
-        <li>To crowd-source help in creating parse scripts for different formats.  This means I need to make a great tool people want to use, make a parsing language that is easy to use, and create the back-end support so people can easily share their parsers.  When something like Stuxnet comes out and people want to look at the .lnk files, I want them to use IceBuddha to create the parse scripts.
-      </ol>
-
+      I wanted to test the limits of what was possible in the browser from a static site.  IceBuddha is hosted on github pages, "submitted" files are not uploaded anywhere.  Everything happens in your browser locally.  IceBuddha leverages the HTML5 FileReader, <a href="">skulpt</a> for in-browser python-to-javascript conversion, and in memory binary file parsing.  Crazy.
+      
       <p>Read more about IceBuddha in my post on <a href="http://0xdabbad00.com/2012/07/15/icebuddha-generic-file-parser/">http://0xdabbad00.com/icebuddha-generic-file-parser/</a>.
       
       <h3>Similar projects/products</h3>
@@ -69,8 +66,8 @@
 
       <p>
       <h3>Status</h3>
-      Last update: 2012-11-21
-      <br>IceBuddha is in active development, but somewhat in a proof-of-concept stage now.  There is still a lot of functionality lacking and some bugs.
+      Last update: 2013-10-27
+      <br>IceBuddha is mostly abandoned.  I'm unsure if the concept of a webapp for this a good solution as many things are impossible (ex. saving files).  It succeeded in testing the limits of the browser as of 2013.
       </div>
       
     </div>
