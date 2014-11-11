@@ -1,3 +1,4 @@
+/*jslint bitwise: true */
 ///////////////////////////////////////////////////////////////////////////////
 // Globals
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,7 +8,7 @@ var filename;
 var reader;
 var arrayBuffer;
 
-var MAX_FILE_SIZE = 10*1024*1024; // 10MB
+var MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 var LINES_TO_DISPLAY = 100;
 var FONT_HEIGHT = 15;
@@ -46,49 +47,49 @@ var scrollNeeded = false;
 // Utility functions
 ///////////////////////////////////////////////////////////////////////////////
 
-var hexArray = new Array( "0", "1", "2", "3",
+var hexArray = [ "0", "1", "2", "3",
         "4", "5", "6", "7",
         "8", "9", "A", "B",
-        "C", "D", "E", "F" );
+        "C", "D", "E", "F" ];
 
-var displayableAscii = new Array(
-		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
-		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
-		"&nbsp;", "!", "\"", "#", "$", "%", "&amp;", "\'", "(", ")", "*", "+", ",", "-", ".", "\/", 
-		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "&lt;", "=", "&gt;", "?", 
-		"@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", 
-		"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "&#92;", "]", "^", "_", 
-		".", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
-		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ".");
+var displayableAscii = [
+		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".",
+		".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".",
+		"&nbsp;", "!", "\"", "#", "$", "%", "&amp;", "\'", "(", ")", "*", "+", ",", "-", ".", "\/",
+		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "&lt;", "=", "&gt;", "?",
+		"@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+		"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "&#92;", "]", "^", "_",
+		".", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "."];
 
 
-function convertToHex(dec)
-{
-    var decToHex = hexArray[(dec&0xf0)>>4]+hexArray[(dec&0x0f)];
+function convertToHex(dec) {
+    var decToHex = hexArray[(dec & 0xf0) >> 4] + hexArray[(dec & 0x0f)];
     return (decToHex);
 }
 
-function convertToHexWord(dec)
-{
+function convertToHexWord(dec) {
     var decToHex =
-    	hexArray[(dec&0xf0000000)>>0x1c]+hexArray[(dec&0x0f000000)>>0x18] +
-    	hexArray[(dec&0x00f00000)>>0x14]+hexArray[(dec&0x000f0000)>>0x0f] +
-    	hexArray[(dec&0x0000f000)>>0x0c]+hexArray[(dec&0x00000f00)>>0x08] +
-    	hexArray[(dec&0x000000f0)>>0x04]+hexArray[(dec&0x0000000f)>>0x00];
+        hexArray[(dec & 0xf0000000) >> 0x1c] + hexArray[(dec & 0x0f000000) >> 0x18] +
+        hexArray[(dec & 0x00f00000) >> 0x14] + hexArray[(dec & 0x000f0000) >> 0x0f] +
+        hexArray[(dec & 0x0000f000) >> 0x0c] + hexArray[(dec & 0x00000f00) >> 0x08] +
+        hexArray[(dec & 0x000000f0) >> 0x04] + hexArray[(dec & 0x0000000f) >> 0x00];
     return (decToHex);
 }
 
 
 function addHexIdentifier(value) {
-	return value+"h";
+	return value + "h";
 }
 
 function intToHex(val, addIdentifier) {
 	addIdentifier = (typeof addIdentifier === "undefined") ? true : addIdentifier;
 	// Convert value to hex
-	var str = ''+val.toString(16);
+	var str = String(val.toString(16));
 	// Pad with 0's
-	while(str.length < 8) str = '0'+str;
+	while (str.length < 8) {
+        str = '0' + str;
+    }
 	if (addIdentifier) {
 		return addHexIdentifier(str);
 	} else {
@@ -102,26 +103,34 @@ function hexToInt(str) {
 }
 
 function dispAscii(val) {
-	if (val > 127) return '.';
+	if (val > 127) {
+        return '.';
+    }
 	return displayableAscii[val];
 }
 
 function isDisplayable(val) {
-	if (val > 127) return false;
-	if (val == 0x2e) return true; // real period
-	if (displayableAscii[val] == '.') return false;
+	if (val > 127) {
+        return false;
+    }
+	if (val === 0x2e) {
+        return true; // real period
+    }
+	if (displayableAscii[val] === '.') {
+        return false;
+    }
 	return true;
 }
 
 
 function str2ArrayBuffer(str) {
-  arrayBuffer = new ArrayBuffer(str.length);
-  var bufView = new Uint8Array(arrayBuffer);
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  var tmp = arrayBuffer.byteLength;
-  return bufView;
+    arrayBuffer = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(arrayBuffer);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    var tmp = arrayBuffer.byteLength;
+    return bufView;
 }
 
 function strToArray(str) {
