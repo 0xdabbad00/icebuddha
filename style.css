@@ -57,15 +57,15 @@ h3 { font-size: 100%;}
 
 div#parsetree {
   border: 1px solid #A0A0A0;
- 
+
   padding: 3px;
   margin: 1px;
- 
+
   overflow-y: scroll;
   overflow-x: auto;
- 
+
   width: 650px;
-  
+
   max-height: 300px;
   min-height: 300px;
 
@@ -93,7 +93,7 @@ div#container {
 	margin:0 125px;
 	width:800px;
 	background:#f0f0f0;
-	
+
 	height:auto !important; /* real browsers */
 	height:100%; /* IE6: treated as min-height*/
 	min-height:100%; /* real browsers */
@@ -121,18 +121,18 @@ div#drop_zone {
 
  margin: 10px;
  padding: 10px;
- 
+
  /* Center */
  margin-left: auto;
  margin-right: auto;
- 
+
  text-align: center;
- 
+
  font-size: 400%;
  color: #909090;
- 
+
  background: #e0e0e0;
- 
+
  box-shadow: rgba(0, 0, 0, 0.5) 0 0 6px 0
 }
 
@@ -154,16 +154,16 @@ div#footer {
 
 #footer a:link, #footer a:active, #footer a:visited {color: #C9C9C9; text-decoration: underline; }
 a:hover {color: #aaa; text-decoration: underline; }
-	
+
 #byte_content {
  border: 1px solid #A0A0A0;
- 
+
  padding: 3px;
  margin: 1px;
- 
+
  overflow-y: scroll;
  overflow-x: hidden;
- 
+
  width: 650px;
 }
 
@@ -206,10 +206,11 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 
 #goto {
   vertical-align:bottom;
+	padding-right: 5px;
 }
 
 #gotoInput {
-  width: 100px;
+  width: 100%;
 }
 
 .InputError {
@@ -242,7 +243,7 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 }
 
 .selected {
-   background: #f99; 
+   background: #f99;
 }
 
 .hex::selection, .address::selection, .ascii::selection, td::selection {
@@ -253,7 +254,7 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 }
 
 .hex:hover, .ascii:hover, .hovered {
-  background: #a0a0a0 !important; 
+  background: #a0a0a0 !important;
 }
 
 #editor {
@@ -277,7 +278,7 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 }
 
 .hash_no_match_found {
-	background: #FA5858;	
+	background: #FA5858;
 }
 
 .ui-dialog-titlebar .ui-widget-header .ui-corner-all .ui-helper-clearfix {

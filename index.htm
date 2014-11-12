@@ -7,15 +7,16 @@
 
   <!-- jQuery -->
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+  <script src="./jquery.hotkeys.js"></script>
 
   <link rel="stylesheet" type="text/css" href="./contextmenu/jquery.contextmenu.css" />
 
   <link rel="stylesheet" type="text/css" href="./style.css" />
 </head>
 
-<body>  
+<body>
   <script>
     if (!$.browser.webkit && !$.browser.mozilla) {
       alert("You must use firefox or chrome for this site to work");
@@ -29,7 +30,7 @@
 
     <div id="dialog-message" title="Loading">
     </div>
-    
+
     <form style="margin:0px; padding:0px">
       <input type="file" id="fileSelect">
     </form>
@@ -43,13 +44,13 @@
         Drop file here
       </div>
 
-      
-      
+
+
       <div id="about">
       IceBuddha is an open-source hex viewer and generic binary file parser that runs in the browser.
 
       <a href="https://github.com/0xdabbad00/icebuddha"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
-      <p>  
+      <p>
       <img src="./tutorial.png">
       <p>
       See an <a href="./index.htm?test=1">example</a>.
@@ -59,9 +60,9 @@
       I wanted to test the limits of what was possible in the browser from a static site.  IceBuddha is hosted on <a href="http://0xdabbad00.github.io/icebuddha/">github pages</a>.  "Submitted" files are not uploaded anywhere.  Everything happens in your browser locally.
 
       <p>IceBuddha leverages the HTML5 <a href="http://www.w3.org/TR/FileAPI/">File API</a> to read files you "submit" into memory, <a href="http://www.skulpt.org/">skulpt</a> for in-browser python-to-javascript conversion to generate a parser to parse the file, and presents the parsed file to you. Crazy.
-      
+
       <p>Read more about IceBuddha in my post on <a href="http://0xdabbad00.com/2012/07/15/icebuddha-generic-file-parser/">http://0xdabbad00.com/icebuddha-generic-file-parser/</a>.
-      
+
       <h3>Similar projects/products</h3>
         <a href="http://www.sweetscape.com/010editor/">010 editor</a>: Windows &amp; Mac (commercial), odd format for binary templates to parse files, but looks similar to C structs and is often referenced.
         <br><a href="http://www.synalysis.net/">Synalize It!</a>: Mac only (commercial); XML based grammar format which means limited capability for more advanced binary file formats.
@@ -70,27 +71,27 @@
       <h3>Project status</h3>
       <br>IceBuddha is mostly abandoned (last update on 2013-10-27 to move the files to github pages).  I'm unsure if the concept of a webapp for this a good solution as many things are impossible (ex. saving files).  It succeeded in testing the limits of the browser as of 2013.
       </div>
-      
+
     </div>
-    
+
     <div id="footer">
       Code on <a href="https://github.com/0xdabbad00/icebuddha">github</a>.
     </div>
   </div>
-  
+
   <!-- jqTree -->
   <script type='text/javascript' src="./jqtree/tree.jquery.js"></script>
   <link rel="stylesheet" href="./jqtree/jqtree.css">
-  
+
   <!-- jQuery Waypoints -->
   <script type='text/javascript' src="./waypoints.min.js"></script>
-  
+
   <!-- jQuery scrollTo -->
   <script type='text/javascript' src="./jquery.scrollTo.min.js"></script>
-  
+
   <!-- jQuery contextMenu -->
   <script type="text/javascript" src="./contextmenu/jquery.contextmenu.js"></script>
-  
+
   <!-- Peg.js -->
   <script type='text/javascript' src="./peg.min.js"></script>
 
@@ -98,7 +99,7 @@
   <script src="./ace/ace.js" type="text/javascript" charset="utf-8"></script>
 
   <!-- Download file -->
-  <script src="./BlobBuilder.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="./BlobBuilder.js" type="text/javascript" charset="utf-8"></script>
   <script src="./FileSaver.js" type="text/javascript" charset="utf-8"></script>
 
   <!-- Skulpt -->

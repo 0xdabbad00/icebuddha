@@ -151,7 +151,7 @@ function startsWith(haystack, needle) {
 
 function showDialog(str, title, okBtn) {
 	$( "#dialog-message" ).html(str);
-	
+
 	if (okBtn) {
 	    $( "#dialog-message" ).dialog({
 	    	title: title,
@@ -183,7 +183,7 @@ function removeDialog() {
 
 function showError(str) {
 	$( "#dialog-message" ).html("<span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin: 0 7px 50px 0;\"></span>"+str);
-	
+
     $( "#dialog-message" ).dialog({
     	title: "Error",
         modal: true,
@@ -220,7 +220,7 @@ function snapSelectionToWord() {
             // modify() works on the focus of the selection
             var endNode = sel.focusNode, endOffset = sel.focusOffset;
             sel.collapse(sel.anchorNode, sel.anchorOffset);
-            
+
             var direction = [];
             if (backwards) {
                 direction = ['backward', 'forward'];
@@ -332,12 +332,12 @@ function handleFileSelect(evt) {
 	}
 
 	showDialog("Loading "+file.name+" ("+file.size+" bytes)", "Loading...", false);
-	
+
 	createTemplate(file.name, file.size);
 
 	reader = new FileReader();
 	reader.onloadend = handleFinishedRead;
-	
+
 	readFileSlice(0, MAX_FILE_SIZE);
 }
 
@@ -349,7 +349,7 @@ function handleDragOver(evt) {
 
 function readFileSlice(start, end) {
 	if (file == null) return;
-	
+
 	// Determine how much to read
 	if(file.slice) {
 		var blob = file.slice(start, end);
@@ -380,7 +380,7 @@ function ChooseParseScript() {
 		parseScript = "pe.py";
 	} else if (startsWith(data, strToArray("GIF"))) {
 		parseScript = "gif.py";
-	} else if (startsWith(data, [0xfe, 0xed, 0xfa, 0xce]) 
+	} else if (startsWith(data, [0xfe, 0xed, 0xfa, 0xce])
 		|| startsWith(data, [0xce, 0xfa, 0xed, 0xfe])
 		|| startsWith(data, [0xfe, 0xed, 0xfa, 0xcf])
 		|| startsWith(data, [0xcf, 0xfa, 0xed, 0xfe])
@@ -401,7 +401,7 @@ function onOddRow(offset) {
 function displayHexDump(position) {
 	lastHexDumpPosition = position;
 	var output = [""];
-	
+
 	var address = [""];
 	var hex = [""];
 	var ascii = [""];
@@ -414,7 +414,7 @@ function displayHexDump(position) {
 
 	hexDumpStart = position - bytesAbove;
 	hexDumpEnd = position + length;
-	
+
 	var column = 0;
 	for (var i = hexDumpStart; i < hexDumpEnd; i++) {
 		// Show address
@@ -434,15 +434,15 @@ function displayHexDump(position) {
 			hex.push(" alt_row");
 		}
 		hex.push("\">");
-	
+
 		hex.push(hexArray[(data[i]&0xf0)>>4]);
 		hex.push(hexArray[(data[i]&0x0f)]);
-		
+
 		if (column == 7 || column == 15) {
 		  hex.push("&nbsp;");
 		}
 		hex.push(" </i>");
-		
+
 		// Show ascii
 		ascii.push("<i id=\"a");
 		ascii.push(i);
@@ -453,7 +453,7 @@ function displayHexDump(position) {
 		ascii.push("\">");
 		ascii.push(dispAscii(data[i]));
 		ascii.push("</i>");
-		
+
 		// Add extra formatting
 		column++;
 		if (column % 16 == 0) {
@@ -473,7 +473,7 @@ function displayHexDump(position) {
 			}
 			hex.push("\">");
 			hex.push("&nbsp;&nbsp;");
-			
+
 			if (i % 15 == 0 || i % 8 == 0) {
 			  hex.push("&nbsp;");
 			}
@@ -491,9 +491,9 @@ function displayHexDump(position) {
 		footer = "<footer>Loading more data...</footer>";
 	}
 
-	
+
 	$('#byte_content').html(getByteContentHTML(addressString, hexString + footer, asciiString, position-bytesAbove));
-	
+
 	// Add right-click menu
 	$("#hexCell").contextMenu({
 	      menu : 'hexContextMenu',
@@ -529,14 +529,14 @@ function displayHexDump(position) {
 				offset: 0,
 				context: '#byte_content'
 			};
-			
+
 			$scrollPointUp.waypoint(function(event, direction) {
 				if (direction === 'up') {
 					if (mouseIsDown) return;
 					// Upwards scroll event triggered
 					$scrollPointUp.waypoint('destroy');
 					$scrollPointUp.detach();
-					
+
 					displayHexDump(scrollPointOffsetUp);
 				}
 			}, opts);
@@ -552,14 +552,14 @@ function displayHexDump(position) {
 				offset: '100%',
 				context: '#byte_content'
 			};
-			
+
 			$scrollPointDown.waypoint(function(event, direction) {
 				if (direction === 'down') {
 					if (mouseIsDown) return;
 					// Downward scroll event triggered
 					$scrollPointDown.waypoint('destroy');
 					$scrollPointDown.detach();
-					
+
 					displayHexDump(scrollPointOffsetDown);
 				}
 			}, opts);
@@ -568,7 +568,7 @@ function displayHexDump(position) {
 		// If the user grabs the scroll bar, make sure refresh the screen
 	    $('#byte_content').bind('scroll', outOfRangeScrollHandler);
 	}});
-	
+
 	$("#asciiCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 	$("#hexCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
 	$("#hexCell").mouseup(snapSelectionToWord);
@@ -586,7 +586,7 @@ var outOfRangeScrollHandler = function() {
 	topOfContent = $('#byteFillerAbove').height();
 	contentHeight = FONT_HEIGHT * LINES_TO_DISPLAY;
 
-	if ((scrollPos < topOfContent - (FONT_HEIGHT * 1)) || 
+	if ((scrollPos < topOfContent - (FONT_HEIGHT * 1)) ||
 		(scrollPos > (topOfContent+contentHeight) + (FONT_HEIGHT * 1))) {
 		scrollLocation = (scrollPos / FONT_HEIGHT) * BYTES_PER_LINE;
 
@@ -601,8 +601,8 @@ var outOfRangeScrollHandler = function() {
 
 var mouseIsDown = false;
 $(document).mousedown(function() { mouseIsDown = true; });
-$(document).mouseup(function() { 
-	mouseIsDown = false; 
+$(document).mouseup(function() {
+	mouseIsDown = false;
 	if (scrollNeeded) {
 		outOfRangeScrollHandler();
 	}
@@ -619,13 +619,13 @@ function getByteContentHTML(address, hex, ascii, start) {
 
 	tableHeightStyle = "style=\"min-height:"+tableHeight+"px; height:"+tableHeight+"px; border-spacing: 0px;\"";
 	preHeightStyle = "style=\"min-height:"+preHeight+"px; height:"+preHeight+"px;\"";
-	
+
 	output.push("<table border=0 cellpadding=0 cellspacing=0 "+tableHeightStyle+" id=\"byteScrollableArea\">");
 	output.push("<tr "+preHeightStyle+"><td "+preHeightStyle+" id=\"byteFillerAbove\"><td><td></tr>");
 	output.push("<tr>");
 	output.push("<td id=\"addressCell\" style=\"padding: 0 0 0 0;\" class=\"address\">");
 	output.push(address);
-	output.push("</td><td id=\"hexCell\" style=\"padding: 0 0 0 0;\">");	
+	output.push("</td><td id=\"hexCell\" style=\"padding: 0 0 0 0;\">");
 	output.push(hex);
 	output.push("</td><td id=\"asciiCell\">");
 	output.push(ascii);
@@ -637,13 +637,13 @@ function getByteContentHTML(address, hex, ascii, start) {
 function createTemplate(fileName, fileSize) {
 	filename = filename;
 	var output = [];
-	
+
 	// Set defaults for new file read
 	isValueElementSet = false;
 	addressString = "";
 	hexString = "";
 	asciiString = "";
-	
+
 	// Set byte content
 	output = [];
 	output.push("<div id=\"accordion\">");
@@ -660,7 +660,7 @@ function createTemplate(fileName, fileSize) {
 	output.push("</table></table>\n");
 	output.push("<div id=\"parseTreeEnvelope\"><div id=\"parsetree\"></div></div>\n");
 	output.push("</div>");
-	
+
 	output.push("<h3>Parse as: <i id=\"parseScriptSelection\">unknown</i></h3>");
 
 	output.push("<div id=\"editor\"></div>");
@@ -670,15 +670,15 @@ function createTemplate(fileName, fileSize) {
 
 	// Right-click menu
 	output.push(
-			"<div id=\"hexContextMenu\" style=\"display: none;\">\n" + 
+			"<div id=\"hexContextMenu\" style=\"display: none;\">\n" +
 			"<ul>" +
 			"<li id=\"Download\"><a href=\"#Download\">Download</a></li>" +
 			"<li id=\"Edit\"><a href=\"#Edit\">Edit</a></li>" +
 			"</ul>" +
 			"</div>");
-	
+
 	output.push(
-			"<div id=\"parseTreeContextMenu\" style=\"display: none;\">\n" + 
+			"<div id=\"parseTreeContextMenu\" style=\"display: none;\">\n" +
 			"<ul>" +
 			"<li id=\"Colorize\"><a href=\"#Colorize\">Colorize</a></li>" +
 			"<li id=\"Goto\"><a href=\"#Goto\">Goto</a></li>" +
@@ -687,10 +687,10 @@ function createTemplate(fileName, fileSize) {
 			"<li id=\"DownloadParse\"><a href=\"#DownloadParse\">Download parsed data</a></li>" +
 			"</ul>" +
 			"</div>");
-	
+
 	$('#content').html(output.join(""));
 
-	$( "#accordion" ).accordion({ 
+	$( "#accordion" ).accordion({
 		clearStyle: true,
 		autoHeight: false,
 		beforeActivate: function(event, ui) {
@@ -703,11 +703,23 @@ function createTemplate(fileName, fileSize) {
         	if (ui.newHeader[0].id == 'ui-accordion-accordion-header-1') {
         		// If we are showing the ACE editor, tell it to refresh after the accordion
         		// expands
-        		editor.renderer.onResize(true); 
+        		editor.renderer.onResize(true);
         		editor.renderer.updateFull(force=true);
         	}
     	},
 	});
+
+
+  //
+  // Set hot-keys
+  //
+  // ctrl+g: Moves to the goto input box
+  $(document).bind('keydown', 'ctrl+g', function(){
+    var text_input = 	$('#gotoInput');
+    text_input.focus ();
+    text_input.select ();
+    return false;
+  });
 
 	// Goto input
 	$('#gotoInput').keypress(function(e)
@@ -740,11 +752,11 @@ function createTemplate(fileName, fileSize) {
 			}
         }
     });
-	
+
 	$('#byte_content').scrollTo(0);  // Start at top
 
 	// hack for chrome to force scrolling
-	$('#byte_content').scroll(function() { 
+	$('#byte_content').scroll(function() {
 		mouseIsDown = false;
 		if (scrollNeeded) {
 			outOfRangeScrollHandler();
@@ -766,11 +778,11 @@ function mouseoverBytes(e) {
 	if (currentId == "hexCell" || currentId == "asciiCell") {
 		return;
 	}
-	
-	var byte = currentId.substring(1, currentId.length);	
+
+	var byte = currentId.substring(1, currentId.length);
     $("#a"+byte).addClass( "hovered");
     $("#h"+byte).addClass( "hovered");
-    
+
     SetValueElement(byte);
   }
 
@@ -779,12 +791,12 @@ function mouseoutBytes(e) {
 	if (currentId == "hexCell" || currentId == "asciiCell") {
 		return;
 	}
-	
+
 	var byte = currentId.substring(1, currentId.length);
     $("#a"+byte).removeClass( "hovered");
     $("#h"+byte).removeClass( "hovered");
   };
-  
+
 function SetValueElement(offset) {
   var output = [""];
   var offsetInt = parseInt(offset);
@@ -821,24 +833,24 @@ function SetValueElement(offset) {
 ///////////////////////////////////////////////////////////////////////////////
 function node(label, size, comment, offset, interpretation) {
 	var dataValue = "";
-	
+
 	if (size==4) {
-		dataValue = 
+		dataValue =
 		  ((data[offset+3]<<24)>>>0) +
 		  ((data[offset+2]<<16)>>>0) +
 		  ((data[offset+1]<<8)>>>0) +
 		  (data[offset+0]);
 	} else if (size == 2) {
-		dataValue = 
+		dataValue =
 			  ((data[offset+1]<<8)>>>0) +
 			  (data[offset+0]);
 	} else if (size == 1) {
-		dataValue = 
+		dataValue =
 			  (data[offset+0]);
 	} else {
 		dataValue = 0;
 	}
-	
+
 	var maxDataDisplaySize = 4;
 	var hexData="";
 	if(size>maxDataDisplaySize) {
@@ -847,10 +859,10 @@ function node(label, size, comment, offset, interpretation) {
 		hexData = "";
 	} else {
 		for(var i=0; i<size && i<maxDataDisplaySize; i++) {
-			hexData += convertToHex(data[offset+i]) + " "; 
+			hexData += convertToHex(data[offset+i]) + " ";
 		}
 	}
-	
+
 	comment = String(comment).replace(/^\s+|\s+$/g, '');
 
 	return {label: label, offset: offset, size: size, data: dataValue, hexData: hexData, comment: comment, interpretation: interpretation, children: []};
@@ -868,7 +880,7 @@ function getNode(array) {
 	var n = node(label, size, comment, offset, interpretation);
 	for (var i=0; i<children.length; i++) {
 		n.children.push(getNode(children[i].v));
-	} 
+	}
 
 	return n;
 }
@@ -890,7 +902,7 @@ function builtinRead(x)
 
 function ParseInstructions(parseInstructions) {
 	treedata = [];
-	
+
 	try {
 		// Remove old parse tree
 		$('#parsetree').remove();
@@ -925,7 +937,7 @@ function ParseInstructions(parseInstructions) {
 			data: treedata,
 			autoOpen: true
 		});
-		
+
 		$('#parsetree').bind(
 		    'tree.click',
 		    clickParseTreeNode
@@ -963,12 +975,12 @@ function ParseInstructions(parseInstructions) {
 		});
 	} catch (e) {
 		$('#parsetree').html("Parsing failed; "+e);
-	}    
+	}
 }
 
 function SetParseTree(parseScript) {
 	var parseInput = "";
-	
+
 	cacheBreaker = "?"+new Date().getTime();
 
 	$.get("./parse_scripts/"+parseScript+cacheBreaker, function(response) {
@@ -985,8 +997,8 @@ function SetParseTree(parseScript) {
 	    // Create parse tree
 	    ParseInstructions(parseInput);
 	});
-		
-	return;	
+
+	return;
 }
 
 function downloadParse() {
@@ -1042,9 +1054,9 @@ function colorize(node) {
 		//child.element.style.background = pickHighliteColor();
 		highlite(child.offset, child.offset + child.size, child.element);
 	}
-    
+
     SetValueElement(selectStart);
-    
+
     // Scroll to element
     scrollToByte(selectStart);
 }
@@ -1065,10 +1077,10 @@ function scrollToByte(start) {
 
 function clickParseTreeNode(event) {
     var node = event.node;
-    
+
     // High-lite byte data
     unhighlite();
-    
+
     // Set new
     selectStart = node.offset;
     selectedNode = event.target;
@@ -1077,9 +1089,9 @@ function clickParseTreeNode(event) {
     }
     //selectedNode.css("background", pickHighliteColor());
     highlite(selectStart, selectStart + node.size, selectedNode[0]);
-    
+
     SetValueElement(selectStart);
-    
+
     // Scroll to element
     scrollToByte(selectStart);
 }
@@ -1089,7 +1101,7 @@ function $_GET(q,s) {
     s = s ? s : window.location.search;
     var re = new RegExp('&'+q+'(?:=([^&]*))?(?=&|$)','i');
     return (s=s.replace(/^\?/,'&').match(re)) ? (typeof s[1] == 'undefined' ? '' : decodeURIComponent(s[1])) : undefined;
-} 
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main
@@ -1128,10 +1140,10 @@ function load_binary_resource(url) {
 
 if ($_GET('test')) {
 	var filename = $_GET('test');
-	
+
 	if (filename == "1") filename = "putty.exe";
 	response = load_binary_resource("./test_data/"+filename);
-	
+
 	data =  str2ArrayBuffer(response);
 	var length = data.byteLength;
 	createTemplate(filename, length);
@@ -1139,4 +1151,3 @@ if ($_GET('test')) {
 	SetParseTree(ChooseParseScript());
 	SetStrings();
 }
-
