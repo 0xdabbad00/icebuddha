@@ -1222,7 +1222,7 @@ function scrollToByte(start) {
 			// Location does not actually exist: race condition seen sometimes, so just return
 			return;
 		}
-		$('#byte_content').scrollTo(location, 800);
+		$('#byte_content').scrollTo(location, 800,  {offset:-10});
 	}
 }
 
