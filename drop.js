@@ -539,10 +539,9 @@ function displayHexDump(position) {
 			}
 			hex.push("&nbsp;</i>");
 		}
-	} else {
-    hex.push("<i class=\"hex\">]</i>");
-  }
+	}
 
+  hex.push("<i class=\"hex\">]</i>");
 
   // Show last line
   if (hexii == 1 && prevLineZeroes) {
