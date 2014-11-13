@@ -438,8 +438,24 @@ function displayHexDump(position) {
     hex.push(" v"+convertToHex(data[i]));
 		hex.push("\">");
 
-		hex.push(hexArray[(data[i]&0xf0)>>4]);
-		hex.push(hexArray[(data[i]&0x0f)]);
+    if (hexii==0) {
+		  hex.push(hexArray[(data[i]&0xf0)>>4]);
+		  hex.push(hexArray[(data[i]&0x0f)]);
+    } else {
+      if (data[i]==0) {
+        hex.push("&nbsp;&nbsp;");
+      } else if (data[i] == 0xff) {
+        hex.push("##");
+      } else {
+        if (dispAscii(data[i]) == "." && data[i] != 0x2e) {
+          hex.push(hexArray[(data[i]&0xf0)>>4]);
+          hex.push(hexArray[(data[i]&0x0f)]);
+        } else {
+          hex.push(".");
+          hex.push(dispAscii(data[i]));
+        }
+      }
+    }
 
 		if (column == 7 || column == 15) {
 		  hex.push("&nbsp;");
@@ -447,16 +463,18 @@ function displayHexDump(position) {
 		hex.push(" </i>");
 
 		// Show ascii
-		ascii.push("<i id=\"a");
-		ascii.push(i);
-		ascii.push("\" class=\"ascii");
-		if (onOddRow(i)) {
-			ascii.push(" alt_row");
-		}
-    ascii.push(" v"+convertToHex(data[i]));
-		ascii.push("\">");
-		ascii.push(dispAscii(data[i]));
-		ascii.push("</i>");
+    if (hexii==0) {
+  		ascii.push("<i id=\"a");
+  		ascii.push(i);
+  		ascii.push("\" class=\"ascii");
+  		if (onOddRow(i)) {
+  			ascii.push(" alt_row");
+  		}
+      ascii.push(" v"+convertToHex(data[i]));
+  		ascii.push("\">");
+  		ascii.push(dispAscii(data[i]));
+  		ascii.push("</i>");
+    }
 
 		// Add extra formatting
 		column++;
@@ -744,6 +762,7 @@ function createTemplate(fileName, fileSize) {
     } else {
       hexii = 0;
     }
+    if (filename != undefined) { displayHexDump(0); }
     $.cookie('hexii', hexii);
   });
 
