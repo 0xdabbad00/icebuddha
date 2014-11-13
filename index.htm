@@ -85,6 +85,38 @@
         <a href="http://www.sweetscape.com/010editor/">010 editor</a>: Windows &amp; Mac (commercial), odd format for binary templates to parse files, but looks similar to C structs and is often referenced.
         <br><a href="http://www.synalysis.net/">Synalize It!</a>: Mac only (commercial); XML based grammar format which means limited capability for more advanced binary file formats.
       <p>
+      <h3>File parsing</h3>
+      IceBuddha can parse a few of the main structures in the following file types:
+      <ol>
+        <li>PE files (.exe, .dll, .sys)
+        <li>GIF image files
+        <li>Mach-O (Mac OS X files)
+      </ol>
+      <h4>Expanding and adding your own file parsing</h4>
+      File types are automatically identified in drop.js via the function "ChooseParseScript".  Look at <a href="https://github.com/0xdabbad00/icebuddha/blob/gh-pages/parse_scripts/pe.py">pe.py</a> to see an example of how files are parsed.
+      <ol>
+        <li>Change the <code>PE</code> in the line <code>ib = icebuddha.IceBuddha(filedata, "PE")</code> to be name of your file type.
+        <li>The line <code>imageDosHeader = ib.parse(0, "IMAGE_DOS_HEADER", """</code> creates a structure at offset <code>0</code> with name <code>IMAGE_DOS_HEADER</code>.
+          Then the next lines in that file describe what is in that structure.
+        <li>Known variable types are:
+          <ol>
+            <li><code>BYTE</code>, <code>CHAR</code>, and anything unknown: 1 byte
+            <li><code>WORD</code>: 2 bytes
+            <li><code>DWORD</code>: 4 bytes
+            <li><code>ULONGLONG</code>: 8 bytes
+          </ol>
+          You can also create arrays such as <code>WORD  e_res2[10];</code>
+        <li><code>ib</code> is the root object, so we then append <code>imageDosHeader</code> to that.  Later we append objects to <code>imageDosHeader</code>
+        <li>The line <code>e_lfanew = imageDosHeader.getInt("e_lfanew")</code> gets the value of <code>PE.IMAGE_DOS_HEADER.e_lfanew</code> in the file it parses, and sets the variable <code>e_lfanew</code> which is then used as the offset in the next line.
+        <li>Usually you can specify an offset simply by using something like <code>imageNtHeader.end()</code> to specify the end of the previous object.
+        <li>To describe a bit field, you can look at what I did for <code>dllCharacteristics</code>.
+        <li>Finally, you just need to return everything with the lines <code>return ib.getParseTree()</code> and <code>parser = Parse()</code>
+        <li>You can have loops, other functions, and other logic in your code, as shown in <a href="https://github.com/0xdabbad00/icebuddha/blob/gh-pages/parse_scripts/gif.py">gif.py</a>.
+        <li>You can also describe what a value means as shown with the function <code>setMeaningFromConstants</code> in the file <a href="https://github.com/0xdabbad00/icebuddha/blob/gh-pages/parse_scripts/mach_o.py">mach_o.py</a>
+        <li>You can set the endianness as shown with <code>setBigEndian</code> in the file <a href="https://github.com/0xdabbad00/icebuddha/blob/gh-pages/parse_scripts/mach_o.py">mach_o.py</a>
+      </ol>
+
+      <p>
       <h3>Project status</h3>
       IceBuddha is mostly abandoned (last update on 2014-11-13).  It does a lot of stuff, but a lot of things are impossible for a webapp based on static files (ex. saving files).
       <p>This was my first javascript project.  The codebase is not pretty.
