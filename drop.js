@@ -5,6 +5,8 @@
 var data;
 var file;
 var filename;
+var hexii;
+var colorHex;
 var reader;
 var arrayBuffer;
 
@@ -708,6 +710,68 @@ function createTemplate(fileName, fileSize) {
         	}
     	},
 	});
+
+
+  //
+  // Set appmenu
+  //
+  $("#appmenu").html('<input type="file" id="fileSelect"/> <input type="checkbox" id="hexii"/>HexII <input type="checkbox" id="colorHex"/>Color hex');
+
+  //
+  // Check settings
+  //
+
+  hexii = 0;
+  if ($.cookie('hexii') != undefined) {
+    hexii = $.cookie('hexii');
+    console.log(hexii);
+  }
+
+  if ($_GET('hexii')) {
+    var hexiiParam = $_GET('hexii');
+
+    if (hexiiParam == "1") hexii = 1;
+    else if (hexiiParam == "0") hexii = 0;
+  }
+
+  $('#hexii').change(function() {
+    if($(this).is(":checked")) {
+      hexii = 1;
+    } else {
+      hexii = 0;
+    }
+    $.cookie('hexii', hexii);
+  });
+
+  if (hexii==1) {
+    $("#hexii").prop( "checked", true );
+  }
+
+
+  colorHex = 0;
+  if ($.cookie('colorHex') != undefined) {
+    colorHex = $.cookie('colorHex');
+  }
+
+  if ($_GET('colorhex')) {
+    var colorhexParam = $_GET('colorhex');
+
+    if (colorhexParam == "1") colorHex = 1;
+    else if (colorhexParam == "0") colorHex = 0;
+  }
+
+  $('#colorHex').change(function() {
+    if($(this).is(":checked")) {
+      colorHex = 1;
+    } else {
+      colorHex = 0;
+    }
+    $.cookie('colorHex', colorHex);
+  });
+
+  if (colorHex==1) {
+    $("#colorHex").prop( "checked", true );
+  }
 
 
   //
