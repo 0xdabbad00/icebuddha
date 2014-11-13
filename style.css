@@ -79,13 +79,6 @@ div#about {
   margin: 5px;
 }
 
-div#ad {
-	top: 0px;
-	margin: 0px 0px 0px 0px;
-	width:120px;
-	height: 600px;
-}
-
 div#container {
 	/*position:relative; /* needed for footer positioning*/
 	position:absolute;

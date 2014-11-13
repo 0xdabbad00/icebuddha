@@ -41,36 +41,54 @@
       <h1 style="color:#f00; font-size: 800%;">Javascript must be enabled for this page to work!
          <br><br><br><br><br></h1>
       </noscript>
+
       <div id="drop_zone">
         Drop file here
       </div>
 
-
-
       <div id="about">
-      IceBuddha is an open-source hex viewer and generic binary file parser that runs in the browser.
-
       <a href="https://github.com/0xdabbad00/icebuddha"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
       <p>
       <img src="./tutorial.png">
+
+      <div id="myad" style="background-color: #EEF; width:600px; border: 1px solid #000; margin:0 auto; padding:5px; position:relative; text-align:center; font-weight:bold;">
+        <p>Check out Summit Route for end-point protection.
+          <br>
+        <a href="https://SummitRoute.com">
+          <span style=" position:absolute;width:100%;height:100%;top:0;left: 0;z-index: 1;"></span>
+          <img height="43" src="./summit_route_logo.png" style="margin-top:10px;">
+        </a>
+      </div>
+
+      <h3>About</h3>
+      IceBuddha is an open-source hex viewer and generic binary file parser that runs in the browser.
       <p>
       See an <a href="./index.htm?test=1">example</a>.
 
       <p>
       <h3>Why?</h3>
-      I wanted to test the limits of what was possible in the browser from a static site.  IceBuddha is hosted on <a href="http://0xdabbad00.github.io/icebuddha/">github pages</a>.  "Submitted" files are not uploaded anywhere.  Everything happens in your browser locally.
+      I wanted to test the limits of what was possible in the browser from a static site.  Because all the files are static (no database, and no server-side functionality) IceBuddha is hosted on <a href="http://0xdabbad00.github.io/icebuddha/">github pages</a>.
 
-      <p>IceBuddha leverages the HTML5 <a href="http://www.w3.org/TR/FileAPI/">File API</a> to read files you "submit" into memory, <a href="http://www.skulpt.org/">skulpt</a> for in-browser python-to-javascript conversion to generate a parser to parse the file, and presents the parsed file to you. Crazy.
-
-      <p>Read more about IceBuddha in my post on <a href="http://0xdabbad00.com/2012/07/15/icebuddha-generic-file-parser/">http://0xdabbad00.com/icebuddha-generic-file-parser/</a>.
-
+      <h4>Ridiculous things IceBuddha does</h4>
+      <ol>
+        <li>"Submitted" files are not uploaded anywhere.  Everything happens in your browser locally.
+          <br>If you're concerned, you can clone and host this project locally by running it in a simple web server,
+            such as using "python -m SimpleHTTPServer" in the folder you clone the repo to.
+        <li>Files are parsed via <a href="https://github.com/0xdabbad00/icebuddha/tree/gh-pages/parse_scripts">>Python scripts</a> that define the structure of the files.
+          The python is converted to Javascript in your browser via the <a href="http://www.skulpt.org/">skulpt</a> library.
+          By clicking on the "Parse as" tab when you drop a file, you can see this Python code.
+          You can then edit it, and your file will parsed again immediately using your new code.
+          Again, this is all happening entirely in your browser without hitting the server.
+        <li>You can take your python parse scripts, and run them directly on files to generate JSON data, without using your browser, as explained <a href="http://0xdabbad00.com/2013/04/01/extracting-miniduke-files-from-gifs-using-icebuddha-parse-scripts/">here</a>
+      </ol>
       <h3>Similar projects/products</h3>
         <a href="http://www.sweetscape.com/010editor/">010 editor</a>: Windows &amp; Mac (commercial), odd format for binary templates to parse files, but looks similar to C structs and is often referenced.
         <br><a href="http://www.synalysis.net/">Synalize It!</a>: Mac only (commercial); XML based grammar format which means limited capability for more advanced binary file formats.
-
       <p>
       <h3>Project status</h3>
-      IceBuddha is mostly abandoned (last update on 2013-10-27 to move the files to github pages).  I'm unsure if the concept of a webapp for this a good solution as many things are impossible (ex. saving files).  It succeeded in testing the limits of the browser as of 2013.
+      IceBuddha is mostly abandoned (last update on 2014-11-13).  It does a lot of stuff, but a lot of things are impossible for a webapp based on static files (ex. saving files).
+      <p>This was my first javascript project.  The codebase is not pretty.
+
       </div>
 
     </div>
