@@ -334,5 +334,5 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 .zeroline, .zeroline i.hex {
 	height: 1px !important;
 	font-size: 1px;
-	letter-spacing: 6px;
+	letter-spacing: 6.5px;
 }
