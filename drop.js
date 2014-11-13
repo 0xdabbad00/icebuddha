@@ -435,6 +435,7 @@ function displayHexDump(position) {
 		if (onOddRow(i)) {
 			hex.push(" alt_row");
 		}
+    hex.push(" v"+convertToHex(data[i]));
 		hex.push("\">");
 
 		hex.push(hexArray[(data[i]&0xf0)>>4]);
@@ -452,6 +453,7 @@ function displayHexDump(position) {
 		if (onOddRow(i)) {
 			ascii.push(" alt_row");
 		}
+    ascii.push(" v"+convertToHex(data[i]));
 		ascii.push("\">");
 		ascii.push(dispAscii(data[i]));
 		ascii.push("</i>");
@@ -581,6 +583,7 @@ function displayHexDump(position) {
 	}
 
 	reHighlite();
+	setHexColor();
 }
 
 var outOfRangeScrollHandler = function() {
@@ -634,6 +637,14 @@ function getByteContentHTML(address, hex, ascii, start) {
 	output.push("</td></tr></table>");
 	ret =  output.join("");
 	return ret;
+}
+
+function setHexColor() {
+  if (colorHex==1) {
+    $(".v00").addClass("hexColor0");
+  } else {
+    $(".v00").removeClass("hexColor0");
+  }
 }
 
 function createTemplate(fileName, fileSize) {
@@ -712,28 +723,21 @@ function createTemplate(fileName, fileSize) {
 	});
 
 
+  /////////////////////////////////////////////////////////////////////////////
   //
   // Set appmenu
   //
   $("#appmenu").html('<input type="file" id="fileSelect"/> <input type="checkbox" id="hexii"/>HexII <input type="checkbox" id="colorHex"/>Color hex');
 
+  /////////////////////////////////////////////////////////////////////////////
   //
   // Check settings
   //
 
+  //
+  // hexii
+  //
   hexii = 0;
-  if ($.cookie('hexii') != undefined) {
-    hexii = $.cookie('hexii');
-    console.log(hexii);
-  }
-
-  if ($_GET('hexii')) {
-    var hexiiParam = $_GET('hexii');
-
-    if (hexiiParam == "1") hexii = 1;
-    else if (hexiiParam == "0") hexii = 0;
-  }
-
   $('#hexii').change(function() {
     if($(this).is(":checked")) {
       hexii = 1;
@@ -743,12 +747,35 @@ function createTemplate(fileName, fileSize) {
     $.cookie('hexii', hexii);
   });
 
+  if ($.cookie('hexii') != undefined) {
+    hexii = $.cookie('hexii');
+  }
+
+  if ($_GET('hexii')) {
+    var hexiiParam = $_GET('hexii');
+
+    if (hexiiParam == "1") hexii = 1;
+    else if (hexiiParam == "0") hexii = 0;
+  }
+
   if (hexii==1) {
     $("#hexii").prop( "checked", true );
   }
 
-
+  //
+  // colorHex
+  //
   colorHex = 0;
+  $('#colorHex').change(function() {
+    if($(this).is(":checked")) {
+      colorHex = 1;
+    } else {
+      colorHex = 0;
+    }
+    $.cookie('colorHex', colorHex);
+    setHexColor();
+  });
+
   if ($.cookie('colorHex') != undefined) {
     colorHex = $.cookie('colorHex');
   }
@@ -760,20 +787,12 @@ function createTemplate(fileName, fileSize) {
     else if (colorhexParam == "0") colorHex = 0;
   }
 
-  $('#colorHex').change(function() {
-    if($(this).is(":checked")) {
-      colorHex = 1;
-    } else {
-      colorHex = 0;
-    }
-    $.cookie('colorHex', colorHex);
-  });
-
   if (colorHex==1) {
     $("#colorHex").prop( "checked", true );
   }
+  setHexColor();
 
-
+  /////////////////////////////////////////////////////////////////////////////
   //
   // Set hot-keys
   //
@@ -785,6 +804,7 @@ function createTemplate(fileName, fileSize) {
     return false;
   });
 
+  /////////////////////////////////////////////////////////////////////////////
 	// Goto input
 	$('#gotoInput').keypress(function(e)
     {
@@ -817,6 +837,7 @@ function createTemplate(fileName, fileSize) {
         }
     });
 
+  /////////////////////////////////////////////////////////////////////////////
 	$('#byte_content').scrollTo(0);  // Start at top
 
 	// hack for chrome to force scrolling
