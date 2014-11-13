@@ -84,14 +84,24 @@ function addHexIdentifier(value) {
 	return value + "h";
 }
 
-function intToHex(val, addIdentifier) {
+function intToHex(val, addIdentifier, pad) {
 	addIdentifier = (typeof addIdentifier === "undefined") ? true : addIdentifier;
+  pad = (typeof pad === "undefined") ? true : pad;
+
 	// Convert value to hex
 	var str = String(val.toString(16));
 	// Pad with 0's
-	while (str.length < 8) {
+  if (pad == true) {
+	 while (str.length < 8) {
         str = '0' + str;
     }
+  } else {
+    charsToAdd = 8 - str.length
+    while (charsToAdd > 0) {
+         str = '&nbsp;' + str;
+         charsToAdd = charsToAdd - 1;
+     }
+  }
 	if (addIdentifier) {
 		return addHexIdentifier(str);
 	} else {
@@ -418,23 +428,46 @@ function displayHexDump(position) {
 	hexDumpEnd = position + length;
 
 	var column = 0;
+  var lineIsZeroes = true;
+  var prevLineZeroes = true;
 	for (var i = hexDumpStart; i < hexDumpEnd; i++) {
 		// Show address
 		if (column == 0) {
-			address.push("<i class=\"");
-			if (onOddRow(i)) {
-				address.push("alt_row");
-			}
-			address.push("\">"+intToHex(i));
-			address.push("&nbsp;&nbsp;</i><br>\n");
+      prevLineZeroes = lineIsZeroes;
+      lineIsZeroes = true;
+
+      // Check if this line is all zeroes
+      for (var zeroChecki = i; zeroChecki < hexDumpEnd && zeroChecki < i + 16; zeroChecki++) {
+        if (data[zeroChecki] != 0) {
+          lineIsZeroes = false;
+          break;
+        }
+      }
+
+      if (hexii == 1 && lineIsZeroes) {
+        address.push("<div class=\"zeroline\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>");
+        hex.push("<div class=\"zeroline\">");
+      } else {
+  		  address.push("<i class=\"");
+  			if (onOddRow(i) && hexii != 1) {
+  				address.push("alt_row");
+  			}
+  			address.push("\">");
+
+        address.push(intToHex(i, true, prevLineZeroes));
+  			address.push("&nbsp;&nbsp;</i><br>\n");
+      }
 		}
+
 		// Show value
 		hex.push("<i id=\"h");
 		hex.push(i);
 		hex.push("\" class=\"hex");
-		if (onOddRow(i)) {
+
+		if (onOddRow(i) && hexii != 1) {
 			hex.push(" alt_row");
 		}
+
     hex.push(" v"+convertToHex(data[i]));
 		hex.push("\">");
 
@@ -460,7 +493,8 @@ function displayHexDump(position) {
 		if (column == 7 || column == 15) {
 		  hex.push("&nbsp;");
 		}
-		hex.push(" </i>");
+		hex.push("&nbsp;</i>");
+
 
 		// Show ascii
     if (hexii==0) {
@@ -479,7 +513,11 @@ function displayHexDump(position) {
 		// Add extra formatting
 		column++;
 		if (column % 16 == 0) {
-			hex.push("<br>\n");
+      if (hexii == 1 && lineIsZeroes) {
+        hex.push("</div>\n");
+      } else {
+	      hex.push("<br>\n");
+      }
 			ascii.push("<br>\n");
 			column = 0;
 		}
@@ -499,9 +537,19 @@ function displayHexDump(position) {
 			if (i % 15 == 0 || i % 8 == 0) {
 			  hex.push("&nbsp;");
 			}
-			hex.push(" </i>");
+			hex.push("&nbsp;</i>");
 		}
-	}
+	} else {
+    hex.push("<i class=\"hex\">]</i>");
+  }
+
+
+  // Show last line
+  if (hexii == 1 && prevLineZeroes) {
+    address.push("<i>");
+    address.push(intToHex(i, true, prevLineZeroes));
+    address.push("&nbsp;&nbsp;</i><br>\n");
+  }
 
 	// Set html
 	addressString = address.join("");

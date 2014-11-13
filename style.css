@@ -150,8 +150,15 @@ div#footer {
 	color: #B2B2B2;
 }
 
-#footer a:link, #footer a:active, #footer a:visited {color: #C9C9C9; text-decoration: underline; }
-a:hover {color: #aaa; text-decoration: underline; }
+#footer a:link, #footer a:active, #footer a:visited {
+		color: #C9C9C9;
+		text-decoration: underline;
+}
+
+a:hover {
+	color: #aaa;
+	text-decoration: underline;
+}
 
 #byte_content {
  border: 1px solid #A0A0A0;
@@ -166,17 +173,18 @@ a:hover {color: #aaa; text-decoration: underline; }
 }
 
 .hex, .address, .ascii, .bytes, #byte_content, #addressCell, #hexCell, #asciiCell {
- font-family: monospace, monospace;
- max-height: 200px;
- font-style: normal;
- font-size: 13px;
+	font-family: monospace, monospace;
+	max-height: 200px;
+	font-style: normal;
+	font-size: 13px;
 }
 
 #accordion .address, #accordion .ascii {
   color: #888;
 }
+
 i {
-font-style:normal;
+	font-style:normal;
 }
 
 .alt_row {
@@ -321,4 +329,10 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 
 .hexColor0 {
 	 color: rgba(48, 48, 48, 0.1) !important;
+}
+
+.zeroline, .zeroline i.hex {
+	height: 1px !important;
+	font-size: 1px;
+	letter-spacing: 6px;
 }
