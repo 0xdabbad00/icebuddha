@@ -728,7 +728,7 @@ function setHexColor() {
 }
 
 function createTemplate(fileName, fileSize) {
-	filename = filename;
+	filename = fileName;
 	var output = [];
 
 	// Set defaults for new file read
