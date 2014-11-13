@@ -454,7 +454,9 @@ function displayHexDump(position) {
   			}
   			address.push("\">");
 
-        address.push(intToHex(i, true, prevLineZeroes));
+        var pad = true;
+        if (hexii==1 && !prevLineZeroes) { pad = false; }
+        address.push(intToHex(i, true, pad));
   			address.push("&nbsp;&nbsp;</i><br>\n");
       }
 		}
