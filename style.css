@@ -331,6 +331,14 @@ textarea:focus, input:focus, textarea:hover, input:hover {
 	 color: rgba(48, 48, 48, 0.1) !important;
 }
 
+.hexColorNonAscii {
+	color: rgba(48, 48, 48, 0.5) !important;
+}
+
+.asciiPeriod {
+	color: rgba(48, 48, 48, 0.4) !important;
+}
+
 .zeroline, .zeroline i.hex {
 	height: 1px !important;
 	font-size: 1px;

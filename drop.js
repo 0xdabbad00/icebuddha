@@ -484,7 +484,7 @@ function displayHexDump(position) {
           hex.push(hexArray[(data[i]&0xf0)>>4]);
           hex.push(hexArray[(data[i]&0x0f)]);
         } else {
-          hex.push(".");
+          hex.push("<i class=\"asciiPeriod\">.</i>");
           hex.push(dispAscii(data[i]));
         }
       }
@@ -706,9 +706,22 @@ function getByteContentHTML(address, hex, ascii, start) {
 
 function setHexColor() {
   if (colorHex==1) {
-    $(".v00").addClass("hexColor0");
+    for (var i=0; i<=0xff; i++) {
+      if (i == 0x00) {
+        $(".v00").addClass("hexColor0");
+      } else if (dispAscii(i) == "." && i != 0x2e) {
+          $(".v"+hexArray[(i&0xf0)>>4]+""+hexArray[(i&0x0f)]).addClass("hexColorNonAscii");
+      }
+    }
+
   } else {
-    $(".v00").removeClass("hexColor0");
+    for (var i=0; i<=0xff; i++) {
+      if (i == 0x00) {
+        $(".v00").removeClass("hexColor0");
+      } else if (dispAscii(i) == "." && i != 0x2e) {
+        $(".v"+hexArray[(i&0xf0)>>4]+""+hexArray[(i&0x0f)]).removeClass("hexColorNonAscii");
+      }
+    }
   }
 }
 
