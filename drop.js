@@ -489,7 +489,7 @@ function displayHexDump(position) {
         if (hexii == 1 && !prevLineZeroes) {
           pad = false;
         }
-        address.push(intToHex(i, true, pad));
+        address.push(intToHex(i, false, pad));
         address.push("&nbsp;&nbsp;</i><br>\n");
       }
     }
@@ -889,13 +889,16 @@ function createTemplate(fileName, fileSize) {
 
   if ($.cookie('hexii') !== undefined) {
     hexii = $.cookie('hexii');
+
+    if (hexii == 1) hexii = 1;
+    else hexii = 0;
   }
 
   if ($_GET('hexii')) {
     var hexiiParam = $_GET('hexii');
 
-    if (hexiiParam == "1") hexii = 1;
-    else if (hexiiParam == "0") hexii = 0;
+    if (hexiiParam == 1) hexii = 1;
+    else hexii = 0;
   }
 
   if (hexii == 1) {
@@ -918,13 +921,15 @@ function createTemplate(fileName, fileSize) {
 
   if ($.cookie('colorHex') !== undefined) {
     colorHex = $.cookie('colorHex');
+    if (colorHex == 1) colorHex = 1;
+    else colorHex = 0;
   }
 
   if ($_GET('colorhex')) {
     var colorhexParam = $_GET('colorhex');
 
-    if (colorhexParam == "1") colorHex = 1;
-    else if (colorhexParam == "0") colorHex = 0;
+    if (colorhexParam == 1) colorHex = 1;
+    else colorHex = 0;
   }
 
   if (colorHex == 1) {
